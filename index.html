@@ -6,7 +6,6 @@
     <title>Учет продаж - CONNECT</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📱</text></svg>">
     <style>
-        /* --- ВСЕ СТИЛИ ИЗ ПРЕДЫДУЩЕЙ ВЕРСИИ --- */
         * {
             margin: 0;
             padding: 0;
@@ -1143,6 +1142,10 @@
             background: #fc8181;
         }
 
+        .toast.info {
+            background: #4299e1;
+        }
+
         @keyframes slideUp {
             from {
                 opacity: 0;
@@ -1354,7 +1357,7 @@
             <button class="sync-btn sync-btn-primary" onclick="syncWithGitHub()">
                 🔄 Синхронизировать
             </button>
-            <button class="sync-btn sync-btn-success" onclick="forcePullFromGitHub()" title="Принудительно загрузить данные с сервера, заменив локальные">
+            <button class="sync-btn sync-btn-warning" onclick="forcePullFromGitHub()" title="Принудительно загрузить данные с сервера, заменив локальные">
                 📥 Загрузить с сервера
             </button>
             <button class="sync-btn sync-btn-success" onclick="showConfigModal()">
@@ -1660,8 +1663,7 @@
             file: 'data.json'
         };
 
-        // ========== ФУНКЦИИ СИНХРОНИЗАЦИИ ==========
-
+        // ========== ЗАГРУЗКА КОНФИГА ==========
         function loadConfig() {
             const saved = localStorage.getItem(CONFIG_KEY);
             if (saved) {
@@ -1903,7 +1905,6 @@
                     throw new Error('Ошибка парсинга данных с сервера');
                 }
 
-                // Заменяем локальные данные данными с сервера
                 sales = remoteData.sales || [];
                 categories = remoteData.categories || ['Чехлы', 'Стекло', 'Зарядка', 'Наушники', 'Аксессуары'];
                 restockItems = remoteData.restockItems || [];
@@ -1980,15 +1981,15 @@
                     updatedAt: new Date().toISOString()
                 };
 
-                // Если на сервере есть данные
                 if (remoteData) {
-                    // Если локальные данные пустые - сразу загружаем с сервера
                     if (sales.length === 0 && restockItems.length === 0) {
                         if (confirm('📥 На вашем устройстве нет данных. Загрузить данные с сервера?')) {
                             sales = remoteData.sales || [];
                             categories = remoteData.categories || ['Чехлы', 'Стекло', 'Зарядка', 'Наушники', 'Аксессуары'];
                             restockItems = remoteData.restockItems || [];
                             saveData();
+                            updateCategorySelect();
+                            updateEditCategorySelect();
                             render();
                             showToast(`✅ Данные загружены с сервера! (${sales.length} продаж)`);
                             setSyncComplete();
@@ -2005,6 +2006,8 @@
                             categories = remoteData.categories || ['Чехлы', 'Стекло', 'Зарядка', 'Наушники', 'Аксессуары'];
                             restockItems = remoteData.restockItems || [];
                             saveData();
+                            updateCategorySelect();
+                            updateEditCategorySelect();
                             render();
                             showToast(`✅ Данные загружены с сервера! (${sales.length} продаж)`);
                             setSyncComplete();
@@ -2020,7 +2023,6 @@
                         }
                     }
                 } else {
-                    // На сервере нет данных
                     if (sales.length > 0) {
                         if (confirm('📤 На сервере нет данных. Создать файл с вашими данными?')) {
                             await uploadToGitHub(localData, null);
@@ -2030,7 +2032,7 @@
                             return;
                         }
                     } else {
-                        showToast('ℹ️ На сервере нет данных и локальные данные пусты. Добавьте продажи!', 'error');
+                        showToast('ℹ️ На сервере нет данных и локальные данные пусты. Добавьте продажи!', 'info');
                         setSyncComplete();
                         return;
                     }
@@ -2077,25 +2079,8 @@
             return await response.json();
         }
 
-        // ========== ОСТАЛЬНЫЕ ФУНКЦИИ (БЕЗ ИЗМЕНЕНИЙ) ==========
-        // ... (здесь все остальные функции из предыдущей версии)
-
-        // Для краткости я пропустил остальные функции, но они должны быть те же, что в предыдущей версии
-        // loadData, saveData, render, addRestockItem и т.д.
-        // Все они уже были в предыдущем коде
-
-        // ========== ИНИЦИАЛИЗАЦИЯ ==========
-        document.addEventListener('DOMContentLoaded', function() {
-            // Загружаем конфиг
-            const saved = localStorage.getItem(CONFIG_KEY);
-            if (saved) {
-                try {
-                    const parsed = JSON.parse(saved);
-                    syncConfig = parsed;
-                } catch (e) {}
-            }
-            
-            // Загружаем данные
+        // ========== ЗАГРУЗКА ДАННЫХ ==========
+        function loadData() {
             const stored = localStorage.getItem('salesData');
             if (stored) {
                 try {
@@ -2105,19 +2090,1039 @@
                 }
             }
             
-            // ... остальная инициализация ...
+            const storedCategories = localStorage.getItem('categoriesData');
+            if (storedCategories) {
+                try {
+                    categories = JSON.parse(storedCategories);
+                } catch (e) {
+                    categories = ['Чехлы', 'Стекло', 'Зарядка', 'Наушники', 'Аксессуары'];
+                }
+            }
+
+            const storedRestock = localStorage.getItem('restockData');
+            if (storedRestock) {
+                try {
+                    restockItems = JSON.parse(storedRestock);
+                } catch (e) {
+                    restockItems = [];
+                }
+            }
             
-            // Обновляем статус
+            updateCategorySelect();
+            updateEditCategorySelect();
+            
+            const today = getCurrentDateTime().date;
+            document.getElementById('viewDate').value = today;
+            document.getElementById('saleDate').value = today;
+            currentViewDate = today;
+            
+            const lastSync = localStorage.getItem('connect_last_sync');
+            if (lastSync) {
+                try {
+                    const date = new Date(lastSync);
+                    document.getElementById('syncLast').textContent = 
+                        `Последняя синхронизация: ${date.toLocaleString('ru-RU')}`;
+                } catch (e) {}
+            }
+            
+            render();
             updateSyncStatus();
-            
-            // Если на телефоне нет данных, но есть настройки - предлагаем загрузить
+
+            // Если на устройстве нет данных, предлагаем загрузить с сервера
             if (sales.length === 0 && syncConfig.token && syncConfig.repo) {
                 setTimeout(() => {
                     if (confirm('📥 На вашем устройстве нет данных. Загрузить данные с сервера?')) {
                         forcePullFromGitHub();
                     }
-                }, 1000);
+                }, 800);
             }
+        }
+
+        function saveData() {
+            localStorage.setItem('salesData', JSON.stringify(sales));
+            localStorage.setItem('categoriesData', JSON.stringify(categories));
+            localStorage.setItem('restockData', JSON.stringify(restockItems));
+        }
+
+        // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
+        function getCurrentDateTime() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            return {
+                date: `${year}-${month}-${day}`,
+                time: `${hours}:${minutes}`
+            };
+        }
+
+        function convertDate(dateStr) {
+            if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+                return dateStr;
+            }
+            if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) {
+                const parts = dateStr.split('/');
+                return `${parts[2]}-${parts[1]}-${parts[0]}`;
+            }
+            if (/^\d{2}\.\d{2}\.\d{4}$/.test(dateStr)) {
+                const parts = dateStr.split('.');
+                return `${parts[2]}-${parts[1]}-${parts[0]}`;
+            }
+            if (/^\d{2}-\d{2}-\d{4}$/.test(dateStr)) {
+                const parts = dateStr.split('-');
+                return `${parts[2]}-${parts[1]}-${parts[0]}`;
+            }
+            return null;
+        }
+
+        function formatDateDisplay(dateStr) {
+            if (!dateStr) return '';
+            const parts = dateStr.split('-');
+            const months = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
+            return `${parseInt(parts[2])} ${months[parseInt(parts[1]) - 1]} ${parts[0]}`;
+        }
+
+        function formatPrice(value) {
+            return value.toLocaleString('ru-RU') + ' ₽';
+        }
+
+        function getPaymentBadge(method) {
+            const map = {
+                'Наличные': 'badge-cash',
+                'Безналичные': 'badge-card',
+                'Перевод': 'badge-transfer'
+            };
+            return map[method] || 'badge-cash';
+        }
+
+        function getPaymentEmoji(method) {
+            const map = {
+                'Наличные': '💰',
+                'Безналичные': '💳',
+                'Перевод': '📱'
+            };
+            return map[method] || '';
+        }
+
+        function showToast(message, type = 'success') {
+            const oldToasts = document.querySelectorAll('.toast');
+            oldToasts.forEach(t => t.remove());
+            
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // ========== БЫСТРЫЕ КНОПКИ ДЛЯ ДАТЫ ==========
+        function setDateToday() {
+            document.getElementById('saleDate').value = getCurrentDateTime().date;
+        }
+
+        function setDateYesterday() {
+            const date = new Date();
+            date.setDate(date.getDate() - 1);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            document.getElementById('saleDate').value = `${year}-${month}-${day}`;
+        }
+
+        function setDateDaysAgo(days) {
+            const date = new Date();
+            date.setDate(date.getDate() - days);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            document.getElementById('saleDate').value = `${year}-${month}-${day}`;
+        }
+
+        function setTodayView() {
+            const today = getCurrentDateTime().date;
+            document.getElementById('viewDate').value = today;
+            currentViewDate = today;
+            render();
+        }
+
+        // ========== УПРАВЛЕНИЕ КАТЕГОРИЯМИ ==========
+        function updateCategorySelect() {
+            const select = document.getElementById('category');
+            const currentValue = select.value;
+            select.innerHTML = '';
+            
+            if (categories.length === 0) {
+                categories = ['Чехлы', 'Стекло', 'Зарядка', 'Наушники', 'Аксессуары'];
+                saveData();
+            }
+            
+            categories.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat;
+                option.textContent = cat;
+                select.appendChild(option);
+            });
+            
+            if (categories.includes(currentValue)) {
+                select.value = currentValue;
+            }
+        }
+
+        function updateEditCategorySelect() {
+            const select = document.getElementById('editCategory');
+            const currentValue = select.value;
+            select.innerHTML = '';
+            
+            categories.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat;
+                option.textContent = cat;
+                select.appendChild(option);
+            });
+            
+            if (categories.includes(currentValue)) {
+                select.value = currentValue;
+            }
+        }
+
+        function selectCategory(categoryName) {
+            selectedCategoryForEdit = categoryName;
+            document.querySelectorAll('.category-item').forEach(el => {
+                el.classList.remove('active');
+                if (el.dataset.category === categoryName) {
+                    el.classList.add('active');
+                }
+            });
+        }
+
+        function addCategory() {
+            const input = document.getElementById('newCategoryInput');
+            const name = input.value.trim();
+            if (!name) {
+                alert('Введите название категории');
+                return;
+            }
+            if (categories.includes(name)) {
+                alert('Такая категория уже существует');
+                return;
+            }
+            categories.push(name);
+            saveData();
+            input.value = '';
+            updateCategorySelect();
+            updateEditCategorySelect();
+            render();
+            selectedCategoryForEdit = null;
+        }
+
+        function deleteSelectedCategory() {
+            if (!selectedCategoryForEdit) {
+                alert('Сначала выберите категорию для удаления (кликните по ней в списке)');
+                return;
+            }
+            
+            if (selectedCategoryForEdit === 'Другое') {
+                alert('Нельзя удалить категорию "Другое"');
+                return;
+            }
+            
+            if (!confirm(`Удалить категорию "${selectedCategoryForEdit}"? Это не удалит продажи, они будут перенесены в "Другое".`)) {
+                return;
+            }
+            
+            sales.forEach(sale => {
+                if (sale.category === selectedCategoryForEdit) {
+                    sale.category = 'Другое';
+                }
+            });
+            
+            categories = categories.filter(c => c !== selectedCategoryForEdit);
+            if (!categories.includes('Другое')) {
+                categories.push('Другое');
+            }
+            
+            saveData();
+            selectedCategoryForEdit = null;
+            updateCategorySelect();
+            updateEditCategorySelect();
+            render();
+        }
+
+        function editSelectedCategory() {
+            if (!selectedCategoryForEdit) {
+                alert('Сначала выберите категорию для редактирования (кликните по ней в списке)');
+                return;
+            }
+            
+            if (selectedCategoryForEdit === 'Другое') {
+                alert('Нельзя редактировать категорию "Другое"');
+                return;
+            }
+            
+            editingCategory = selectedCategoryForEdit;
+            const editInput = document.getElementById('editCategoryInput');
+            const editBtn = document.getElementById('editCategoryBtn');
+            editInput.value = selectedCategoryForEdit;
+            editInput.style.display = 'block';
+            editBtn.style.display = 'block';
+            editInput.focus();
+        }
+
+        function saveCategoryEdit() {
+            const editInput = document.getElementById('editCategoryInput');
+            const newName = editInput.value.trim();
+            
+            if (!newName) {
+                alert('Введите новое название');
+                return;
+            }
+            
+            if (categories.includes(newName) && newName !== editingCategory) {
+                alert('Категория с таким названием уже существует');
+                return;
+            }
+            
+            sales.forEach(sale => {
+                if (sale.category === editingCategory) {
+                    sale.category = newName;
+                }
+            });
+            
+            const index = categories.indexOf(editingCategory);
+            if (index !== -1) {
+                categories[index] = newName;
+            }
+            
+            saveData();
+            editingCategory = null;
+            selectedCategoryForEdit = null;
+            editInput.style.display = 'none';
+            document.getElementById('editCategoryBtn').style.display = 'none';
+            editInput.value = '';
+            
+            updateCategorySelect();
+            updateEditCategorySelect();
+            render();
+        }
+
+        // ========== УПРАВЛЕНИЕ СПИСКОМ ЗАКУПОК ==========
+        function toggleRestockSection() {
+            const section = document.getElementById('restockSection');
+            if (section.style.display === 'none') {
+                section.style.display = 'block';
+                renderRestock();
+            } else {
+                section.style.display = 'none';
+            }
+        }
+
+        function addRestockItem() {
+            const input = document.getElementById('restockInput');
+            const name = input.value.trim();
+            if (!name) {
+                showToast('❌ Введите название товара', 'error');
+                return;
+            }
+            if (restockItems.includes(name)) {
+                showToast('❌ Этот товар уже есть в списке', 'error');
+                return;
+            }
+            restockItems.push(name);
+            saveData();
+            input.value = '';
+            renderRestock();
+            updateRestockBadge();
+            showToast(`✅ "${name}" добавлен в список закупки`);
+        }
+
+        function deleteRestockItem(name) {
+            if (confirm(`Удалить "${name}" из списка на закупку?`)) {
+                restockItems = restockItems.filter(item => item !== name);
+                saveData();
+                renderRestock();
+                updateRestockBadge();
+                showToast(`🗑️ "${name}" удален из списка`);
+            }
+        }
+
+        function renderRestock() {
+            const grid = document.getElementById('restockGrid');
+            if (restockItems.length === 0) {
+                grid.innerHTML = `<div class="restock-empty">✨ Все товары в наличии</div>`;
+                return;
+            }
+            grid.innerHTML = restockItems.map(item => `
+                <div class="restock-item">
+                    <span class="item-name">${item}</span>
+                    <div class="item-actions">
+                        <button class="btn-restock-delete" onclick="deleteRestockItem('${item}')">✕</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateRestockBadge() {
+            document.getElementById('restockCount').textContent = restockItems.length;
+        }
+
+        // ========== ЭКСПОРТ СПИСКА ЗАКУПОК ==========
+        function copyRestockList() {
+            if (restockItems.length === 0) {
+                showToast('📦 Список закупок пуст', 'error');
+                return;
+            }
+
+            let text = '📦 СПИСОК ТОВАРОВ ДЛЯ ЗАКУПКИ\n';
+            text += '='.repeat(50) + '\n';
+            text += `Дата: ${getCurrentDateTime().date}\n`;
+            text += `Всего позиций: ${restockItems.length}\n`;
+            text += '='.repeat(50) + '\n\n';
+            
+            restockItems.forEach((item, index) => {
+                text += `${index + 1}. ${item}\n`;
+            });
+            
+            text += '\n' + '='.repeat(50) + '\n';
+            text += `CONNECT | Учет продаж`;
+
+            navigator.clipboard.writeText(text).then(() => {
+                showToast(`✅ Список скопирован! (${restockItems.length} позиций)`);
+            }).catch(() => {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showToast(`✅ Список скопирован! (${restockItems.length} позиций)`);
+            });
+        }
+
+        function exportRestockToFile() {
+            if (restockItems.length === 0) {
+                showToast('📦 Список закупок пуст', 'error');
+                return;
+            }
+
+            let text = '📦 СПИСОК ТОВАРОВ ДЛЯ ЗАКУПКИ\n';
+            text += '='.repeat(50) + '\n';
+            text += `Дата: ${getCurrentDateTime().date}\n`;
+            text += `Время: ${getCurrentDateTime().time}\n`;
+            text += `Всего позиций: ${restockItems.length}\n`;
+            text += '='.repeat(50) + '\n\n';
+            
+            restockItems.forEach((item, index) => {
+                text += `${index + 1}. ${item}\n`;
+            });
+            
+            text += '\n' + '='.repeat(50) + '\n';
+            text += `CONNECT | Учет продаж\n`;
+            text += `Сгенерировано: ${getCurrentDateTime().date} ${getCurrentDateTime().time}`;
+
+            const blob = new Blob([text], { type: 'text/plain;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Список_закупки_CONNECT_${getCurrentDateTime().date}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showToast(`💾 Файл скачан! (${restockItems.length} позиций)`);
+        }
+
+        // ========== ДОБАВЛЕНИЕ ПРОДАЖИ ==========
+        document.getElementById('addForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const now = getCurrentDateTime();
+            const date = document.getElementById('saleDate').value;
+            const name = document.getElementById('productName').value.trim();
+            const category = document.getElementById('category').value;
+            const price = parseFloat(document.getElementById('price').value);
+            const payment = document.getElementById('paymentMethod').value;
+            const lastItem = document.getElementById('lastItem').checked;
+
+            if (!date || !name || !price) {
+                alert('Заполните все поля!');
+                return;
+            }
+
+            const sale = {
+                id: Date.now(),
+                date: date,
+                time: now.time,
+                name: name,
+                category: category,
+                price: price,
+                payment: payment
+            };
+
+            sales.push(sale);
+            
+            if (lastItem && !restockItems.includes(name)) {
+                restockItems.push(name);
+                saveData();
+                updateRestockBadge();
+            }
+            
+            saveData();
+            render();
+
+            document.getElementById('productName').value = '';
+            document.getElementById('price').value = '';
+            document.getElementById('lastItem').checked = false;
+            document.getElementById('productName').focus();
+        });
+
+        // ========== УДАЛЕНИЕ И РЕДАКТИРОВАНИЕ ПРОДАЖ ==========
+        function deleteSale(id) {
+            if (confirm('Удалить эту продажу?')) {
+                sales = sales.filter(s => s.id !== id);
+                saveData();
+                render();
+            }
+        }
+
+        function openEditModal(id) {
+            const sale = sales.find(s => s.id === id);
+            if (!sale) return;
+
+            editingSaleId = id;
+            document.getElementById('editProductName').value = sale.name;
+            document.getElementById('editCategory').value = sale.category;
+            document.getElementById('editPrice').value = sale.price;
+            document.getElementById('editPaymentMethod').value = sale.payment;
+            
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('active');
+            editingSaleId = null;
+        }
+
+        document.getElementById('editForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (editingSaleId === null) return;
+
+            const name = document.getElementById('editProductName').value.trim();
+            const category = document.getElementById('editCategory').value;
+            const price = parseFloat(document.getElementById('editPrice').value);
+            const payment = document.getElementById('editPaymentMethod').value;
+
+            if (!name || !price) {
+                alert('Заполните все поля!');
+                return;
+            }
+
+            const index = sales.findIndex(s => s.id === editingSaleId);
+            if (index !== -1) {
+                sales[index].name = name;
+                sales[index].category = category;
+                sales[index].price = price;
+                sales[index].payment = payment;
+                saveData();
+                render();
+                closeEditModal();
+            }
+        });
+
+        document.getElementById('editModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeEditModal();
+            }
+        });
+
+        // ========== ИМПОРТ CSV ==========
+        function findDuplicates(newData) {
+            const duplicates = [];
+            const unique = [];
+            
+            newData.forEach(item => {
+                const isDuplicate = sales.some(s => 
+                    s.date === item.date && 
+                    s.time === item.time && 
+                    s.name === item.name && 
+                    s.price === item.price
+                );
+                
+                if (isDuplicate) {
+                    duplicates.push(item);
+                } else {
+                    unique.push(item);
+                }
+            });
+            
+            return { duplicates, unique };
+        }
+
+        function importCSV(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    let text = e.target.result;
+                    
+                    let delimiter = ';';
+                    if (text.includes(',') && !text.includes(';')) {
+                        delimiter = ',';
+                    }
+                    
+                    const lines = text.split('\n').filter(line => line.trim());
+                    
+                    if (lines.length < 2) {
+                        alert('Файл должен содержать заголовки и хотя бы одну запись');
+                        return;
+                    }
+
+                    const headers = lines[0].split(delimiter).map(h => h.trim());
+                    const expectedHeaders = ['Дата', 'Время', 'Товар', 'Категория', 'Стоимость', 'Оплата'];
+                    
+                    const headerMatch = expectedHeaders.every(h => headers.includes(h));
+                    if (!headerMatch) {
+                        alert('Неверный формат CSV. Ожидаются заголовки: Дата,Время,Товар,Категория,Стоимость,Оплата');
+                        return;
+                    }
+
+                    importedData = [];
+                    let errors = [];
+                    const now = getCurrentDateTime();
+
+                    for (let i = 1; i < lines.length; i++) {
+                        const values = lines[i].split(delimiter).map(v => v.trim());
+                        if (values.length < 6) {
+                            errors.push(`Строка ${i}: недостаточно данных (${values.length} полей, нужно 6)`);
+                            continue;
+                        }
+
+                        const dateStr = values[0];
+                        let time = values[1] || now.time;
+                        const name = values[2];
+                        const category = values[3];
+                        const price = parseFloat(values[4]);
+                        const payment = values[5];
+
+                        if (!dateStr || !name || isNaN(price) || !payment) {
+                            errors.push(`Строка ${i}: ${lines[i]}`);
+                            continue;
+                        }
+
+                        const date = convertDate(dateStr);
+                        if (!date) {
+                            errors.push(`Строка ${i}: неверный формат даты (поддерживается ГГГГ-ММ-ДД или ДД/ММ/ГГГГ)`);
+                            continue;
+                        }
+
+                        if (!time || time === '') {
+                            time = now.time;
+                        }
+
+                        if (!categories.includes(category) && category !== 'Другое') {
+                            categories.push(category);
+                        }
+
+                        importedData.push({
+                            date: date,
+                            time: time,
+                            name: name,
+                            category: category,
+                            price: price,
+                            payment: payment
+                        });
+                    }
+
+                    if (importedData.length === 0) {
+                        alert('Не найдено корректных записей для импорта' + 
+                              (errors.length ? `\n\nОшибки:\n${errors.join('\n')}` : ''));
+                        return;
+                    }
+
+                    showImportPreview(importedData, errors);
+                    
+                } catch (err) {
+                    alert('Ошибка при чтении файла: ' + err.message);
+                }
+            };
+            reader.readAsText(file, 'UTF-8');
+            event.target.value = '';
+        }
+
+        function showImportPreview(data, errors) {
+            const preview = document.getElementById('importPreview');
+            
+            const { duplicates, unique } = findDuplicates(data);
+            const duplicateCount = duplicates.length;
+            
+            let html = `
+                <div style="margin-bottom: 10px; font-weight: 600; color: #48bb78;">
+                    ✅ Найдено ${data.length} записей для импорта
+                </div>
+            `;
+
+            if (duplicateCount > 0) {
+                html += `
+                    <div style="margin-bottom: 10px; font-weight: 600; color: #ed8936;">
+                        ⚠️ Из них ${duplicateCount} дубликатов (будут пропущены в режиме "Пропускать дубликаты")
+                    </div>
+                `;
+            }
+
+            if (errors.length > 0) {
+                html += `
+                    <div style="margin-bottom: 10px; font-weight: 600; color: #fc8181;">
+                        ⚠️ Пропущено ${errors.length} строк с ошибками
+                    </div>
+                `;
+            }
+
+            html += `
+                <div class="import-preview">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Дата</th>
+                                <th>Время</th>
+                                <th>Товар</th>
+                                <th>Категория</th>
+                                <th>Стоимость</th>
+                                <th>Оплата</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            const showData = data.slice(0, 10);
+            showData.forEach(item => {
+                const isDuplicate = sales.some(s => 
+                    s.date === item.date && 
+                    s.time === item.time && 
+                    s.name === item.name && 
+                    s.price === item.price
+                );
+                const dupClass = isDuplicate ? ' style="background:#fff5f5;"' : '';
+                html += `
+                    <tr${dupClass}>
+                        <td>${item.date}</td>
+                        <td>${item.time}</td>
+                        <td>${item.name}</td>
+                        <td>${item.category}</td>
+                        <td>${item.price}</td>
+                        <td>${item.payment}</td>
+                    </tr>
+                `;
+            });
+
+            if (data.length > 10) {
+                html += `<tr><td colspan="6" style="text-align:center; color:#718096;">... и еще ${data.length - 10} записей</td></tr>`;
+            }
+
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            if (duplicateCount > 0) {
+                html += `
+                    <div class="import-stats">
+                        <div class="stat-item">📊 Всего записей: <strong>${data.length}</strong></div>
+                        <div class="stat-item">🆕 Новых: <strong>${unique.length}</strong></div>
+                        <div class="stat-item">🔄 Дубликатов: <strong>${duplicateCount}</strong></div>
+                    </div>
+                `;
+            }
+
+            preview.innerHTML = html;
+            document.getElementById('confirmImportBtn').style.display = 'block';
+            document.getElementById('importModal').classList.add('active');
+        }
+
+        function confirmImport() {
+            if (importedData.length === 0) return;
+
+            const mode = document.querySelector('input[name="importMode"]:checked').value;
+            let dataToImport = [...importedData];
+            let stats = {
+                added: 0,
+                skipped: 0,
+                total: importedData.length
+            };
+
+            if (mode === 'replace') {
+                if (!confirm('⚠️ Все текущие данные будут удалены. Продолжить?')) {
+                    return;
+                }
+                sales = [];
+                dataToImport.forEach(item => {
+                    const sale = {
+                        id: Date.now() + Math.random() * 1000,
+                        date: item.date,
+                        time: item.time,
+                        name: item.name,
+                        category: item.category,
+                        price: item.price,
+                        payment: item.payment
+                    };
+                    sales.push(sale);
+                });
+                stats.added = dataToImport.length;
+            } 
+            else if (mode === 'skip') {
+                const { duplicates, unique } = findDuplicates(dataToImport);
+                stats.skipped = duplicates.length;
+                
+                unique.forEach(item => {
+                    const sale = {
+                        id: Date.now() + Math.random() * 1000,
+                        date: item.date,
+                        time: item.time,
+                        name: item.name,
+                        category: item.category,
+                        price: item.price,
+                        payment: item.payment
+                    };
+                    sales.push(sale);
+                });
+                stats.added = unique.length;
+            } 
+            else {
+                dataToImport.forEach(item => {
+                    const sale = {
+                        id: Date.now() + Math.random() * 1000,
+                        date: item.date,
+                        time: item.time,
+                        name: item.name,
+                        category: item.category,
+                        price: item.price,
+                        payment: item.payment
+                    };
+                    sales.push(sale);
+                });
+                stats.added = dataToImport.length;
+            }
+
+            saveData();
+            updateCategorySelect();
+            updateEditCategorySelect();
+            
+            const count = stats.added;
+            const skipped = stats.skipped;
+            importedData = [];
+            closeImportModal();
+            render();
+            
+            let message = `✅ Успешно импортировано ${count} записей!`;
+            if (skipped > 0) {
+                message += `\n⏭️ Пропущено дубликатов: ${skipped}`;
+            }
+            if (mode === 'replace') {
+                message = `🔄 Данные заменены! Импортировано ${count} записей.`;
+            }
+            alert(message);
+        }
+
+        function closeImportModal() {
+            document.getElementById('importModal').classList.remove('active');
+            document.getElementById('confirmImportBtn').style.display = 'none';
+            document.getElementById('importPreview').innerHTML = '';
+            importedData = [];
+        }
+
+        // ========== РЕНДЕР ==========
+        function render() {
+            const viewDate = currentViewDate || getCurrentDateTime().date;
+            const daySales = sales.filter(s => s.date === viewDate);
+            
+            const sortedDay = [...daySales].sort((a, b) => {
+                if (a.time < b.time) return -1;
+                if (a.time > b.time) return 1;
+                return a.id - b.id;
+            });
+
+            const tbody = document.getElementById('salesTableBody');
+
+            if (daySales.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <div class="icon">📦</div>
+                                <p>Нет продаж за ${formatDateDisplay(viewDate)}</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            } else {
+                tbody.innerHTML = sortedDay.map(s => `
+                    <tr>
+                        <td>${s.date}</td>
+                        <td class="time-column">${s.time || '--:--'}</td>
+                        <td><strong>${s.name}</strong></td>
+                        <td><span class="badge" style="background:#e2e8f0;color:#2d3748;">${s.category}</span></td>
+                        <td><strong>${formatPrice(s.price)}</strong></td>
+                        <td><span class="badge ${getPaymentBadge(s.payment)}">${getPaymentEmoji(s.payment)} ${s.payment}</span></td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-edit" onclick="openEditModal(${s.id})">✏️</button>
+                                <button class="btn-delete" onclick="deleteSale(${s.id})">✕</button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            const dayTotal = daySales.reduce((sum, s) => sum + s.price, 0);
+            const dayCash = daySales.filter(s => s.payment === 'Наличные').reduce((sum, s) => sum + s.price, 0);
+            const dayCard = daySales.filter(s => s.payment === 'Безналичные').reduce((sum, s) => sum + s.price, 0);
+            const dayTransfer = daySales.filter(s => s.payment === 'Перевод').reduce((sum, s) => sum + s.price, 0);
+
+            document.getElementById('dayTotal').textContent = formatPrice(dayTotal);
+            document.getElementById('dayCash').textContent = formatPrice(dayCash);
+            document.getElementById('dayCard').textContent = formatPrice(dayCard);
+            document.getElementById('dayTransfer').textContent = formatPrice(dayTransfer);
+
+            const today = getCurrentDateTime().date;
+            if (viewDate === today) {
+                document.getElementById('selectedDateLabel').textContent = 'Сегодня';
+                document.getElementById('salesListLabel').textContent = 'Продажи за сегодня';
+            } else {
+                document.getElementById('selectedDateLabel').textContent = formatDateDisplay(viewDate);
+                document.getElementById('salesListLabel').textContent = `Продажи за ${formatDateDisplay(viewDate)}`;
+            }
+
+            document.getElementById('viewDayTotal').textContent = formatPrice(dayTotal);
+
+            const now = new Date();
+            const currentMonth = String(now.getMonth() + 1).padStart(2, '0');
+            const currentYear = now.getFullYear();
+            const monthSales = sales.filter(s => {
+                const [year, month] = s.date.split('-');
+                return year === String(currentYear) && month === currentMonth;
+            });
+            
+            const monthTotal = monthSales.reduce((sum, s) => sum + s.price, 0);
+            const monthCash = monthSales.filter(s => s.payment === 'Наличные').reduce((sum, s) => sum + s.price, 0);
+            const monthCard = monthSales.filter(s => s.payment === 'Безналичные').reduce((sum, s) => sum + s.price, 0);
+            const monthTransfer = monthSales.filter(s => s.payment === 'Перевод').reduce((sum, s) => sum + s.price, 0);
+            
+            document.getElementById('monthTotalValue').textContent = formatPrice(monthTotal);
+            document.getElementById('monthCash').textContent = formatPrice(monthCash);
+            document.getElementById('monthCard').textContent = formatPrice(monthCard);
+            document.getElementById('monthTransfer').textContent = formatPrice(monthTransfer);
+
+            const grid = document.getElementById('categoriesGrid');
+            const catStats = {};
+            categories.forEach(cat => {
+                const sum = sales.filter(s => s.category === cat).reduce((sum, s) => sum + s.price, 0);
+                catStats[cat] = sum;
+            });
+            
+            grid.innerHTML = categories.map(cat => `
+                <div class="category-item ${selectedCategoryForEdit === cat ? 'active' : ''}" 
+                     data-category="${cat}"
+                     onclick="selectCategory('${cat}')">
+                    <span class="cat-name">${cat}</span>
+                    <span class="cat-total">${formatPrice(catStats[cat] || 0)}</span>
+                </div>
+            `).join('');
+
+            renderRestock();
+            updateRestockBadge();
+
+            document.getElementById('saleDate').value = getCurrentDateTime().date;
+        }
+
+        // ========== ЭКСПОРТ CSV ==========
+        function exportCSV() {
+            if (sales.length === 0) {
+                alert('Нет данных для экспорта');
+                return;
+            }
+            
+            const sortedSales = [...sales].sort((a, b) => {
+                if (a.date < b.date) return -1;
+                if (a.date > b.date) return 1;
+                if (a.time < b.time) return -1;
+                if (a.time > b.time) return 1;
+                return 0;
+            });
+            
+            const delimiter = ';';
+            const headers = ['Дата', 'Время', 'Товар', 'Категория', 'Стоимость', 'Оплата'];
+            const rows = sortedSales.map(s => [s.date, s.time || '', s.name, s.category, s.price, s.payment]);
+            
+            let csv = headers.join(delimiter) + '\n';
+            rows.forEach(row => {
+                csv += row.join(delimiter) + '\n';
+            });
+            
+            const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `CONNECT_sales_${getCurrentDateTime().date}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function clearAll() {
+            if (confirm('Удалить все данные? Это действие нельзя отменить!')) {
+                if (confirm('Вы уверены?')) {
+                    sales = [];
+                    saveData();
+                    render();
+                }
+            }
+        }
+
+        // ========== ИНИЦИАЛИЗАЦИЯ ==========
+        document.addEventListener('DOMContentLoaded', function() {
+            loadConfig();
+            loadData();
+            updateSyncStatus();
+            
+            document.getElementById('newCategoryInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    addCategory();
+                }
+            });
+            
+            document.getElementById('editCategoryInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    saveCategoryEdit();
+                }
+            });
+
+            document.getElementById('restockInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    addRestockItem();
+                }
+            });
+
+            document.getElementById('configModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeConfigModal();
+                }
+            });
+
+            document.getElementById('viewDate').addEventListener('change', function() {
+                currentViewDate = this.value;
+                render();
+            });
         });
     </script>
 </body>
