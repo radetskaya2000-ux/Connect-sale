@@ -1,0 +1,2884 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Учет продаж - CONNECT</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📱</text></svg>">
+    <style>
+        /* --- ВСЕ СТИЛИ ИЗ ПРЕДЫДУЩЕЙ ВЕРСИИ --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .logo-text {
+            font-size: 36px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 4px;
+        }
+
+        .header-divider {
+            color: #e2e8f0;
+            font-size: 30px;
+            font-weight: 300;
+        }
+
+        .header-title {
+            color: #2d3748;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .header-actions {
+            margin-left: auto;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-restock {
+            background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-restock:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(237, 137, 54, 0.4);
+        }
+
+        .btn-restock .badge {
+            background: white;
+            color: #ed8936;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        /* --- СТИЛИ ДЛЯ СИНХРОНИЗАЦИИ --- */
+        .sync-bar {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: #f7fafc;
+            padding: 10px 20px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .sync-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #4a5568;
+        }
+
+        .sync-status .indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .sync-status .indicator.online {
+            background: #48bb78;
+        }
+
+        .sync-status .indicator.offline {
+            background: #fc8181;
+        }
+
+        .sync-status .indicator.syncing {
+            background: #ed8936;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .sync-btn {
+            padding: 6px 16px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 13px;
+        }
+
+        .sync-btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .sync-btn-primary:hover {
+            background: #5a67d8;
+            transform: translateY(-1px);
+        }
+
+        .sync-btn-success {
+            background: #48bb78;
+            color: white;
+        }
+
+        .sync-btn-success:hover {
+            background: #38a169;
+            transform: translateY(-1px);
+        }
+
+        .sync-btn-danger {
+            background: #fc8181;
+            color: white;
+        }
+
+        .sync-btn-danger:hover {
+            background: #f56565;
+            transform: translateY(-1px);
+        }
+
+        .sync-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .sync-last {
+            font-size: 12px;
+            color: #a0aec0;
+            margin-left: auto;
+        }
+
+        .sync-config-modal .token-input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 15px;
+            font-family: monospace;
+            background: #f7fafc;
+        }
+
+        .sync-config-modal .token-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .sync-config-modal .hint {
+            font-size: 12px;
+            color: #718096;
+            margin-top: 5px;
+        }
+
+        .sync-config-modal .hint a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .sync-config-modal .hint a:hover {
+            text-decoration: underline;
+        }
+
+        /* --- ОСТАЛЬНЫЕ СТИЛИ --- */
+        .add-section {
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            border: 2px solid #667eea;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.15);
+            position: relative;
+        }
+
+        .add-section::before {
+            content: '➕ Новая продажа';
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background: white;
+            padding: 0 15px;
+            font-weight: 700;
+            color: #667eea;
+            font-size: 16px;
+            border-radius: 8px;
+        }
+
+        .add-form {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr 1fr 1fr 1fr 0.7fr;
+            gap: 15px;
+            align-items: end;
+            margin-top: 5px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .form-group label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #4a5568;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 10px 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s;
+            background: white;
+            width: 100%;
+            min-width: 0;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group input[type="date"] {
+            cursor: pointer;
+        }
+
+        .form-group.checkbox-group {
+            flex-direction: row;
+            align-items: center;
+            gap: 10px;
+            padding-top: 5px;
+        }
+
+        .form-group.checkbox-group label {
+            margin-bottom: 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #4a5568;
+        }
+
+        .form-group.checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        .btn-add {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            height: 44px;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .btn-add:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-add:active {
+            transform: translateY(0);
+        }
+
+        .quick-date-buttons {
+            display: flex;
+            gap: 5px;
+            margin-top: 5px;
+            flex-wrap: wrap;
+        }
+
+        .quick-date-btn {
+            padding: 4px 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            background: white;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #4a5568;
+        }
+
+        .quick-date-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .day-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: #f7fafc;
+            padding: 16px 20px;
+            border-radius: 12px;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            border-color: #667eea;
+        }
+
+        .stat-card .label {
+            font-size: 13px;
+            color: #718096;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-card .value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-top: 4px;
+        }
+
+        .stat-card.total-day {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
+        }
+
+        .stat-card.total-day .label,
+        .stat-card.total-day .value {
+            color: white;
+        }
+
+        .stat-card.cash .value {
+            color: #48bb78;
+        }
+        .stat-card.card .value {
+            color: #4299e1;
+        }
+        .stat-card.transfer .value {
+            color: #ed8936;
+        }
+
+        .date-selector {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            background: #f7fafc;
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .date-selector label {
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 14px;
+        }
+
+        .date-selector input[type="date"] {
+            padding: 8px 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 15px;
+            background: white;
+            transition: all 0.3s;
+        }
+
+        .date-selector input[type="date"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn-today {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .btn-today:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .date-selector .day-total-info {
+            margin-left: auto;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .date-selector .day-total-info span {
+            color: #667eea;
+            font-size: 18px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            margin-bottom: 25px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            background: white;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        th {
+            padding: 14px 16px;
+            text-align: left;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        tbody tr:hover {
+            background: #f7fafc;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-cash {
+            background: #48bb78;
+            color: white;
+        }
+
+        .badge-card {
+            background: #4299e1;
+            color: white;
+        }
+
+        .badge-transfer {
+            background: #ed8936;
+            color: white;
+        }
+
+        .btn-delete {
+            background: #fc8181;
+            color: white;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.2s;
+            margin-right: 5px;
+        }
+
+        .btn-delete:hover {
+            background: #f56565;
+        }
+
+        .btn-edit {
+            background: #4299e1;
+            color: white;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.2s;
+        }
+
+        .btn-edit:hover {
+            background: #3182ce;
+        }
+
+        .categories-management {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .categories-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .categories-header h3 {
+            color: #2d3748;
+            font-size: 18px;
+        }
+
+        .category-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .category-controls input {
+            padding: 8px 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+        }
+
+        .category-controls input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-cat {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 13px;
+        }
+
+        .btn-cat-add {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-cat-add:hover {
+            background: #38a169;
+        }
+
+        .btn-cat-edit {
+            background: #4299e1;
+            color: white;
+        }
+
+        .btn-cat-edit:hover {
+            background: #3182ce;
+        }
+
+        .btn-cat-delete {
+            background: #fc8181;
+            color: white;
+        }
+
+        .btn-cat-delete:hover {
+            background: #f56565;
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .category-item {
+            background: white;
+            padding: 10px 16px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .category-item:hover {
+            border-color: #667eea;
+            background: #f7fafc;
+        }
+
+        .category-item.active {
+            border-color: #667eea;
+            background: #ebf4ff;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+        }
+
+        .category-item .cat-name {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 14px;
+        }
+
+        .category-item .cat-total {
+            font-weight: 700;
+            color: #667eea;
+            font-size: 15px;
+        }
+
+        .restock-section {
+            background: #fff5f0;
+            border: 2px solid #ed8936;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .restock-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .restock-header h3 {
+            color: #dd6b20;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .restock-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .restock-controls input {
+            padding: 8px 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            min-width: 180px;
+        }
+
+        .restock-controls input:focus {
+            outline: none;
+            border-color: #ed8936;
+        }
+
+        .btn-restock-item {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        .btn-restock-add {
+            background: #ed8936;
+            color: white;
+        }
+
+        .btn-restock-add:hover {
+            background: #dd6b20;
+        }
+
+        .btn-restock-delete {
+            background: #fc8181;
+            color: white;
+            padding: 4px 10px;
+            font-size: 11px;
+            border-radius: 6px;
+        }
+
+        .btn-restock-delete:hover {
+            background: #f56565;
+        }
+
+        .btn-restock-copy {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-restock-copy:hover {
+            background: #38a169;
+        }
+
+        .btn-restock-export {
+            background: #4299e1;
+            color: white;
+        }
+
+        .btn-restock-export:hover {
+            background: #3182ce;
+        }
+
+        .restock-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .restock-item {
+            background: white;
+            padding: 10px 16px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #fed7d0;
+            transition: all 0.2s;
+        }
+
+        .restock-item:hover {
+            border-color: #ed8936;
+        }
+
+        .restock-item .item-name {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 14px;
+        }
+
+        .restock-item .item-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .restock-empty {
+            text-align: center;
+            padding: 20px;
+            color: #a0aec0;
+        }
+
+        .month-total {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 20px;
+        }
+
+        .month-total .month-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .month-total .label {
+            font-size: 13px;
+            font-weight: 600;
+            opacity: 0.9;
+        }
+
+        .month-total .value {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .month-total .month-item.total {
+            border-right: 1px solid rgba(255,255,255,0.3);
+            padding-right: 20px;
+        }
+
+        .today-label {
+            color: #4a5568;
+            font-size: 14px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .today-label span {
+            color: #667eea;
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .btn-action {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .btn-export {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-export:hover {
+            background: #38a169;
+            transform: translateY(-2px);
+        }
+
+        .btn-clear {
+            background: #fc8181;
+            color: white;
+        }
+
+        .btn-clear:hover {
+            background: #f56565;
+            transform: translateY(-2px);
+        }
+
+        .btn-import {
+            background: #4299e1;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-import:hover {
+            background: #3182ce;
+            transform: translateY(-2px);
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #a0aec0;
+        }
+
+        .empty-state .icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            max-width: 600px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-content h2 {
+            color: #2d3748;
+            margin-bottom: 20px;
+        }
+
+        .modal-content .form-group {
+            margin-bottom: 15px;
+        }
+
+        .modal-content .form-group label {
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .modal-content .form-group input,
+        .modal-content .form-group select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+
+        .modal-content .form-group input:focus,
+        .modal-content .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: flex-end;
+        }
+
+        .btn-modal-save {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-modal-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-modal-cancel {
+            background: #e2e8f0;
+            color: #4a5568;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-modal-cancel:hover {
+            background: #cbd5e0;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .category-select-hint {
+            font-size: 11px;
+            color: #718096;
+            margin-top: 3px;
+        }
+
+        .import-preview {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .import-preview table {
+            font-size: 12px;
+        }
+
+        .import-preview th {
+            background: #e2e8f0;
+            color: #2d3748;
+            padding: 6px 10px;
+            font-size: 11px;
+        }
+
+        .import-preview td {
+            padding: 4px 10px;
+            font-size: 12px;
+        }
+
+        .import-options {
+            margin: 15px 0;
+            padding: 15px;
+            background: #f7fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .import-options label {
+            display: block;
+            margin: 8px 0;
+            cursor: pointer;
+            font-size: 14px;
+            color: #2d3748;
+        }
+
+        .import-options label input[type="radio"] {
+            margin-right: 10px;
+            accent-color: #667eea;
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .import-options .option-desc {
+            font-size: 12px;
+            color: #718096;
+            margin-left: 28px;
+            margin-top: 2px;
+        }
+
+        .import-stats {
+            background: #ebf8ff;
+            border: 1px solid #bee3f8;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-top: 10px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .import-stats .stat-item {
+            font-size: 13px;
+            color: #2c5282;
+        }
+
+        .import-stats .stat-item strong {
+            font-weight: 700;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #2d3748;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            font-weight: 600;
+            z-index: 2000;
+            animation: slideUp 0.3s ease;
+            max-width: 400px;
+        }
+
+        .toast.success {
+            background: #48bb78;
+        }
+
+        .toast.error {
+            background: #fc8181;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .add-form {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+
+            .header-actions {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .header-actions .btn-restock {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .logo-text {
+                font-size: 28px;
+            }
+
+            .header-title {
+                font-size: 20px;
+            }
+
+            .header-divider {
+                display: none;
+            }
+
+            .add-form {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .day-stats {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .month-total {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .month-total .month-item.total {
+                border-right: none;
+                padding-right: 0;
+            }
+
+            .date-selector {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .date-selector .day-total-info {
+                margin-left: 0;
+                text-align: center;
+            }
+
+            .restock-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .restock-controls {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .restock-controls input {
+                width: 100%;
+                min-width: unset;
+            }
+
+            .restock-controls .btn-restock-item {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .sync-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .sync-last {
+                margin-left: 0;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .add-form {
+                grid-template-columns: 1fr;
+            }
+
+            .day-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .month-total {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .time-column {
+            font-weight: 500;
+            color: #718096;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Шапка -->
+        <div class="header">
+            <span class="logo-text">CONNECT</span>
+            <span class="header-divider">|</span>
+            <span class="header-title">Учет продаж</span>
+            <div class="header-actions">
+                <button class="btn-restock" onclick="toggleRestockSection()">
+                    📦 Нужно закупить
+                    <span class="badge" id="restockCount">0</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Панель синхронизации -->
+        <div class="sync-bar" id="syncBar">
+            <div class="sync-status">
+                <span class="indicator online" id="syncIndicator"></span>
+                <span id="syncStatusText">Готов к синхронизации</span>
+            </div>
+            <button class="sync-btn sync-btn-primary" id="syncBtn" onclick="syncWithGitHub()">
+                🔄 Синхронизировать
+            </button>
+            <button class="sync-btn sync-btn-success" onclick="showConfigModal()">
+                ⚙️ Настройки
+            </button>
+            <span class="sync-last" id="syncLast">Последняя синхронизация: никогда</span>
+        </div>
+
+        <!-- Блок добавления продажи -->
+        <div class="add-section">
+            <form class="add-form" id="addForm">
+                <div class="form-group">
+                    <label>Дата продажи</label>
+                    <input type="date" id="saleDate">
+                    <div class="quick-date-buttons">
+                        <button type="button" class="quick-date-btn" onclick="setDateToday()">Сегодня</button>
+                        <button type="button" class="quick-date-btn" onclick="setDateYesterday()">Вчера</button>
+                        <button type="button" class="quick-date-btn" onclick="setDateDaysAgo(3)">3 дня</button>
+                        <button type="button" class="quick-date-btn" onclick="setDateDaysAgo(7)">Неделя</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Название товара</label>
+                    <input type="text" id="productName" placeholder="Чехол iPhone 15" required>
+                </div>
+                <div class="form-group">
+                    <label>Категория</label>
+                    <select id="category"></select>
+                </div>
+                <div class="form-group">
+                    <label>Стоимость (₽)</label>
+                    <input type="number" id="price" placeholder="0" min="0" step="1" required>
+                </div>
+                <div class="form-group">
+                    <label>Способ оплаты</label>
+                    <select id="paymentMethod">
+                        <option value="Наличные">💰 Наличные</option>
+                        <option value="Безналичные">💳 Безналичные</option>
+                        <option value="Перевод">📱 Перевод</option>
+                    </select>
+                </div>
+                <div class="form-group checkbox-group">
+                    <label>
+                        <input type="checkbox" id="lastItem">
+                        📦 Последний
+                    </label>
+                </div>
+                <button type="submit" class="btn-add">➕ Добавить</button>
+            </form>
+        </div>
+
+        <!-- Список на закупку -->
+        <div class="restock-section" id="restockSection" style="display:none;">
+            <div class="restock-header">
+                <h3>📦 Товары для закупки</h3>
+                <div class="restock-controls">
+                    <input type="text" id="restockInput" placeholder="Название товара" maxlength="50">
+                    <button class="btn-restock-item btn-restock-add" onclick="addRestockItem()">➕ Добавить</button>
+                    <button class="btn-restock-item btn-restock-copy" onclick="copyRestockList()">📋 Копировать</button>
+                    <button class="btn-restock-item btn-restock-export" onclick="exportRestockToFile()">💾 Скачать TXT</button>
+                </div>
+            </div>
+            <div class="restock-grid" id="restockGrid">
+                <div class="restock-empty">Нет товаров для закупки</div>
+            </div>
+        </div>
+
+        <!-- Статистика дня -->
+        <div class="today-label">📊 <span id="selectedDateLabel">Сегодня</span></div>
+        <div class="day-stats" id="dayStats">
+            <div class="stat-card total-day">
+                <div class="label">📊 Выручка за день</div>
+                <div class="value" id="dayTotal">0 ₽</div>
+            </div>
+            <div class="stat-card cash">
+                <div class="label">💰 Наличные</div>
+                <div class="value" id="dayCash">0 ₽</div>
+            </div>
+            <div class="stat-card card">
+                <div class="label">💳 Безналичные</div>
+                <div class="value" id="dayCard">0 ₽</div>
+            </div>
+            <div class="stat-card transfer">
+                <div class="label">📱 Перевод</div>
+                <div class="value" id="dayTransfer">0 ₽</div>
+            </div>
+        </div>
+
+        <!-- Выбор даты для просмотра -->
+        <div class="date-selector">
+            <label>📅 Показать продажи за:</label>
+            <input type="date" id="viewDate">
+            <button class="btn-today" onclick="setTodayView()">📆 Сегодня</button>
+            <div class="day-total-info">
+                Итого: <span id="viewDayTotal">0 ₽</span>
+            </div>
+        </div>
+
+        <!-- Таблица продаж -->
+        <div class="today-label">📋 <span id="salesListLabel">Продажи за сегодня</span></div>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Дата</th>
+                        <th>Время</th>
+                        <th>Товар</th>
+                        <th>Категория</th>
+                        <th>Стоимость</th>
+                        <th>Оплата</th>
+                        <th>Действие</th>
+                    </tr>
+                </thead>
+                <tbody id="salesTableBody">
+                    <tr>
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <div class="icon">📦</div>
+                                <p>Нет продаж за выбранную дату</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Управление категориями -->
+        <div class="categories-management">
+            <div class="categories-header">
+                <h3>📂 Управление категориями</h3>
+                <div class="category-controls">
+                    <input type="text" id="newCategoryInput" placeholder="Новая категория" maxlength="30">
+                    <button class="btn-cat btn-cat-add" onclick="addCategory()">➕ Добавить</button>
+                    <input type="text" id="editCategoryInput" placeholder="Новое название" maxlength="30" style="display:none;">
+                    <button class="btn-cat btn-cat-edit" id="editCategoryBtn" onclick="saveCategoryEdit()" style="display:none;">✏️ Сохранить</button>
+                    <button class="btn-cat btn-cat-edit" onclick="editSelectedCategory()">✏️ Редактировать</button>
+                    <button class="btn-cat btn-cat-delete" onclick="deleteSelectedCategory()">🗑️ Удалить</button>
+                </div>
+            </div>
+            <div class="categories-grid" id="categoriesGrid">
+                <!-- Категории будут здесь -->
+            </div>
+            <div class="category-select-hint">💡 Кликните по категории в списке ниже, чтобы выбрать её для редактирования или удаления</div>
+        </div>
+
+        <!-- Итого за месяц -->
+        <div class="month-total" id="monthTotal">
+            <div class="month-item total">
+                <span class="label">📆 Итого за месяц</span>
+                <span class="value" id="monthTotalValue">0 ₽</span>
+            </div>
+            <div class="month-item">
+                <span class="label">💰 Наличные</span>
+                <span class="value" id="monthCash">0 ₽</span>
+            </div>
+            <div class="month-item">
+                <span class="label">💳 Безналичные</span>
+                <span class="value" id="monthCard">0 ₽</span>
+            </div>
+            <div class="month-item">
+                <span class="label">📱 Перевод</span>
+                <span class="value" id="monthTransfer">0 ₽</span>
+            </div>
+        </div>
+
+        <!-- Действия -->
+        <div class="actions">
+            <button class="btn-action btn-export" onclick="exportCSV()">📊 Экспорт CSV</button>
+            <div class="file-input-wrapper">
+                <button class="btn-action btn-import">📤 Импорт CSV</button>
+                <input type="file" accept=".csv" onchange="importCSV(event)">
+            </div>
+            <button class="btn-action btn-clear" onclick="clearAll()">🗑️ Очистить все</button>
+        </div>
+    </div>
+
+    <!-- Модальное окно для редактирования продажи -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <h2>✏️ Редактировать продажу</h2>
+            <form id="editForm">
+                <div class="form-group">
+                    <label>Название товара</label>
+                    <input type="text" id="editProductName" required>
+                </div>
+                <div class="form-group">
+                    <label>Категория</label>
+                    <select id="editCategory"></select>
+                </div>
+                <div class="form-group">
+                    <label>Стоимость (₽)</label>
+                    <input type="number" id="editPrice" min="0" step="1" required>
+                </div>
+                <div class="form-group">
+                    <label>Способ оплаты</label>
+                    <select id="editPaymentMethod">
+                        <option value="Наличные">💰 Наличные</option>
+                        <option value="Безналичные">💳 Безналичные</option>
+                        <option value="Перевод">📱 Перевод</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-modal-cancel" onclick="closeEditModal()">Отмена</button>
+                    <button type="submit" class="btn-modal-save">💾 Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Модальное окно для импорта CSV -->
+    <div class="modal" id="importModal">
+        <div class="modal-content">
+            <h2>📤 Импорт CSV</h2>
+            <p style="color: #718096; margin-bottom: 15px; font-size: 14px;">
+                📋 Формат CSV: <strong>Дата;Время;Товар;Категория;Стоимость;Оплата</strong>
+                <br>⏰ Время можно не указывать — подставится автоматически
+                <br>📅 Поддерживаются форматы даты: <strong>ГГГГ-ММ-ДД</strong> или <strong>ДД/ММ/ГГГГ</strong>
+                <br>📌 <strong>Важно:</strong> Файл должен быть в кодировке UTF-8
+                <br>💡 Пример: <em>2026-08-07;14:30;Чехол iPhone 15;Чехлы;1500;Наличные</em>
+            </p>
+
+            <div class="import-options">
+                <label>
+                    <input type="radio" name="importMode" value="add" checked>
+                    ➕ Добавить к существующим
+                    <div class="option-desc">Новые записи добавятся в конец списка</div>
+                </label>
+                <label>
+                    <input type="radio" name="importMode" value="replace">
+                    🔄 Заменить все данные
+                    <div class="option-desc">Все текущие данные будут удалены и заменены импортируемыми</div>
+                </label>
+                <label>
+                    <input type="radio" name="importMode" value="skip">
+                    🚫 Пропускать дубликаты
+                    <div class="option-desc">Записи с одинаковой датой, временем, товаром и ценой будут пропущены</div>
+                </label>
+            </div>
+
+            <div id="importPreview"></div>
+            
+            <div class="modal-actions">
+                <button type="button" class="btn-modal-cancel" onclick="closeImportModal()">Отмена</button>
+                <button type="button" class="btn-modal-save" id="confirmImportBtn" onclick="confirmImport()" style="display:none;">✅ Подтвердить импорт</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно для настроек синхронизации -->
+    <div class="modal" id="configModal">
+        <div class="modal-content sync-config-modal">
+            <h2>⚙️ Настройки синхронизации</h2>
+            
+            <div class="form-group">
+                <label>GitHub Token</label>
+                <input type="password" class="token-input" id="githubToken" value="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">
+                <div class="hint">
+                    <a href="https://github.com/settings/tokens" target="_blank">Создать токен</a>
+                    (нужны права: repo)
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Репозиторий</label>
+                <input type="text" class="token-input" id="githubRepo" value="radetskaya2000-ux/connect-sale">
+                <div class="hint">Например: username/repo</div>
+            </div>
+            
+            <div class="form-group">
+                <label>Файл данных</label>
+                <input type="text" class="token-input" id="githubFile" value="data.json">
+                <div class="hint">Имя файла для хранения данных</div>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-modal-cancel" onclick="closeConfigModal()">Отмена</button>
+                <button type="button" class="btn-modal-save" onclick="saveConfig()">💾 Сохранить</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== ОСНОВНЫЕ ПЕРЕМЕННЫЕ ==========
+        let sales = [];
+        let categories = ['Чехлы', 'Стекло', 'Зарядка', 'Наушники', 'Аксессуары'];
+        let restockItems = [];
+        let editingCategory = null;
+        let editingSaleId = null;
+        let currentViewDate = '';
+        let selectedCategoryForEdit = null;
+        let importedData = [];
+
+        // ========== НАСТРОЙКИ СИНХРОНИЗАЦИИ (УЖЕ ВСТАВЛЕНЫ) ==========
+        const CONFIG_KEY = 'connect_sync_config';
+        let syncConfig = {
+            token: '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',
+            repo: 'radetskaya2000-ux/connect-sale',
+            file: 'data.json'
+        };
+
+        // ========== ФУНКЦИИ СИНХРОНИЗАЦИИ ==========
+
+        function loadConfig() {
+            const saved = localStorage.getItem(CONFIG_KEY);
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    syncConfig = parsed;
+                    document.getElementById('githubToken').value = parsed.token || '';
+                    document.getElementById('githubRepo').value = parsed.repo || '';
+                    document.getElementById('githubFile').value = parsed.file || 'data.json';
+                } catch (e) {
+                    console.error('Ошибка загрузки конфига:', e);
+                    // Если ошибка - используем значения по умолчанию
+                    document.getElementById('githubToken').value = syncConfig.token;
+                    document.getElementById('githubRepo').value = syncConfig.repo;
+                    document.getElementById('githubFile').value = syncConfig.file;
+                }
+            } else {
+                // Если конфига нет - сохраняем наши значения
+                document.getElementById('githubToken').value = syncConfig.token;
+                document.getElementById('githubRepo').value = syncConfig.repo;
+                document.getElementById('githubFile').value = syncConfig.file;
+                localStorage.setItem(CONFIG_KEY, JSON.stringify(syncConfig));
+            }
+        }
+
+        function saveConfig() {
+            const token = document.getElementById('githubToken').value.trim();
+            const repo = document.getElementById('githubRepo').value.trim();
+            const file = document.getElementById('githubFile').value.trim() || 'data.json';
+
+            if (!token || !repo) {
+                showToast('❌ Заполните токен и репозиторий', 'error');
+                return;
+            }
+
+            syncConfig = { token, repo, file };
+            localStorage.setItem(CONFIG_KEY, JSON.stringify(syncConfig));
+            closeConfigModal();
+            showToast('✅ Настройки сохранены!');
+            updateSyncStatus();
+        }
+
+        function showConfigModal() {
+            document.getElementById('configModal').classList.add('active');
+        }
+
+        function closeConfigModal() {
+            document.getElementById('configModal').classList.remove('active');
+        }
+
+        function updateSyncStatus() {
+            const indicator = document.getElementById('syncIndicator');
+            const statusText = document.getElementById('syncStatusText');
+            
+            if (!syncConfig.token || !syncConfig.repo) {
+                indicator.className = 'indicator offline';
+                statusText.textContent = 'Не настроено';
+                document.getElementById('syncBtn').disabled = true;
+                return;
+            }
+
+            indicator.className = 'indicator online';
+            statusText.textContent = 'Готов к синхронизации';
+            document.getElementById('syncBtn').disabled = false;
+        }
+
+        function setSyncing() {
+            const indicator = document.getElementById('syncIndicator');
+            const statusText = document.getElementById('syncStatusText');
+            indicator.className = 'indicator syncing';
+            statusText.textContent = 'Синхронизация...';
+            document.getElementById('syncBtn').disabled = true;
+        }
+
+        function setSyncComplete() {
+            const indicator = document.getElementById('syncIndicator');
+            const statusText = document.getElementById('syncStatusText');
+            indicator.className = 'indicator online';
+            statusText.textContent = 'Синхронизировано';
+            document.getElementById('syncBtn').disabled = false;
+            
+            const now = new Date();
+            document.getElementById('syncLast').textContent = 
+                `Последняя синхронизация: ${now.toLocaleString('ru-RU')}`;
+            localStorage.setItem('connect_last_sync', now.toISOString());
+        }
+
+        function setSyncError() {
+            const indicator = document.getElementById('syncIndicator');
+            const statusText = document.getElementById('syncStatusText');
+            indicator.className = 'indicator offline';
+            statusText.textContent = 'Ошибка синхронизации';
+            document.getElementById('syncBtn').disabled = false;
+        }
+
+        // ========== ОСНОВНАЯ ФУНКЦИЯ СИНХРОНИЗАЦИИ ==========
+        async function syncWithGitHub() {
+            if (!syncConfig.token || !syncConfig.repo) {
+                showToast('❌ Сначала настройте синхронизацию', 'error');
+                showConfigModal();
+                return;
+            }
+
+            setSyncing();
+
+            try {
+                // 1. Загружаем данные с GitHub
+                const response = await fetch(`https://api.github.com/repos/${syncConfig.repo}/contents/${syncConfig.file}`, {
+                    headers: {
+                        'Authorization': `token ${syncConfig.token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+
+                let remoteData = null;
+                let sha = null;
+
+                if (response.ok) {
+                    const data = await response.json();
+                    sha = data.sha;
+                    const content = atob(data.content);
+                    try {
+                        remoteData = JSON.parse(content);
+                    } catch (e) {
+                        remoteData = null;
+                    }
+                } else if (response.status !== 404) {
+                    throw new Error(`Ошибка GitHub: ${response.status}`);
+                }
+
+                // 2. Формируем локальные данные
+                const localData = {
+                    sales: sales,
+                    categories: categories,
+                    restockItems: restockItems,
+                    updatedAt: new Date().toISOString()
+                };
+
+                // 3. Определяем, нужно ли объединять или заменять
+                if (remoteData) {
+                    const localTime = new Date(localData.updatedAt);
+                    const remoteTime = new Date(remoteData.updatedAt || 0);
+                    
+                    if (remoteTime > localTime) {
+                        // Данные на сервере новее - загружаем их
+                        if (confirm('На сервере есть более новые данные. Загрузить их?')) {
+                            sales = remoteData.sales || [];
+                            categories = remoteData.categories || ['Чехлы', 'Стекло', 'Зарядка', 'Наушники', 'Аксессуары'];
+                            restockItems = remoteData.restockItems || [];
+                            saveData();
+                            render();
+                            showToast('✅ Данные загружены с сервера');
+                            setSyncComplete();
+                            return;
+                        }
+                    } else {
+                        // Локальные данные новее или равны - загружаем на сервер
+                        if (confirm('Отправить локальные данные на сервер?')) {
+                            await uploadToGitHub(localData, sha);
+                            showToast('✅ Данные отправлены на сервер');
+                            setSyncComplete();
+                            render();
+                            return;
+                        }
+                    }
+                } else {
+                    // Файла нет - создаем
+                    if (confirm('На сервере нет данных. Создать новый файл?')) {
+                        await uploadToGitHub(localData, null);
+                        showToast('✅ Данные созданы на сервере');
+                        setSyncComplete();
+                        render();
+                        return;
+                    }
+                }
+
+                // Если пользователь отменил - просто выходим
+                setSyncComplete();
+                
+            } catch (error) {
+                console.error('Ошибка синхронизации:', error);
+                showToast(`❌ Ошибка: ${error.message}`, 'error');
+                setSyncError();
+            }
+        }
+
+        // ========== ЗАГРУЗКА НА GITHUB ==========
+        async function uploadToGitHub(data, sha) {
+            const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
+            
+            const body = {
+                message: `Обновление данных ${new Date().toLocaleString('ru-RU')}`,
+                content: content,
+                branch: 'main'
+            };
+            
+            if (sha) {
+                body.sha = sha;
+            }
+
+            const response = await fetch(`https://api.github.com/repos/${syncConfig.repo}/contents/${syncConfig.file}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `token ${syncConfig.token}`,
+                    'Accept': 'application/vnd.github.v3+json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(body)
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || `Ошибка ${response.status}`);
+            }
+
+            return await response.json();
+        }
+
+        // ========== ОСТАЛЬНЫЕ ФУНКЦИИ ==========
+
+        // Загрузка из localStorage
+        function loadData() {
+            const stored = localStorage.getItem('salesData');
+            if (stored) {
+                try {
+                    sales = JSON.parse(stored);
+                } catch (e) {
+                    sales = [];
+                }
+            }
+            
+            const storedCategories = localStorage.getItem('categoriesData');
+            if (storedCategories) {
+                try {
+                    categories = JSON.parse(storedCategories);
+                } catch (e) {
+                    categories = ['Чехлы', 'Стекло', 'Зарядка', 'Наушники', 'Аксессуары'];
+                }
+            }
+
+            const storedRestock = localStorage.getItem('restockData');
+            if (storedRestock) {
+                try {
+                    restockItems = JSON.parse(storedRestock);
+                } catch (e) {
+                    restockItems = [];
+                }
+            }
+            
+            updateCategorySelect();
+            updateEditCategorySelect();
+            
+            const today = getCurrentDateTime().date;
+            document.getElementById('viewDate').value = today;
+            document.getElementById('saleDate').value = today;
+            currentViewDate = today;
+            
+            const lastSync = localStorage.getItem('connect_last_sync');
+            if (lastSync) {
+                try {
+                    const date = new Date(lastSync);
+                    document.getElementById('syncLast').textContent = 
+                        `Последняя синхронизация: ${date.toLocaleString('ru-RU')}`;
+                } catch (e) {}
+            }
+            
+            render();
+            updateSyncStatus();
+        }
+
+        function saveData() {
+            localStorage.setItem('salesData', JSON.stringify(sales));
+            localStorage.setItem('categoriesData', JSON.stringify(categories));
+            localStorage.setItem('restockData', JSON.stringify(restockItems));
+        }
+
+        // --- Автоматическая дата и время ---
+        function getCurrentDateTime() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            return {
+                date: `${year}-${month}-${day}`,
+                time: `${hours}:${minutes}`
+            };
+        }
+
+        // --- Конвертер даты ---
+        function convertDate(dateStr) {
+            if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+                return dateStr;
+            }
+            if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) {
+                const parts = dateStr.split('/');
+                return `${parts[2]}-${parts[1]}-${parts[0]}`;
+            }
+            if (/^\d{2}\.\d{2}\.\d{4}$/.test(dateStr)) {
+                const parts = dateStr.split('.');
+                return `${parts[2]}-${parts[1]}-${parts[0]}`;
+            }
+            if (/^\d{2}-\d{2}-\d{4}$/.test(dateStr)) {
+                const parts = dateStr.split('-');
+                return `${parts[2]}-${parts[1]}-${parts[0]}`;
+            }
+            return null;
+        }
+
+        function formatDateDisplay(dateStr) {
+            if (!dateStr) return '';
+            const parts = dateStr.split('-');
+            const months = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
+            return `${parseInt(parts[2])} ${months[parseInt(parts[1]) - 1]} ${parts[0]}`;
+        }
+
+        // --- Управление списком на закупку ---
+        function toggleRestockSection() {
+            const section = document.getElementById('restockSection');
+            if (section.style.display === 'none') {
+                section.style.display = 'block';
+                renderRestock();
+            } else {
+                section.style.display = 'none';
+            }
+        }
+
+        function addRestockItem() {
+            const input = document.getElementById('restockInput');
+            const name = input.value.trim();
+            if (!name) {
+                showToast('❌ Введите название товара', 'error');
+                return;
+            }
+            if (restockItems.includes(name)) {
+                showToast('❌ Этот товар уже есть в списке', 'error');
+                return;
+            }
+            restockItems.push(name);
+            saveData();
+            input.value = '';
+            renderRestock();
+            updateRestockBadge();
+            showToast(`✅ "${name}" добавлен в список закупки`);
+        }
+
+        function deleteRestockItem(name) {
+            if (confirm(`Удалить "${name}" из списка на закупку?`)) {
+                restockItems = restockItems.filter(item => item !== name);
+                saveData();
+                renderRestock();
+                updateRestockBadge();
+                showToast(`🗑️ "${name}" удален из списка`);
+            }
+        }
+
+        function renderRestock() {
+            const grid = document.getElementById('restockGrid');
+            if (restockItems.length === 0) {
+                grid.innerHTML = `<div class="restock-empty">✨ Все товары в наличии</div>`;
+                return;
+            }
+            grid.innerHTML = restockItems.map(item => `
+                <div class="restock-item">
+                    <span class="item-name">${item}</span>
+                    <div class="item-actions">
+                        <button class="btn-restock-delete" onclick="deleteRestockItem('${item}')">✕</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateRestockBadge() {
+            document.getElementById('restockCount').textContent = restockItems.length;
+        }
+
+        // --- Уведомления ---
+        function showToast(message, type = 'success') {
+            const oldToasts = document.querySelectorAll('.toast');
+            oldToasts.forEach(t => t.remove());
+            
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // --- Экспорт списка закупок ---
+        function copyRestockList() {
+            if (restockItems.length === 0) {
+                showToast('📦 Список закупок пуст', 'error');
+                return;
+            }
+
+            let text = '📦 СПИСОК ТОВАРОВ ДЛЯ ЗАКУПКИ\n';
+            text += '='.repeat(50) + '\n';
+            text += `Дата: ${getCurrentDateTime().date}\n`;
+            text += `Всего позиций: ${restockItems.length}\n`;
+            text += '='.repeat(50) + '\n\n';
+            
+            restockItems.forEach((item, index) => {
+                text += `${index + 1}. ${item}\n`;
+            });
+            
+            text += '\n' + '='.repeat(50) + '\n';
+            text += `CONNECT | Учет продаж`;
+
+            navigator.clipboard.writeText(text).then(() => {
+                showToast(`✅ Список скопирован! (${restockItems.length} позиций)`);
+            }).catch(() => {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showToast(`✅ Список скопирован! (${restockItems.length} позиций)`);
+            });
+        }
+
+        function exportRestockToFile() {
+            if (restockItems.length === 0) {
+                showToast('📦 Список закупок пуст', 'error');
+                return;
+            }
+
+            let text = '📦 СПИСОК ТОВАРОВ ДЛЯ ЗАКУПКИ\n';
+            text += '='.repeat(50) + '\n';
+            text += `Дата: ${getCurrentDateTime().date}\n`;
+            text += `Время: ${getCurrentDateTime().time}\n`;
+            text += `Всего позиций: ${restockItems.length}\n`;
+            text += '='.repeat(50) + '\n\n';
+            
+            restockItems.forEach((item, index) => {
+                text += `${index + 1}. ${item}\n`;
+            });
+            
+            text += '\n' + '='.repeat(50) + '\n';
+            text += `CONNECT | Учет продаж\n`;
+            text += `Сгенерировано: ${getCurrentDateTime().date} ${getCurrentDateTime().time}`;
+
+            const blob = new Blob([text], { type: 'text/plain;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Список_закупки_CONNECT_${getCurrentDateTime().date}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showToast(`💾 Файл скачан! (${restockItems.length} позиций)`);
+        }
+
+        // --- Быстрые кнопки для даты ---
+        function setDateToday() {
+            document.getElementById('saleDate').value = getCurrentDateTime().date;
+        }
+
+        function setDateYesterday() {
+            const date = new Date();
+            date.setDate(date.getDate() - 1);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            document.getElementById('saleDate').value = `${year}-${month}-${day}`;
+        }
+
+        function setDateDaysAgo(days) {
+            const date = new Date();
+            date.setDate(date.getDate() - days);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            document.getElementById('saleDate').value = `${year}-${month}-${day}`;
+        }
+
+        // --- Добавление записи ---
+        document.getElementById('addForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const now = getCurrentDateTime();
+            const date = document.getElementById('saleDate').value;
+            const name = document.getElementById('productName').value.trim();
+            const category = document.getElementById('category').value;
+            const price = parseFloat(document.getElementById('price').value);
+            const payment = document.getElementById('paymentMethod').value;
+            const lastItem = document.getElementById('lastItem').checked;
+
+            if (!date || !name || !price) {
+                alert('Заполните все поля!');
+                return;
+            }
+
+            const sale = {
+                id: Date.now(),
+                date: date,
+                time: now.time,
+                name: name,
+                category: category,
+                price: price,
+                payment: payment
+            };
+
+            sales.push(sale);
+            
+            if (lastItem && !restockItems.includes(name)) {
+                restockItems.push(name);
+                saveData();
+                updateRestockBadge();
+            }
+            
+            saveData();
+            render();
+
+            document.getElementById('productName').value = '';
+            document.getElementById('price').value = '';
+            document.getElementById('lastItem').checked = false;
+            document.getElementById('productName').focus();
+        });
+
+        // --- Удаление ---
+        function deleteSale(id) {
+            if (confirm('Удалить эту продажу?')) {
+                sales = sales.filter(s => s.id !== id);
+                saveData();
+                render();
+            }
+        }
+
+        // --- Редактирование ---
+        function openEditModal(id) {
+            const sale = sales.find(s => s.id === id);
+            if (!sale) return;
+
+            editingSaleId = id;
+            document.getElementById('editProductName').value = sale.name;
+            document.getElementById('editCategory').value = sale.category;
+            document.getElementById('editPrice').value = sale.price;
+            document.getElementById('editPaymentMethod').value = sale.payment;
+            
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('active');
+            editingSaleId = null;
+        }
+
+        document.getElementById('editForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (editingSaleId === null) return;
+
+            const name = document.getElementById('editProductName').value.trim();
+            const category = document.getElementById('editCategory').value;
+            const price = parseFloat(document.getElementById('editPrice').value);
+            const payment = document.getElementById('editPaymentMethod').value;
+
+            if (!name || !price) {
+                alert('Заполните все поля!');
+                return;
+            }
+
+            const index = sales.findIndex(s => s.id === editingSaleId);
+            if (index !== -1) {
+                sales[index].name = name;
+                sales[index].category = category;
+                sales[index].price = price;
+                sales[index].payment = payment;
+                saveData();
+                render();
+                closeEditModal();
+            }
+        });
+
+        document.getElementById('editModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeEditModal();
+            }
+        });
+
+        // --- Проверка дубликатов ---        function findDuplicates(newData) {
+            const duplicates = [];
+            const unique = [];
+            
+            newData.forEach(item => {
+                const isDuplicate = sales.some(s => 
+                    s.date === item.date && 
+                    s.time === item.time && 
+                    s.name === item.name && 
+                    s.price === item.price
+                );
+                
+                if (isDuplicate) {
+                    duplicates.push(item);
+                } else {
+                    unique.push(item);
+                }
+            });
+            
+            return { duplicates, unique };
+        }
+
+        // --- Импорт CSV ---
+        function importCSV(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    let text = e.target.result;
+                    
+                    let delimiter = ';';
+                    if (text.includes(',') && !text.includes(';')) {
+                        delimiter = ',';
+                    }
+                    
+                    const lines = text.split('\n').filter(line => line.trim());
+                    
+                    if (lines.length < 2) {
+                        alert('Файл должен содержать заголовки и хотя бы одну запись');
+                        return;
+                    }
+
+                    const headers = lines[0].split(delimiter).map(h => h.trim());
+                    const expectedHeaders = ['Дата', 'Время', 'Товар', 'Категория', 'Стоимость', 'Оплата'];
+                    
+                    const headerMatch = expectedHeaders.every(h => headers.includes(h));
+                    if (!headerMatch) {
+                        alert('Неверный формат CSV. Ожидаются заголовки: Дата,Время,Товар,Категория,Стоимость,Оплата');
+                        return;
+                    }
+
+                    importedData = [];
+                    let errors = [];
+                    const now = getCurrentDateTime();
+
+                    for (let i = 1; i < lines.length; i++) {
+                        const values = lines[i].split(delimiter).map(v => v.trim());
+                        if (values.length < 6) {
+                            errors.push(`Строка ${i}: недостаточно данных (${values.length} полей, нужно 6)`);
+                            continue;
+                        }
+
+                        const dateStr = values[0];
+                        let time = values[1] || now.time;
+                        const name = values[2];
+                        const category = values[3];
+                        const price = parseFloat(values[4]);
+                        const payment = values[5];
+
+                        if (!dateStr || !name || isNaN(price) || !payment) {
+                            errors.push(`Строка ${i}: ${lines[i]}`);
+                            continue;
+                        }
+
+                        const date = convertDate(dateStr);
+                        if (!date) {
+                            errors.push(`Строка ${i}: неверный формат даты (поддерживается ГГГГ-ММ-ДД или ДД/ММ/ГГГГ)`);
+                            continue;
+                        }
+
+                        if (!time || time === '') {
+                            time = now.time;
+                        }
+
+                        if (!categories.includes(category) && category !== 'Другое') {
+                            categories.push(category);
+                        }
+
+                        importedData.push({
+                            date: date,
+                            time: time,
+                            name: name,
+                            category: category,
+                            price: price,
+                            payment: payment
+                        });
+                    }
+
+                    if (importedData.length === 0) {
+                        alert('Не найдено корректных записей для импорта' + 
+                              (errors.length ? `\n\nОшибки:\n${errors.join('\n')}` : ''));
+                        return;
+                    }
+
+                    showImportPreview(importedData, errors);
+                    
+                } catch (err) {
+                    alert('Ошибка при чтении файла: ' + err.message);
+                }
+            };
+            reader.readAsText(file, 'UTF-8');
+            event.target.value = '';
+        }
+
+        function showImportPreview(data, errors) {
+            const preview = document.getElementById('importPreview');
+            
+            const { duplicates, unique } = findDuplicates(data);
+            const duplicateCount = duplicates.length;
+            
+            let html = `
+                <div style="margin-bottom: 10px; font-weight: 600; color: #48bb78;">
+                    ✅ Найдено ${data.length} записей для импорта
+                </div>
+            `;
+
+            if (duplicateCount > 0) {
+                html += `
+                    <div style="margin-bottom: 10px; font-weight: 600; color: #ed8936;">
+                        ⚠️ Из них ${duplicateCount} дубликатов (будут пропущены в режиме "Пропускать дубликаты")
+                    </div>
+                `;
+            }
+
+            if (errors.length > 0) {
+                html += `
+                    <div style="margin-bottom: 10px; font-weight: 600; color: #fc8181;">
+                        ⚠️ Пропущено ${errors.length} строк с ошибками
+                    </div>
+                `;
+            }
+
+            html += `
+                <div class="import-preview">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Дата</th>
+                                <th>Время</th>
+                                <th>Товар</th>
+                                <th>Категория</th>
+                                <th>Стоимость</th>
+                                <th>Оплата</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            const showData = data.slice(0, 10);
+            showData.forEach(item => {
+                const isDuplicate = sales.some(s => 
+                    s.date === item.date && 
+                    s.time === item.time && 
+                    s.name === item.name && 
+                    s.price === item.price
+                );
+                const dupClass = isDuplicate ? ' style="background:#fff5f5;"' : '';
+                html += `
+                    <tr${dupClass}>
+                        <td>${item.date}</td>
+                        <td>${item.time}</td>
+                        <td>${item.name}</td>
+                        <td>${item.category}</td>
+                        <td>${item.price}</td>
+                        <td>${item.payment}</td>
+                    </tr>
+                `;
+            });
+
+            if (data.length > 10) {
+                html += `<tr><td colspan="6" style="text-align:center; color:#718096;">... и еще ${data.length - 10} записей</td></tr>`;
+            }
+
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            if (duplicateCount > 0) {
+                html += `
+                    <div class="import-stats">
+                        <div class="stat-item">📊 Всего записей: <strong>${data.length}</strong></div>
+                        <div class="stat-item">🆕 Новых: <strong>${unique.length}</strong></div>
+                        <div class="stat-item">🔄 Дубликатов: <strong>${duplicateCount}</strong></div>
+                    </div>
+                `;
+            }
+
+            preview.innerHTML = html;
+            document.getElementById('confirmImportBtn').style.display = 'block';
+            document.getElementById('importModal').classList.add('active');
+        }
+
+        function confirmImport() {
+            if (importedData.length === 0) return;
+
+            const mode = document.querySelector('input[name="importMode"]:checked').value;
+            let dataToImport = [...importedData];
+            let stats = {
+                added: 0,
+                skipped: 0,
+                total: importedData.length
+            };
+
+            if (mode === 'replace') {
+                if (!confirm('⚠️ Все текущие данные будут удалены. Продолжить?')) {
+                    return;
+                }
+                sales = [];
+                dataToImport.forEach(item => {
+                    const sale = {
+                        id: Date.now() + Math.random() * 1000,
+                        date: item.date,
+                        time: item.time,
+                        name: item.name,
+                        category: item.category,
+                        price: item.price,
+                        payment: item.payment
+                    };
+                    sales.push(sale);
+                });
+                stats.added = dataToImport.length;
+            } 
+            else if (mode === 'skip') {
+                const { duplicates, unique } = findDuplicates(dataToImport);
+                stats.skipped = duplicates.length;
+                
+                unique.forEach(item => {
+                    const sale = {
+                        id: Date.now() + Math.random() * 1000,
+                        date: item.date,
+                        time: item.time,
+                        name: item.name,
+                        category: item.category,
+                        price: item.price,
+                        payment: item.payment
+                    };
+                    sales.push(sale);
+                });
+                stats.added = unique.length;
+            } 
+            else {
+                dataToImport.forEach(item => {
+                    const sale = {
+                        id: Date.now() + Math.random() * 1000,
+                        date: item.date,
+                        time: item.time,
+                        name: item.name,
+                        category: item.category,
+                        price: item.price,
+                        payment: item.payment
+                    };
+                    sales.push(sale);
+                });
+                stats.added = dataToImport.length;
+            }
+
+            saveData();
+            updateCategorySelect();
+            updateEditCategorySelect();
+            
+            const count = stats.added;
+            const skipped = stats.skipped;
+            importedData = [];
+            closeImportModal();
+            render();
+            
+            let message = `✅ Успешно импортировано ${count} записей!`;
+            if (skipped > 0) {
+                message += `\n⏭️ Пропущено дубликатов: ${skipped}`;
+            }
+            if (mode === 'replace') {
+                message = `🔄 Данные заменены! Импортировано ${count} записей.`;
+            }
+            alert(message);
+        }
+
+        function closeImportModal() {
+            document.getElementById('importModal').classList.remove('active');
+            document.getElementById('confirmImportBtn').style.display = 'none';
+            document.getElementById('importPreview').innerHTML = '';
+            importedData = [];
+        }
+
+        // --- Управление датой просмотра ---
+        document.getElementById('viewDate').addEventListener('change', function() {
+            currentViewDate = this.value;
+            render();
+        });
+
+        function setTodayView() {
+            const today = getCurrentDateTime().date;
+            document.getElementById('viewDate').value = today;
+            currentViewDate = today;
+            render();
+        }
+
+        // --- Форматирование ---
+        function formatPrice(value) {
+            return value.toLocaleString('ru-RU') + ' ₽';
+        }
+
+        function getPaymentBadge(method) {
+            const map = {
+                'Наличные': 'badge-cash',
+                'Безналичные': 'badge-card',
+                'Перевод': 'badge-transfer'
+            };
+            return map[method] || 'badge-cash';
+        }
+
+        function getPaymentEmoji(method) {
+            const map = {
+                'Наличные': '💰',
+                'Безналичные': '💳',
+                'Перевод': '📱'
+            };
+            return map[method] || '';
+        }
+
+        // --- Обновление списка категорий ---
+        function updateCategorySelect() {
+            const select = document.getElementById('category');
+            const currentValue = select.value;
+            select.innerHTML = '';
+            
+            if (categories.length === 0) {
+                categories = ['Чехлы', 'Стекло', 'Зарядка', 'Наушники', 'Аксессуары'];
+                saveData();
+            }
+            
+            categories.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat;
+                option.textContent = cat;
+                select.appendChild(option);
+            });
+            
+            if (categories.includes(currentValue)) {
+                select.value = currentValue;
+            }
+        }
+
+        function updateEditCategorySelect() {
+            const select = document.getElementById('editCategory');
+            const currentValue = select.value;
+            select.innerHTML = '';
+            
+            categories.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat;
+                option.textContent = cat;
+                select.appendChild(option);
+            });
+            
+            if (categories.includes(currentValue)) {
+                select.value = currentValue;
+            }
+        }
+
+        // --- Управление категориями ---
+        function selectCategory(categoryName) {
+            selectedCategoryForEdit = categoryName;
+            document.querySelectorAll('.category-item').forEach(el => {
+                el.classList.remove('active');
+                if (el.dataset.category === categoryName) {
+                    el.classList.add('active');
+                }
+            });
+        }
+
+        function addCategory() {
+            const input = document.getElementById('newCategoryInput');
+            const name = input.value.trim();
+            if (!name) {
+                alert('Введите название категории');
+                return;
+            }
+            if (categories.includes(name)) {
+                alert('Такая категория уже существует');
+                return;
+            }
+            categories.push(name);
+            saveData();
+            input.value = '';
+            updateCategorySelect();
+            updateEditCategorySelect();
+            render();
+            selectedCategoryForEdit = null;
+        }
+
+        function deleteSelectedCategory() {
+            if (!selectedCategoryForEdit) {
+                alert('Сначала выберите категорию для удаления (кликните по ней в списке)');
+                return;
+            }
+            
+            if (selectedCategoryForEdit === 'Другое') {
+                alert('Нельзя удалить категорию "Другое"');
+                return;
+            }
+            
+            if (!confirm(`Удалить категорию "${selectedCategoryForEdit}"? Это не удалит продажи, они будут перенесены в "Другое".`)) {
+                return;
+            }
+            
+            sales.forEach(sale => {
+                if (sale.category === selectedCategoryForEdit) {
+                    sale.category = 'Другое';
+                }
+            });
+            
+            categories = categories.filter(c => c !== selectedCategoryForEdit);
+            if (!categories.includes('Другое')) {
+                categories.push('Другое');
+            }
+            
+            saveData();
+            selectedCategoryForEdit = null;
+            updateCategorySelect();
+            updateEditCategorySelect();
+            render();
+        }
+
+        function editSelectedCategory() {
+            if (!selectedCategoryForEdit) {
+                alert('Сначала выберите категорию для редактирования (кликните по ней в списке)');
+                return;
+            }
+            
+            if (selectedCategoryForEdit === 'Другое') {
+                alert('Нельзя редактировать категорию "Другое"');
+                return;
+            }
+            
+            editingCategory = selectedCategoryForEdit;
+            const editInput = document.getElementById('editCategoryInput');
+            const editBtn = document.getElementById('editCategoryBtn');
+            editInput.value = selectedCategoryForEdit;
+            editInput.style.display = 'block';
+            editBtn.style.display = 'block';
+            editInput.focus();
+        }
+
+        function saveCategoryEdit() {
+            const editInput = document.getElementById('editCategoryInput');
+            const newName = editInput.value.trim();
+            
+            if (!newName) {
+                alert('Введите новое название');
+                return;
+            }
+            
+            if (categories.includes(newName) && newName !== editingCategory) {
+                alert('Категория с таким названием уже существует');
+                return;
+            }
+            
+            sales.forEach(sale => {
+                if (sale.category === editingCategory) {
+                    sale.category = newName;
+                }
+            });
+            
+            const index = categories.indexOf(editingCategory);
+            if (index !== -1) {
+                categories[index] = newName;
+            }
+            
+            saveData();
+            editingCategory = null;
+            selectedCategoryForEdit = null;
+            editInput.style.display = 'none';
+            document.getElementById('editCategoryBtn').style.display = 'none';
+            editInput.value = '';
+            
+            updateCategorySelect();
+            updateEditCategorySelect();
+            render();
+        }
+
+        // --- Рендер ---
+        function render() {
+            const viewDate = currentViewDate || getCurrentDateTime().date;
+            const daySales = sales.filter(s => s.date === viewDate);
+            
+            const sortedDay = [...daySales].sort((a, b) => {
+                if (a.time < b.time) return -1;
+                if (a.time > b.time) return 1;
+                return a.id - b.id;
+            });
+
+            const tbody = document.getElementById('salesTableBody');
+
+            if (daySales.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <div class="icon">📦</div>
+                                <p>Нет продаж за ${formatDateDisplay(viewDate)}</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            } else {
+                tbody.innerHTML = sortedDay.map(s => `
+                    <tr>
+                        <td>${s.date}</td>
+                        <td class="time-column">${s.time || '--:--'}</td>
+                        <td><strong>${s.name}</strong></td>
+                        <td><span class="badge" style="background:#e2e8f0;color:#2d3748;">${s.category}</span></td>
+                        <td><strong>${formatPrice(s.price)}</strong></td>
+                        <td><span class="badge ${getPaymentBadge(s.payment)}">${getPaymentEmoji(s.payment)} ${s.payment}</span></td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-edit" onclick="openEditModal(${s.id})">✏️</button>
+                                <button class="btn-delete" onclick="deleteSale(${s.id})">✕</button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            const dayTotal = daySales.reduce((sum, s) => sum + s.price, 0);
+            const dayCash = daySales.filter(s => s.payment === 'Наличные').reduce((sum, s) => sum + s.price, 0);
+            const dayCard = daySales.filter(s => s.payment === 'Безналичные').reduce((sum, s) => sum + s.price, 0);
+            const dayTransfer = daySales.filter(s => s.payment === 'Перевод').reduce((sum, s) => sum + s.price, 0);
+
+            document.getElementById('dayTotal').textContent = formatPrice(dayTotal);
+            document.getElementById('dayCash').textContent = formatPrice(dayCash);
+            document.getElementById('dayCard').textContent = formatPrice(dayCard);
+            document.getElementById('dayTransfer').textContent = formatPrice(dayTransfer);
+
+            const today = getCurrentDateTime().date;
+            if (viewDate === today) {
+                document.getElementById('selectedDateLabel').textContent = 'Сегодня';
+                document.getElementById('salesListLabel').textContent = 'Продажи за сегодня';
+            } else {
+                document.getElementById('selectedDateLabel').textContent = formatDateDisplay(viewDate);
+                document.getElementById('salesListLabel').textContent = `Продажи за ${formatDateDisplay(viewDate)}`;
+            }
+
+            document.getElementById('viewDayTotal').textContent = formatPrice(dayTotal);
+
+            const now = new Date();
+            const currentMonth = String(now.getMonth() + 1).padStart(2, '0');
+            const currentYear = now.getFullYear();
+            const monthSales = sales.filter(s => {
+                const [year, month] = s.date.split('-');
+                return year === String(currentYear) && month === currentMonth;
+            });
+            
+            const monthTotal = monthSales.reduce((sum, s) => sum + s.price, 0);
+            const monthCash = monthSales.filter(s => s.payment === 'Наличные').reduce((sum, s) => sum + s.price, 0);
+            const monthCard = monthSales.filter(s => s.payment === 'Безналичные').reduce((sum, s) => sum + s.price, 0);
+            const monthTransfer = monthSales.filter(s => s.payment === 'Перевод').reduce((sum, s) => sum + s.price, 0);
+            
+            document.getElementById('monthTotalValue').textContent = formatPrice(monthTotal);
+            document.getElementById('monthCash').textContent = formatPrice(monthCash);
+            document.getElementById('monthCard').textContent = formatPrice(monthCard);
+            document.getElementById('monthTransfer').textContent = formatPrice(monthTransfer);
+
+            const grid = document.getElementById('categoriesGrid');
+            const catStats = {};
+            categories.forEach(cat => {
+                const sum = sales.filter(s => s.category === cat).reduce((sum, s) => sum + s.price, 0);
+                catStats[cat] = sum;
+            });
+            
+            grid.innerHTML = categories.map(cat => `
+                <div class="category-item ${selectedCategoryForEdit === cat ? 'active' : ''}" 
+                     data-category="${cat}"
+                     onclick="selectCategory('${cat}')">
+                    <span class="cat-name">${cat}</span>
+                    <span class="cat-total">${formatPrice(catStats[cat] || 0)}</span>
+                </div>
+            `).join('');
+
+            renderRestock();
+            updateRestockBadge();
+
+            document.getElementById('saleDate').value = getCurrentDateTime().date;
+        }
+
+        // --- Экспорт CSV ---
+        function exportCSV() {
+            if (sales.length === 0) {
+                alert('Нет данных для экспорта');
+                return;
+            }
+            
+            const sortedSales = [...sales].sort((a, b) => {
+                if (a.date < b.date) return -1;
+                if (a.date > b.date) return 1;
+                if (a.time < b.time) return -1;
+                if (a.time > b.time) return 1;
+                return 0;
+            });
+            
+            const delimiter = ';';
+            const headers = ['Дата', 'Время', 'Товар', 'Категория', 'Стоимость', 'Оплата'];
+            const rows = sortedSales.map(s => [s.date, s.time || '', s.name, s.category, s.price, s.payment]);
+            
+            let csv = headers.join(delimiter) + '\n';
+            rows.forEach(row => {
+                csv += row.join(delimiter) + '\n';
+            });
+            
+            const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `CONNECT_sales_${getCurrentDateTime().date}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function clearAll() {
+            if (confirm('Удалить все данные? Это действие нельзя отменить!')) {
+                if (confirm('Вы уверены?')) {
+                    sales = [];
+                    saveData();
+                    render();
+                }
+            }
+        }
+
+        // --- Инициализация ---
+        document.addEventListener('DOMContentLoaded', function() {
+            loadConfig();
+            loadData();
+            updateSyncStatus();
+            
+            document.getElementById('newCategoryInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    addCategory();
+                }
+            });
+            
+            document.getElementById('editCategoryInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    saveCategoryEdit();
+                }
+            });
+
+            document.getElementById('restockInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    addRestockItem();
+                }
+            });
+
+            document.getElementById('configModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeConfigModal();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
