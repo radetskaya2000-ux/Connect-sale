@@ -6,7 +6,6 @@
     <title>Учет продаж - CONNECT</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📱</text></svg>">
     <style>
-        /* --- ВСЕ СТИЛИ ИЗ ПРЕДЫДУЩЕЙ ВЕРСИИ --- */
         * {
             margin: 0;
             padding: 0;
@@ -95,7 +94,6 @@
             font-weight: 700;
         }
 
-        /* --- СТИЛИ ДЛЯ СИНХРОНИЗАЦИИ --- */
         .sync-bar {
             display: flex;
             align-items: center;
@@ -171,16 +169,6 @@
             transform: translateY(-1px);
         }
 
-        .sync-btn-danger {
-            background: #fc8181;
-            color: white;
-        }
-
-        .sync-btn-danger:hover {
-            background: #f56565;
-            transform: translateY(-1px);
-        }
-
         .sync-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
@@ -193,37 +181,6 @@
             margin-left: auto;
         }
 
-        .sync-config-modal .token-input {
-            width: 100%;
-            padding: 10px 14px;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 15px;
-            font-family: monospace;
-            background: #f7fafc;
-        }
-
-        .sync-config-modal .token-input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .sync-config-modal .hint {
-            font-size: 12px;
-            color: #718096;
-            margin-top: 5px;
-        }
-
-        .sync-config-modal .hint a {
-            color: #667eea;
-            text-decoration: none;
-        }
-
-        .sync-config-modal .hint a:hover {
-            text-decoration: underline;
-        }
-
-        /* --- ОСТАЛЬНЫЕ СТИЛИ --- */
         .add-section {
             background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
             border: 2px solid #667eea;
@@ -1176,6 +1133,36 @@
             }
         }
 
+        .sync-config-modal .token-input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 15px;
+            font-family: monospace;
+            background: #f7fafc;
+        }
+
+        .sync-config-modal .token-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .sync-config-modal .hint {
+            font-size: 12px;
+            color: #718096;
+            margin-top: 5px;
+        }
+
+        .sync-config-modal .hint a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .sync-config-modal .hint a:hover {
+            text-decoration: underline;
+        }
+
         @media (max-width: 1200px) {
             .add-form {
                 grid-template-columns: 1fr 1fr 1fr;
@@ -1607,7 +1594,7 @@
         let selectedCategoryForEdit = null;
         let importedData = [];
 
-        // ========== НАСТРОЙКИ СИНХРОНИЗАЦИИ (УЖЕ ВСТАВЛЕНЫ) ==========
+        // ========== НАСТРОЙКИ СИНХРОНИЗАЦИИ ==========
         const CONFIG_KEY = 'connect_sync_config';
         let syncConfig = {
             token: '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',
@@ -1628,13 +1615,11 @@
                     document.getElementById('githubFile').value = parsed.file || 'data.json';
                 } catch (e) {
                     console.error('Ошибка загрузки конфига:', e);
-                    // Если ошибка - используем значения по умолчанию
                     document.getElementById('githubToken').value = syncConfig.token;
                     document.getElementById('githubRepo').value = syncConfig.repo;
                     document.getElementById('githubFile').value = syncConfig.file;
                 }
             } else {
-                // Если конфига нет - сохраняем наши значения
                 document.getElementById('githubToken').value = syncConfig.token;
                 document.getElementById('githubRepo').value = syncConfig.repo;
                 document.getElementById('githubFile').value = syncConfig.file;
@@ -1723,7 +1708,6 @@
             setSyncing();
 
             try {
-                // 1. Загружаем данные с GitHub
                 const response = await fetch(`https://api.github.com/repos/${syncConfig.repo}/contents/${syncConfig.file}`, {
                     headers: {
                         'Authorization': `token ${syncConfig.token}`,
@@ -1747,7 +1731,6 @@
                     throw new Error(`Ошибка GitHub: ${response.status}`);
                 }
 
-                // 2. Формируем локальные данные
                 const localData = {
                     sales: sales,
                     categories: categories,
@@ -1755,13 +1738,11 @@
                     updatedAt: new Date().toISOString()
                 };
 
-                // 3. Определяем, нужно ли объединять или заменять
                 if (remoteData) {
                     const localTime = new Date(localData.updatedAt);
                     const remoteTime = new Date(remoteData.updatedAt || 0);
                     
                     if (remoteTime > localTime) {
-                        // Данные на сервере новее - загружаем их
                         if (confirm('На сервере есть более новые данные. Загрузить их?')) {
                             sales = remoteData.sales || [];
                             categories = remoteData.categories || ['Чехлы', 'Стекло', 'Зарядка', 'Наушники', 'Аксессуары'];
@@ -1773,7 +1754,6 @@
                             return;
                         }
                     } else {
-                        // Локальные данные новее или равны - загружаем на сервер
                         if (confirm('Отправить локальные данные на сервер?')) {
                             await uploadToGitHub(localData, sha);
                             showToast('✅ Данные отправлены на сервер');
@@ -1783,7 +1763,6 @@
                         }
                     }
                 } else {
-                    // Файла нет - создаем
                     if (confirm('На сервере нет данных. Создать новый файл?')) {
                         await uploadToGitHub(localData, null);
                         showToast('✅ Данные созданы на сервере');
@@ -1793,7 +1772,6 @@
                     }
                 }
 
-                // Если пользователь отменил - просто выходим
                 setSyncComplete();
                 
             } catch (error) {
@@ -1837,7 +1815,6 @@
 
         // ========== ОСТАЛЬНЫЕ ФУНКЦИИ ==========
 
-        // Загрузка из localStorage
         function loadData() {
             const stored = localStorage.getItem('salesData');
             if (stored) {
@@ -1893,7 +1870,6 @@
             localStorage.setItem('restockData', JSON.stringify(restockItems));
         }
 
-        // --- Автоматическая дата и время ---
         function getCurrentDateTime() {
             const now = new Date();
             const year = now.getFullYear();
@@ -1907,7 +1883,6 @@
             };
         }
 
-        // --- Конвертер даты ---
         function convertDate(dateStr) {
             if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
                 return dateStr;
@@ -1934,7 +1909,6 @@
             return `${parseInt(parts[2])} ${months[parseInt(parts[1]) - 1]} ${parts[0]}`;
         }
 
-        // --- Управление списком на закупку ---
         function toggleRestockSection() {
             const section = document.getElementById('restockSection');
             if (section.style.display === 'none') {
@@ -1994,7 +1968,6 @@
             document.getElementById('restockCount').textContent = restockItems.length;
         }
 
-        // --- Уведомления ---
         function showToast(message, type = 'success') {
             const oldToasts = document.querySelectorAll('.toast');
             oldToasts.forEach(t => t.remove());
@@ -2011,7 +1984,6 @@
             }, 3000);
         }
 
-        // --- Экспорт списка закупок ---
         function copyRestockList() {
             if (restockItems.length === 0) {
                 showToast('📦 Список закупок пуст', 'error');
@@ -2078,7 +2050,6 @@
             showToast(`💾 Файл скачан! (${restockItems.length} позиций)`);
         }
 
-        // --- Быстрые кнопки для даты ---
         function setDateToday() {
             document.getElementById('saleDate').value = getCurrentDateTime().date;
         }
@@ -2101,7 +2072,6 @@
             document.getElementById('saleDate').value = `${year}-${month}-${day}`;
         }
 
-        // --- Добавление записи ---
         document.getElementById('addForm').addEventListener('submit', function(e) {
             e.preventDefault();
 
@@ -2145,7 +2115,6 @@
             document.getElementById('productName').focus();
         });
 
-        // --- Удаление ---
         function deleteSale(id) {
             if (confirm('Удалить эту продажу?')) {
                 sales = sales.filter(s => s.id !== id);
@@ -2154,7 +2123,6 @@
             }
         }
 
-        // --- Редактирование ---
         function openEditModal(id) {
             const sale = sales.find(s => s.id === id);
             if (!sale) return;
@@ -2206,7 +2174,7 @@
             }
         });
 
-        // --- Проверка дубликатов ---        function findDuplicates(newData) {
+        function findDuplicates(newData) {
             const duplicates = [];
             const unique = [];
             
@@ -2228,7 +2196,6 @@
             return { duplicates, unique };
         }
 
-        // --- Импорт CSV ---
         function importCSV(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -2503,7 +2470,6 @@
             importedData = [];
         }
 
-        // --- Управление датой просмотра ---
         document.getElementById('viewDate').addEventListener('change', function() {
             currentViewDate = this.value;
             render();
@@ -2516,7 +2482,6 @@
             render();
         }
 
-        // --- Форматирование ---
         function formatPrice(value) {
             return value.toLocaleString('ru-RU') + ' ₽';
         }
@@ -2539,7 +2504,6 @@
             return map[method] || '';
         }
 
-        // --- Обновление списка категорий ---
         function updateCategorySelect() {
             const select = document.getElementById('category');
             const currentValue = select.value;
@@ -2579,7 +2543,6 @@
             }
         }
 
-        // --- Управление категориями ---
         function selectCategory(categoryName) {
             selectedCategoryForEdit = categoryName;
             document.querySelectorAll('.category-item').forEach(el => {
@@ -2700,7 +2663,6 @@
             render();
         }
 
-        // --- Рендер ---
         function render() {
             const viewDate = currentViewDate || getCurrentDateTime().date;
             const daySales = sales.filter(s => s.date === viewDate);
@@ -2804,7 +2766,6 @@
             document.getElementById('saleDate').value = getCurrentDateTime().date;
         }
 
-        // --- Экспорт CSV ---
         function exportCSV() {
             if (sales.length === 0) {
                 alert('Нет данных для экспорта');
@@ -2849,7 +2810,6 @@
             }
         }
 
-        // --- Инициализация ---
         document.addEventListener('DOMContentLoaded', function() {
             loadConfig();
             loadData();
