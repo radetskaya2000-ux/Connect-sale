@@ -6,7 +6,7 @@
     <title>Учет продаж - CONNECT</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📱</text></svg>">
     <style>
-        /* --- ВСЕ СТИЛИ --- */
+        /* --- ВСЕ СТИЛИ (БЕЗ ИЗМЕНЕНИЙ) --- */
         * {
             margin: 0;
             padding: 0;
@@ -1235,7 +1235,6 @@
             border: 1px solid #bee5eb;
         }
 
-        /* Стили для логов на телефоне */
         .debug-console {
             background: #1a202c;
             color: #68d391;
@@ -1244,7 +1243,7 @@
             padding: 10px;
             border-radius: 8px;
             margin-top: 10px;
-            max-height: 150px;
+            max-height: 200px;
             overflow-y: auto;
             white-space: pre-wrap;
             word-break: break-all;
@@ -1263,6 +1262,23 @@
             border-radius: 4px;
             font-size: 11px;
             cursor: pointer;
+        }
+
+        .btn-force-refresh {
+            background: #9f7aea;
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 13px;
+        }
+
+        .btn-force-refresh:hover {
+            background: #805ad5;
+            transform: translateY(-1px);
         }
 
         @media (max-width: 1200px) {
@@ -1417,6 +1433,9 @@
             </button>
             <button class="sync-btn sync-btn-warning" id="forcePullBtn" onclick="forcePullFromGitHub()">
                 📥 Загрузить с сервера
+            </button>
+            <button class="btn-force-refresh" onclick="refreshFromGitHub()">
+                🔄 Принудительно обновить
             </button>
             <button class="sync-btn sync-btn-success" onclick="showConfigModal()">
                 ⚙️ Настройки
@@ -1823,7 +1842,10 @@
                 const testResponse = await fetch('https://api.github.com/user', {
                     headers: {
                         'Authorization': `token ${syncConfig.token}`,
-                        'Accept': 'application/vnd.github.v3+json'
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache',
+                        'Expires': '0'
                     }
                 });
 
@@ -1839,7 +1861,8 @@
                 const repoResponse = await fetch(`https://api.github.com/repos/${syncConfig.repo}`, {
                     headers: {
                         'Authorization': `token ${syncConfig.token}`,
-                        'Accept': 'application/vnd.github.v3+json'
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Cache-Control': 'no-cache, no-store, must-revalidate'
                     }
                 });
 
@@ -1855,7 +1878,9 @@
                 const fileResponse = await fetch(`https://api.github.com/repos/${syncConfig.repo}/contents/data.json`, {
                     headers: {
                         'Authorization': `token ${syncConfig.token}`,
-                        'Accept': 'application/vnd.github.v3+json'
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache'
                     }
                 });
 
@@ -1924,7 +1949,87 @@
             }
         }
 
-        // ========== ПРИНУДИТЕЛЬНАЯ ЗАГРУЗКА ==========
+        // ========== ПРИНУДИТЕЛЬНОЕ ОБНОВЛЕНИЕ ==========
+        async function refreshFromGitHub() {
+            debugLog('=== ПРИНУДИТЕЛЬНОЕ ОБНОВЛЕНИЕ ===');
+            
+            if (isSyncing) {
+                showToast('⏳ Синхронизация уже выполняется', 'info');
+                return;
+            }
+
+            if (!syncConfig.token || !syncConfig.repo) {
+                showToast('❌ Сначала настройте синхронизацию', 'error');
+                showConfigModal();
+                return;
+            }
+
+            if (!confirm('🔄 Принудительно загрузить свежие данные с сервера?')) {
+                return;
+            }
+
+            setSyncing();
+
+            try {
+                debugLog('Загрузка файла с GitHub (с обновлением кеша)...');
+                const response = await fetch(`https://api.github.com/repos/${syncConfig.repo}/contents/data.json?t=${Date.now()}`, {
+                    headers: {
+                        'Authorization': `token ${syncConfig.token}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache'
+                    }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        throw new Error('Файл data.json не найден на сервере.');
+                    }
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || `Ошибка GitHub: ${response.status}`);
+                }
+
+                const data = await response.json();
+                const content = atob(data.content);
+                debugLog('Файл загружен, размер: ' + content.length + ' символов');
+                
+                let remoteData;
+                try {
+                    remoteData = JSON.parse(content);
+                    debugLog('Данные распарсены');
+                } catch (e) {
+                    throw new Error('Ошибка парсинга данных с сервера: ' + e.message);
+                }
+
+                const newSales = remoteData.sales || [];
+                const newCategories = remoteData.categories || ['Чехлы', 'Стекло', 'Зарядка', 'Наушники', 'Аксессуары'];
+                const newRestock = remoteData.restockItems || [];
+
+                debugLog('Загружено: ' + newSales.length + ' продаж, ' + newRestock.length + ' товаров в закупке');
+
+                sales = newSales;
+                categories = newCategories;
+                restockItems = newRestock;
+                
+                saveDataLocal();
+                updateCategorySelect();
+                updateEditCategorySelect();
+                render();
+                
+                showToast(`✅ Данные обновлены с сервера! (${sales.length} продаж)`);
+                debugLog('Данные успешно обновлены!');
+                setSyncComplete();
+                checkSyncStatus();
+                
+            } catch (error) {
+                debugLog('ОШИБКА: ' + error.message);
+                showToast(`❌ Ошибка: ${error.message}`, 'error');
+                setSyncError();
+                checkSyncStatus();
+            }
+        }
+
+        // ========== ПРИНУДИТЕЛЬНАЯ ЗАГРУЗКА С СЕРВЕРА ==========
         async function forcePullFromGitHub() {
             debugLog('=== ПРИНУДИТЕЛЬНАЯ ЗАГРУЗКА С СЕРВЕРА ===');
             
@@ -1968,10 +2073,11 @@
                 debugLog('Токен OK');
 
                 debugLog('Загрузка файла с GitHub...');
-                const response = await fetch(`https://api.github.com/repos/${syncConfig.repo}/contents/${syncConfig.file}`, {
+                const response = await fetch(`https://api.github.com/repos/${syncConfig.repo}/contents/${syncConfig.file}?t=${Date.now()}`, {
                     headers: {
                         'Authorization': `token ${syncConfig.token}`,
-                        'Accept': 'application/vnd.github.v3+json'
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Cache-Control': 'no-cache, no-store, must-revalidate'
                     }
                 });
 
@@ -2062,10 +2168,11 @@
                 debugLog('Токен OK');
 
                 debugLog('Загрузка файла с GitHub...');
-                const response = await fetch(`https://api.github.com/repos/${syncConfig.repo}/contents/${syncConfig.file}`, {
+                const response = await fetch(`https://api.github.com/repos/${syncConfig.repo}/contents/${syncConfig.file}?t=${Date.now()}`, {
                     headers: {
                         'Authorization': `token ${syncConfig.token}`,
-                        'Accept': 'application/vnd.github.v3+json'
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Cache-Control': 'no-cache, no-store, must-revalidate'
                     }
                 });
 
@@ -2259,10 +2366,11 @@
                 debugLog('Репозиторий OK');
 
                 debugLog('Проверка файла data.json...');
-                const fileResponse = await fetch(`https://api.github.com/repos/${repo}/contents/data.json`, {
+                const fileResponse = await fetch(`https://api.github.com/repos/${repo}/contents/data.json?t=${Date.now()}`, {
                     headers: {
                         'Authorization': `token ${token}`,
-                        'Accept': 'application/vnd.github.v3+json'
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Cache-Control': 'no-cache, no-store, must-revalidate'
                     }
                 });
 
