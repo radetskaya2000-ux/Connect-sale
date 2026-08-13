@@ -6,7 +6,7 @@
     <title>Учет продаж - CONNECT</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📱</text></svg>">
     <style>
-        /* --- ВСЕ СТИЛИ ИЗ ПРЕДЫДУЩЕЙ ВЕРСИИ --- */
+        /* --- ВСЕ СТИЛИ --- */
         * {
             margin: 0;
             padding: 0;
@@ -207,21 +207,22 @@
             margin-left: auto;
         }
 
-        .auto-sync-toggle {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 13px;
-            color: #4a5568;
-            cursor: pointer;
-            user-select: none;
+        .sync-info-text {
+            font-size: 12px;
+            color: #718096;
+            flex: 1;
+            min-width: 150px;
+            line-height: 1.5;
         }
 
-        .auto-sync-toggle input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            accent-color: #667eea;
-            cursor: pointer;
+        .sync-info-text .success {
+            color: #48bb78;
+        }
+        .sync-info-text .error {
+            color: #fc8181;
+        }
+        .sync-info-text .warning {
+            color: #ed8936;
         }
 
         .add-section {
@@ -1334,8 +1335,8 @@
                 text-align: center;
             }
 
-            .auto-sync-toggle {
-                justify-content: center;
+            .sync-info-text {
+                text-align: center;
             }
         }
 
@@ -1378,17 +1379,19 @@
         <!-- Панель синхронизации -->
         <div class="sync-bar" id="syncBar">
             <div class="sync-status">
-                <span class="indicator online" id="syncIndicator"></span>
-                <span id="syncStatusText">Готов к синхронизации</span>
+                <span class="indicator offline" id="syncIndicator"></span>
+                <span id="syncStatusText">Загрузка...</span>
             </div>
             
-            <label class="auto-sync-toggle" title="Автоматически синхронизировать при загрузке и после изменений">
-                <input type="checkbox" id="autoSyncToggle" checked>
-                🤖 Авто-синхронизация
-            </label>
+            <div class="sync-info-text" id="syncInfo">
+                ⏳ Проверка подключения...
+            </div>
             
             <button class="sync-btn sync-btn-primary" onclick="manualSync()">
                 🔄 Синхронизировать
+            </button>
+            <button class="sync-btn sync-btn-warning" onclick="forcePullFromGitHub()">
+                📥 Загрузить с сервера
             </button>
             <button class="sync-btn sync-btn-success" onclick="showConfigModal()">
                 ⚙️ Настройки
@@ -1396,7 +1399,7 @@
             <button class="sync-btn sync-btn-danger" onclick="testGitHubConnection()">
                 🔍 Проверить
             </button>
-            <span class="sync-last" id="syncLast">Последняя синхронизация: никогда</span>
+            <span class="sync-last" id="syncLast">Последняя синхронизация: неизвестно</span>
         </div>
 
         <!-- Блок добавления продажи -->
@@ -1718,11 +1721,6 @@
                 document.getElementById('githubFile').value = syncConfig.file;
                 localStorage.setItem(CONFIG_KEY, JSON.stringify(syncConfig));
             }
-
-            const autoSync = localStorage.getItem('autoSyncEnabled');
-            if (autoSync !== null) {
-                document.getElementById('autoSyncToggle').checked = autoSync === 'true';
-            }
         }
 
         function saveConfig() {
@@ -1737,13 +1735,9 @@
 
             syncConfig = { token, repo, file };
             localStorage.setItem(CONFIG_KEY, JSON.stringify(syncConfig));
-            
-            const autoSync = document.getElementById('autoSyncToggle').checked;
-            localStorage.setItem('autoSyncEnabled', String(autoSync));
-            
             closeConfigModal();
             showToast('✅ Настройки сохранены!');
-            updateSyncStatus();
+            checkSyncStatus();
         }
 
         function showConfigModal() {
@@ -1756,8 +1750,116 @@
             document.getElementById('configModal').classList.remove('active');
         }
 
-        function isAutoSyncEnabled() {
-            return document.getElementById('autoSyncToggle').checked;
+        // ========== ПРОВЕРКА СТАТУСА СИНХРОНИЗАЦИИ ==========
+        async function checkSyncStatus() {
+            const info = document.getElementById('syncInfo');
+            const indicator = document.getElementById('syncIndicator');
+            const statusText = document.getElementById('syncStatusText');
+            
+            if (!syncConfig.token || !syncConfig.repo) {
+                indicator.className = 'indicator offline';
+                statusText.textContent = 'Не настроено';
+                info.innerHTML = '⚠️ Заполните настройки синхронизации в ⚙️';
+                return;
+            }
+
+            try {
+                // Проверяем токен
+                const testResponse = await fetch('https://api.github.com/user', {
+                    headers: {
+                        'Authorization': `token ${syncConfig.token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+
+                if (!testResponse.ok) {
+                    indicator.className = 'indicator offline';
+                    statusText.textContent = 'Ошибка токена';
+                    info.innerHTML = '❌ Токен недействителен. Создайте новый токен с правами repo';
+                    return;
+                }
+
+                // Проверяем репозиторий
+                const repoResponse = await fetch(`https://api.github.com/repos/${syncConfig.repo}`, {
+                    headers: {
+                        'Authorization': `token ${syncConfig.token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+
+                if (!repoResponse.ok) {
+                    indicator.className = 'indicator offline';
+                    statusText.textContent = 'Репозиторий не найден';
+                    info.innerHTML = `❌ Репозиторий "${syncConfig.repo}" не найден`;
+                    return;
+                }
+
+                // Проверяем файл data.json
+                const fileResponse = await fetch(`https://api.github.com/repos/${syncConfig.repo}/contents/data.json`, {
+                    headers: {
+                        'Authorization': `token ${syncConfig.token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+
+                let remoteSales = 0;
+                let remoteRestock = 0;
+                let fileExists = false;
+
+                if (fileResponse.ok) {
+                    const data = await fileResponse.json();
+                    const content = atob(data.content);
+                    try {
+                        const parsed = JSON.parse(content);
+                        remoteSales = parsed.sales?.length || 0;
+                        remoteRestock = parsed.restockItems?.length || 0;
+                        fileExists = true;
+                    } catch (e) {
+                        // Данные повреждены
+                    }
+                }
+
+                // Показываем статус
+                indicator.className = 'indicator online';
+                statusText.textContent = '✅ Подключение есть';
+                
+                let infoHtml = '';
+                if (fileExists) {
+                    infoHtml = `📊 На сервере: <span class="success">${remoteSales}</span> продаж, <span class="success">${remoteRestock}</span> товаров в закупке`;
+                } else {
+                    infoHtml = 'ℹ️ Файл data.json ещё не создан';
+                }
+                
+                // Сравниваем с локальными данными
+                const localSales = sales.length;
+                const localRestock = restockItems.length;
+                
+                infoHtml += `<br>🖥️ Локально: <span>${localSales}</span> продаж, <span>${localRestock}</span> товаров в закупке`;
+                
+                if (fileExists) {
+                    if (remoteSales !== localSales || remoteRestock !== localRestock) {
+                        infoHtml += ` <span class="warning">⚠️ Данные отличаются</span>`;
+                        if (remoteSales > localSales) {
+                            infoHtml += `<br><span class="warning">📥 На сервере больше продаж (${remoteSales} vs ${localSales})</span>`;
+                        } else if (localSales > remoteSales) {
+                            infoHtml += `<br><span class="warning">📤 Локально больше продаж (${localSales} vs ${remoteSales})</span>`;
+                        }
+                    } else {
+                        infoHtml += ` <span class="success">✅ Данные синхронизированы</span>`;
+                    }
+                } else {
+                    if (localSales > 0) {
+                        infoHtml += `<br><span class="warning">📤 Локальные данные можно отправить на сервер</span>`;
+                    }
+                }
+
+                info.innerHTML = infoHtml;
+
+            } catch (error) {
+                indicator.className = 'indicator offline';
+                statusText.textContent = 'Ошибка соединения';
+                info.innerHTML = `❌ Ошибка: ${error.message}`;
+            }
         }
 
         // ========== ОСНОВНАЯ ФУНКЦИЯ СИНХРОНИЗАЦИИ ==========
@@ -1865,6 +1967,7 @@
                 }
 
                 setSyncComplete();
+                checkSyncStatus();
                 return { success: true, message, action };
 
             } catch (error) {
@@ -1873,11 +1976,12 @@
                     showToast(`❌ Ошибка: ${error.message}`, 'error');
                 }
                 setSyncError();
+                checkSyncStatus();
                 return { success: false, message: error.message };
             }
         }
 
-        // ========== РУЧНАЯ СИНХРОНИЗАЦИЯ С ДИАЛОГОМ ==========
+        // ========== РУЧНАЯ СИНХРОНИЗАЦИЯ ==========
         async function manualSync() {
             if (isSyncing) {
                 showToast('⏳ Синхронизация уже выполняется', 'info');
@@ -1890,7 +1994,28 @@
                 return;
             }
 
-            // Проверяем, есть ли данные на сервере
+            await performSync(true);
+        }
+
+        // ========== ПРИНУДИТЕЛЬНАЯ ЗАГРУЗКА С СЕРВЕРА ==========
+        async function forcePullFromGitHub() {
+            if (isSyncing) {
+                showToast('⏳ Синхронизация уже выполняется', 'info');
+                return;
+            }
+
+            if (!syncConfig.token || !syncConfig.repo) {
+                showToast('❌ Сначала настройте синхронизацию', 'error');
+                showConfigModal();
+                return;
+            }
+
+            if (!confirm('⚠️ Эта операция ЗАМЕНИТ все локальные данные на данные с сервера. Продолжить?')) {
+                return;
+            }
+
+            setSyncing();
+
             try {
                 const testResponse = await fetch('https://api.github.com/user', {
                     headers: {
@@ -1901,8 +2026,9 @@
 
                 if (!testResponse.ok) {
                     if (testResponse.status === 401) {
-                        showToast('❌ Неверный токен! Создайте новый', 'error');
-                        return;
+                        throw new Error('Неверный токен. Создайте новый токен с правами repo');
+                    } else {
+                        throw new Error(`Ошибка авторизации: ${testResponse.status}`);
                     }
                 }
 
@@ -1913,36 +2039,41 @@
                     }
                 });
 
-                let hasRemoteData = false;
-                if (response.ok) {
-                    const data = await response.json();
-                    const content = atob(data.content);
-                    try {
-                        const parsed = JSON.parse(content);
-                        hasRemoteData = parsed.sales && parsed.sales.length > 0;
-                    } catch (e) {}
-                }
-
-                // Если на сервере есть данные и локально пусто - сразу загружаем
-                if (hasRemoteData && sales.length === 0 && restockItems.length === 0) {
-                    const confirmLoad = confirm('📥 На вашем устройстве нет данных. Загрузить данные с сервера?');
-                    if (confirmLoad) {
-                        await performSync(true);
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        throw new Error('Файл data.json не найден на сервере.');
                     }
-                    return;
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || `Ошибка GitHub: ${response.status}`);
                 }
 
-                // Если на сервере нет данных и локально пусто
-                if (!hasRemoteData && sales.length === 0 && restockItems.length === 0) {
-                    showToast('ℹ️ Нет данных для синхронизации', 'info');
-                    return;
+                const data = await response.json();
+                const content = atob(data.content);
+                let remoteData;
+                try {
+                    remoteData = JSON.parse(content);
+                } catch (e) {
+                    throw new Error('Ошибка парсинга данных с сервера');
                 }
 
-                // Иначе просто синхронизируем
-                await performSync(true);
-
+                sales = remoteData.sales || [];
+                categories = remoteData.categories || ['Чехлы', 'Стекло', 'Зарядка', 'Наушники', 'Аксессуары'];
+                restockItems = remoteData.restockItems || [];
+                
+                saveDataLocal();
+                updateCategorySelect();
+                updateEditCategorySelect();
+                render();
+                
+                showToast(`✅ Данные загружены с сервера! (${sales.length} продаж, ${restockItems.length} товаров в закупке)`);
+                setSyncComplete();
+                checkSyncStatus();
+                
             } catch (error) {
+                console.error('Ошибка загрузки с сервера:', error);
                 showToast(`❌ Ошибка: ${error.message}`, 'error');
+                setSyncError();
+                checkSyncStatus();
             }
         }
 
@@ -2089,13 +2220,8 @@
                 return;
             }
 
-            if (isAutoSyncEnabled()) {
-                indicator.className = 'indicator online';
-                statusText.textContent = 'Авто-синхронизация включена';
-            } else {
-                indicator.className = 'indicator online';
-                statusText.textContent = 'Готов к синхронизации';
-            }
+            indicator.className = 'indicator online';
+            statusText.textContent = 'Готов к синхронизации';
             document.getElementById('syncBtn').disabled = false;
         }
 
@@ -2121,18 +2247,13 @@
 
         // ========== АВТОМАТИЧЕСКАЯ СИНХРОНИЗАЦИЯ ==========
         function autoSync() {
-            if (!isAutoSyncEnabled()) return;
             if (isSyncing) return;
             if (!syncConfig.token || !syncConfig.repo) return;
+            if (!initialLoadDone) return;
 
             if (syncTimeout) {
                 clearTimeout(syncTimeout);
             }
-
-            const indicator = document.getElementById('syncIndicator');
-            const statusText = document.getElementById('syncStatusText');
-            indicator.className = 'indicator auto';
-            statusText.textContent = 'Авто-синхронизация...';
 
             syncTimeout = setTimeout(async () => {
                 try {
@@ -2142,7 +2263,7 @@
                 } finally {
                     updateSyncStatus();
                 }
-            }, 1000);
+            }, 1500);
         }
 
         // ========== ЗАГРУЗКА ДАННЫХ ==========
@@ -2194,8 +2315,11 @@
             render();
             updateSyncStatus();
 
+            // Проверяем статус синхронизации
+            setTimeout(checkSyncStatus, 500);
+
             // Автоматическая синхронизация при загрузке
-            if (syncConfig.token && syncConfig.repo && isAutoSyncEnabled()) {
+            if (syncConfig.token && syncConfig.repo) {
                 setTimeout(async () => {
                     await performSync(false);
                     initialLoadDone = true;
@@ -2213,7 +2337,6 @@
 
         function saveData() {
             saveDataLocal();
-            // Автоматическая синхронизация после сохранения
             if (initialLoadDone) {
                 autoSync();
             }
@@ -3169,17 +3292,6 @@
             loadConfig();
             loadData();
             updateSyncStatus();
-            
-            document.getElementById('autoSyncToggle').addEventListener('change', function() {
-                localStorage.setItem('autoSyncEnabled', String(this.checked));
-                updateSyncStatus();
-                if (this.checked) {
-                    showToast('🤖 Авто-синхронизация включена', 'info');
-                    autoSync();
-                } else {
-                    showToast('🤖 Авто-синхронизация выключена', 'info');
-                }
-            });
             
             document.getElementById('newCategoryInput').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
