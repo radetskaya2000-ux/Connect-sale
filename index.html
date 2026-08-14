@@ -5,81 +5,113 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Учет продаж - CONNECT</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📱</text></svg>">
-<style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 10px;
-            overflow-x: hidden;
+            padding: 20px;
         }
+
         .container {
             max-width: 1400px;
             margin: 0 auto;
             background: white;
             border-radius: 20px;
-            padding: 15px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            width: 100%;
-            overflow-x: hidden;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             position: relative;
+            overflow-x: hidden;
         }
-        /* ШАПКА */
+
+        /* ===== ШАПКА ===== */
         .header {
             display: flex;
             align-items: center;
-            gap: 8px;
-            margin-bottom: 15px;
+            gap: 15px;
+            margin-bottom: 30px;
             flex-wrap: wrap;
         }
+
         .logo-text {
-            font-size: 24px;
+            font-size: 36px;
             font-weight: 800;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            letter-spacing: 2px;
+            letter-spacing: 4px;
         }
-        .header-divider { color: #e2e8f0; font-size: 20px; font-weight: 300; }
-        .header-title { color: #2d3748; font-size: 18px; font-weight: 600; }
-        .header-actions { margin-left: auto; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+        .header-divider {
+            color: #e2e8f0;
+            font-size: 30px;
+            font-weight: 300;
+        }
+
+        .header-title {
+            color: #2d3748;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .header-actions {
+            margin-left: auto;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
         .btn-restock {
             background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
             color: white;
             border: none;
-            padding: 6px 14px;
+            padding: 10px 20px;
             border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
-            font-size: 12px;
+            transition: all 0.3s;
+            font-size: 14px;
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 8px;
         }
+
+        .btn-restock:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(237, 137, 54, 0.4);
+        }
+
         .btn-restock .badge {
             background: white;
             color: #ed8936;
-            padding: 1px 7px;
+            padding: 2px 8px;
             border-radius: 12px;
-            font-size: 10px;
+            font-size: 12px;
             font-weight: 700;
         }
 
-        /* НАСТРОЙКИ */
+        /* ===== КНОПКА НАСТРОЕК ===== */
         .settings-float {
             position: absolute;
-            top: 10px;
-            right: 10px;
+            top: 20px;
+            right: 20px;
             z-index: 100;
         }
+
         .settings-float button {
             background: #f7fafc;
             border: 2px solid #e2e8f0;
             border-radius: 50%;
-            width: 36px;
-            height: 36px;
-            font-size: 16px;
+            width: 44px;
+            height: 44px;
+            font-size: 20px;
             cursor: pointer;
             transition: all 0.3s;
             display: flex;
@@ -87,7 +119,12 @@
             justify-content: center;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        .settings-float button:hover { transform: rotate(90deg); border-color: #667eea; }
+
+        .settings-float button:hover {
+            transform: rotate(90deg);
+            border-color: #667eea;
+        }
+
         .settings-float .sync-dot {
             position: absolute;
             top: -4px;
@@ -98,573 +135,864 @@
             background: #48bb78;
             border: 2px solid white;
         }
-        .settings-float .sync-dot.offline { background: #fc8181; }
-        .settings-float .sync-dot.syncing { background: #ed8936; animation: pulse 1s infinite; }
-        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+        .settings-float .sync-dot.offline {
+            background: #fc8181;
+        }
+
+        .settings-float .sync-dot.syncing {
+            background: #ed8936;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
 
         .settings-dropdown {
             position: absolute;
-            top: 50px;
-            right: 5px;
+            top: 70px;
+            right: 20px;
             background: white;
             border-radius: 12px;
             border: 2px solid #e2e8f0;
             box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-            padding: 12px;
-            width: 250px;
+            padding: 20px;
+            width: 320px;
             display: none;
             z-index: 200;
         }
-        .settings-dropdown.active { display: block; }
+
+        .settings-dropdown.active {
+            display: block;
+        }
+
         .settings-dropdown .sync-status {
             display: flex;
             align-items: center;
-            gap: 6px;
-            font-size: 12px;
+            gap: 8px;
+            font-size: 13px;
             color: #4a5568;
-            margin-bottom: 6px;
+            margin-bottom: 10px;
         }
+
         .settings-dropdown .sync-status .indicator {
             width: 10px;
             height: 10px;
             border-radius: 50%;
             display: inline-block;
         }
-        .settings-dropdown .sync-status .indicator.online { background: #48bb78; }
-        .settings-dropdown .sync-status .indicator.offline { background: #fc8181; }
-        .settings-dropdown .sync-status .indicator.syncing { background: #ed8936; animation: pulse 1s infinite; }
-        .settings-dropdown .sync-info-text {
-            font-size: 11px;
-            color: #718096;
-            margin-bottom: 8px;
-            line-height: 1.4;
+
+        .settings-dropdown .sync-status .indicator.online {
+            background: #48bb78;
         }
+
+        .settings-dropdown .sync-status .indicator.offline {
+            background: #fc8181;
+        }
+
+        .settings-dropdown .sync-status .indicator.syncing {
+            background: #ed8936;
+            animation: pulse 1s infinite;
+        }
+
+        .settings-dropdown .sync-info-text {
+            font-size: 12px;
+            color: #718096;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
         .settings-dropdown .sync-btn {
-            padding: 4px 10px;
+            padding: 6px 14px;
             border: none;
             border-radius: 6px;
             font-weight: 600;
             cursor: pointer;
-            font-size: 11px;
-            margin: 2px;
+            transition: all 0.2s;
+            font-size: 12px;
+            margin: 3px;
         }
-        .settings-dropdown .sync-btn-primary { background: #667eea; color: white; }
-        .settings-dropdown .sync-btn-primary:hover { background: #5a67d8; }
-        .settings-dropdown .sync-btn-warning { background: #ed8936; color: white; }
-        .settings-dropdown .sync-btn-warning:hover { background: #dd6b20; }
-        .settings-dropdown .sync-btn-danger { background: #fc8181; color: white; }
-        .settings-dropdown .sync-btn-danger:hover { background: #f56565; }
+
+        .settings-dropdown .sync-btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .settings-dropdown .sync-btn-primary:hover {
+            background: #5a67d8;
+        }
+
+        .settings-dropdown .sync-btn-warning {
+            background: #ed8936;
+            color: white;
+        }
+
+        .settings-dropdown .sync-btn-warning:hover {
+            background: #dd6b20;
+        }
+
+        .settings-dropdown .sync-btn-danger {
+            background: #fc8181;
+            color: white;
+        }
+
+        .settings-dropdown .sync-btn-danger:hover {
+            background: #f56565;
+        }
+
         .settings-dropdown .sync-last {
-            font-size: 10px;
+            font-size: 11px;
             color: #a0aec0;
-            margin-top: 6px;
+            margin-top: 10px;
             display: block;
         }
+
         .settings-dropdown .config-link {
             display: block;
             text-align: center;
-            margin-top: 6px;
-            padding: 5px;
+            margin-top: 10px;
+            padding: 8px;
             background: #f7fafc;
             border-radius: 6px;
             color: #667eea;
             font-weight: 600;
-            font-size: 11px;
+            font-size: 13px;
             cursor: pointer;
         }
-        .settings-dropdown .config-link:hover { background: #edf2f7; }
 
-        /* ФОРМА */
+        .settings-dropdown .config-link:hover {
+            background: #edf2f7;
+        }
+
+        /* ===== ФОРМА ДОБАВЛЕНИЯ ===== */
         .add-section {
             background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
             border: 2px solid #667eea;
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 15px;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.15);
             position: relative;
         }
+
         .add-section::before {
             content: '➕ Новая продажа';
             position: absolute;
-            top: -11px;
-            left: 16px;
+            top: -12px;
+            left: 20px;
             background: white;
-            padding: 0 12px;
+            padding: 0 15px;
             font-weight: 700;
             color: #667eea;
-            font-size: 13px;
+            font-size: 16px;
             border-radius: 8px;
         }
+
         .add-form {
             display: grid;
             grid-template-columns: 1fr 1.5fr 1fr 1fr 1fr 0.7fr;
-            gap: 10px;
+            gap: 15px;
             align-items: end;
-            margin-top: 4px;
+            margin-top: 5px;
         }
+
         .form-group {
             display: flex;
             flex-direction: column;
-            gap: 3px;
+            gap: 5px;
         }
+
         .form-group label {
-            font-size: 10px;
+            font-size: 13px;
             font-weight: 600;
             color: #4a5568;
             text-transform: uppercase;
-            letter-spacing: 0.3px;
+            letter-spacing: 0.5px;
         }
-        .form-group input, .form-group select {
-            padding: 6px 10px;
+
+        .form-group input,
+        .form-group select {
+            padding: 10px 14px;
             border: 2px solid #e2e8f0;
             border-radius: 8px;
-            font-size: 13px;
+            font-size: 15px;
+            transition: all 0.3s;
             background: white;
             width: 100%;
             min-width: 0;
         }
-        .form-group input:focus, .form-group select:focus {
+
+        .form-group input:focus,
+        .form-group select:focus {
             outline: none;
             border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
-        .form-group input[type="date"] { cursor: pointer; }
+
+        .form-group input[type="date"] {
+            cursor: pointer;
+        }
+
         .form-group.checkbox-group {
             flex-direction: row;
             align-items: center;
-            gap: 6px;
-            padding-top: 4px;
+            gap: 10px;
+            padding-top: 5px;
         }
+
         .form-group.checkbox-group label {
             margin-bottom: 0;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 5px;
-            font-size: 12px;
+            gap: 8px;
+            font-size: 13px;
             color: #4a5568;
         }
+
         .form-group.checkbox-group input[type="checkbox"] {
-            width: 16px;
-            height: 16px;
+            width: 20px;
+            height: 20px;
             cursor: pointer;
             accent-color: #667eea;
         }
+
         .btn-add {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            padding: 6px 14px;
+            padding: 10px 24px;
             border-radius: 8px;
-            font-size: 13px;
+            font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
-            height: 38px;
+            height: 44px;
+            white-space: nowrap;
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 8px;
             justify-content: center;
             width: 100%;
         }
-        .btn-add:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(102,126,234,0.4); }
+
+        .btn-add:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-add:active {
+            transform: translateY(0);
+        }
+
         .quick-date-buttons {
             display: flex;
-            gap: 3px;
-            margin-top: 3px;
+            gap: 5px;
+            margin-top: 5px;
             flex-wrap: wrap;
         }
+
         .quick-date-btn {
-            padding: 2px 7px;
+            padding: 4px 10px;
             border: 1px solid #e2e8f0;
-            border-radius: 4px;
+            border-radius: 6px;
             background: white;
-            font-size: 9px;
+            font-size: 11px;
             cursor: pointer;
+            transition: all 0.2s;
             color: #4a5568;
         }
-        .quick-date-btn:hover { background: #667eea; color: white; border-color: #667eea; }
 
-        /* СТАТИСТИКА */
+        .quick-date-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        /* ===== СТАТИСТИКА ===== */
         .day-stats {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 15px;
+            gap: 15px;
+            margin-bottom: 25px;
         }
+
         .stat-card {
             background: #f7fafc;
-            padding: 10px 14px;
-            border-radius: 10px;
+            padding: 16px 20px;
+            border-radius: 12px;
             border: 2px solid transparent;
+            transition: all 0.3s;
         }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            border-color: #667eea;
+        }
+
         .stat-card .label {
-            font-size: 10px;
+            font-size: 13px;
             color: #718096;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.3px;
+            letter-spacing: 0.5px;
         }
+
         .stat-card .value {
-            font-size: 20px;
+            font-size: 24px;
             font-weight: 700;
             color: #2d3748;
-            margin-top: 2px;
-            word-break: break-word;
+            margin-top: 4px;
         }
+
         .stat-card.total-day {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border-color: #667eea;
         }
-        .stat-card.total-day .label, .stat-card.total-day .value { color: white; }
-        .stat-card.cash .value { color: #48bb78; }
-        .stat-card.card .value { color: #4299e1; }
-        .stat-card.transfer .value { color: #ed8936; }
 
-        /* ВЫБОР ДАТЫ */
+        .stat-card.total-day .label,
+        .stat-card.total-day .value {
+            color: white;
+        }
+
+        .stat-card.cash .value {
+            color: #48bb78;
+        }
+        .stat-card.card .value {
+            color: #4299e1;
+        }
+        .stat-card.transfer .value {
+            color: #ed8936;
+        }
+
+        /* ===== ВЫБОР ДАТЫ ===== */
         .date-selector {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
+            gap: 15px;
+            margin-bottom: 15px;
             flex-wrap: wrap;
             background: #f7fafc;
-            padding: 8px 14px;
-            border-radius: 10px;
+            padding: 12px 20px;
+            border-radius: 12px;
             border: 2px solid #e2e8f0;
         }
+
         .date-selector label {
             font-weight: 600;
             color: #4a5568;
-            font-size: 12px;
+            font-size: 14px;
         }
+
         .date-selector input[type="date"] {
-            padding: 5px 10px;
+            padding: 8px 14px;
             border: 2px solid #e2e8f0;
             border-radius: 8px;
-            font-size: 13px;
+            font-size: 15px;
             background: white;
+            transition: all 0.3s;
         }
+
         .date-selector input[type="date"]:focus {
             outline: none;
             border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
+
         .btn-today {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            padding: 5px 14px;
+            padding: 8px 20px;
             border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
-            font-size: 12px;
+            transition: all 0.3s;
+            font-size: 14px;
         }
-        .btn-today:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(102,126,234,0.4); }
+
+        .btn-today:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
         .date-selector .day-total-info {
             margin-left: auto;
             font-weight: 600;
             color: #4a5568;
-            font-size: 13px;
-        }
-        .date-selector .day-total-info span {
-            color: #667eea;
-            font-size: 16px;
         }
 
-        /* ТАБЛИЦА (исправлено) */
+        .date-selector .day-total-info span {
+            color: #667eea;
+            font-size: 18px;
+        }
+
+        /* ===== ТАБЛИЦА ===== */
         .table-wrapper {
             overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            margin-bottom: 15px;
-            border-radius: 10px;
+            margin-bottom: 25px;
+            border-radius: 12px;
             border: 1px solid #e2e8f0;
             background: white;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 12px;
-            min-width: 0;
+            font-size: 14px;
         }
+
         thead {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
         }
+
         th {
-            padding: 8px 10px;
+            padding: 14px 16px;
             text-align: left;
             font-weight: 600;
             text-transform: uppercase;
-            font-size: 10px;
-            letter-spacing: 0.3px;
+            font-size: 12px;
+            letter-spacing: 0.5px;
             white-space: nowrap;
         }
+
         td {
-            padding: 6px 10px;
+            padding: 12px 16px;
             border-bottom: 1px solid #e2e8f0;
         }
-        tbody tr:hover { background: #f7fafc; }
-        tbody tr:last-child td { border-bottom: none; }
+
+        tbody tr:hover {
+            background: #f7fafc;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
         .badge {
             display: inline-block;
-            padding: 2px 8px;
+            padding: 4px 12px;
             border-radius: 20px;
-            font-size: 10px;
+            font-size: 12px;
             font-weight: 600;
             white-space: nowrap;
         }
-        .badge-cash { background: #48bb78; color: white; }
-        .badge-card { background: #4299e1; color: white; }
-        .badge-transfer { background: #ed8936; color: white; }
+
+        .badge-cash {
+            background: #48bb78;
+            color: white;
+        }
+
+        .badge-card {
+            background: #4299e1;
+            color: white;
+        }
+
+        .badge-transfer {
+            background: #ed8936;
+            color: white;
+        }
+
         .btn-delete {
             background: #fc8181;
             color: white;
             border: none;
-            padding: 2px 8px;
-            border-radius: 4px;
+            padding: 4px 12px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 10px;
+            font-size: 12px;
+            transition: background 0.2s;
+            margin-right: 5px;
         }
-        .btn-delete:hover { background: #f56565; }
+
+        .btn-delete:hover {
+            background: #f56565;
+        }
+
         .btn-edit {
             background: #4299e1;
             color: white;
             border: none;
-            padding: 2px 8px;
-            border-radius: 4px;
+            padding: 4px 12px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 10px;
+            font-size: 12px;
+            transition: background 0.2s;
         }
-        .btn-edit:hover { background: #3182ce; }
-        .action-buttons { display: flex; gap: 3px; flex-wrap: wrap; }
+
+        .btn-edit:hover {
+            background: #3182ce;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
         .today-label {
             color: #4a5568;
-            font-size: 12px;
-            margin-bottom: 6px;
+            font-size: 14px;
+            margin-bottom: 10px;
             font-weight: 600;
         }
-        .today-label span { color: #667eea; }
 
-        /* КАТЕГОРИИ */
+        .today-label span {
+            color: #667eea;
+        }
+
+        /* ===== КАТЕГОРИИ ===== */
         .categories-management {
             background: #f7fafc;
-            padding: 14px;
-            border-radius: 10px;
-            margin-top: 14px;
-            margin-bottom: 14px;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            margin-bottom: 20px;
         }
+
         .categories-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             flex-wrap: wrap;
-            gap: 6px;
+            gap: 10px;
         }
-        .categories-header h3 { color: #2d3748; font-size: 15px; }
+
+        .categories-header h3 {
+            color: #2d3748;
+            font-size: 18px;
+        }
+
         .category-controls {
             display: flex;
-            gap: 6px;
+            gap: 10px;
             flex-wrap: wrap;
             align-items: center;
         }
+
         .category-controls input {
-            padding: 4px 10px;
+            padding: 8px 14px;
             border: 2px solid #e2e8f0;
-            border-radius: 6px;
-            font-size: 12px;
+            border-radius: 8px;
+            font-size: 14px;
             background: white;
         }
+
         .category-controls input:focus {
             outline: none;
             border-color: #667eea;
         }
+
         .btn-cat {
-            padding: 4px 12px;
-            border: none;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 11px;
-        }
-        .btn-cat-add { background: #48bb78; color: white; }
-        .btn-cat-add:hover { background: #38a169; }
-        .btn-cat-edit { background: #4299e1; color: white; }
-        .btn-cat-edit:hover { background: #3182ce; }
-        .btn-cat-delete { background: #fc8181; color: white; }
-        .btn-cat-delete:hover { background: #f56565; }
-        .categories-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 6px;
-            margin-top: 6px;
-        }
-        .category-item {
-            background: white;
-            padding: 6px 12px;
-            border-radius: 6px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border: 1px solid #e2e8f0;
-            cursor: pointer;
-            font-size: 12px;
-        }
-        .category-item:hover { border-color: #667eea; background: #f7fafc; }
-        .category-item.active {
-            border-color: #667eea;
-            background: #ebf4ff;
-            box-shadow: 0 0 0 2px rgba(102,126,234,0.2);
-        }
-        .category-item .cat-name { font-weight: 600; color: #2d3748; }
-        .category-item .cat-total { font-weight: 700; color: #667eea; }
-        .category-select-hint {
-            font-size: 10px;
-            color: #718096;
-            margin-top: 4px;
-        }
-
-        /* ЗАКУПКИ */
-        .restock-section {
-            background: #fff5f0;
-            border: 2px solid #ed8936;
-            border-radius: 10px;
-            padding: 14px;
-            margin: 14px 0;
-        }
-        .restock-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            flex-wrap: wrap;
-            gap: 6px;
-        }
-        .restock-header h3 {
-            color: #dd6b20;
-            font-size: 15px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .restock-controls {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-        .restock-controls input {
-            padding: 4px 10px;
-            border: 2px solid #e2e8f0;
-            border-radius: 6px;
-            font-size: 12px;
-            background: white;
-            min-width: 120px;
-        }
-        .restock-controls input:focus {
-            outline: none;
-            border-color: #ed8936;
-        }
-        .btn-restock-item {
-            padding: 4px 12px;
-            border: none;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 11px;
-            white-space: nowrap;
-        }
-        .btn-restock-add { background: #ed8936; color: white; }
-        .btn-restock-add:hover { background: #dd6b20; }
-        .btn-restock-delete {
-            background: #fc8181;
-            color: white;
-            padding: 2px 7px;
-            font-size: 10px;
-            border-radius: 4px;
-        }
-        .btn-restock-delete:hover { background: #f56565; }
-        .btn-restock-copy { background: #48bb78; color: white; }
-        .btn-restock-copy:hover { background: #38a169; }
-        .btn-restock-export { background: #4299e1; color: white; }
-        .btn-restock-export:hover { background: #3182ce; }
-        .restock-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 6px;
-        }
-        .restock-item {
-            background: white;
-            padding: 6px 12px;
-            border-radius: 6px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border: 1px solid #fed7d0;
-            font-size: 12px;
-        }
-        .restock-item:hover { border-color: #ed8936; }
-        .restock-item .item-name { font-weight: 600; color: #2d3748; }
-        .restock-empty { text-align: center; padding: 12px; color: #a0aec0; font-size: 13px; }
-
-        /* МЕСЯЦ */
-        .month-total {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 12px 16px;
-            border-radius: 10px;
-            margin-top: 14px;
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr 1fr;
-            gap: 12px;
-        }
-        .month-total .month-item {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-        .month-total .label {
-            font-size: 10px;
-            font-weight: 600;
-            opacity: 0.9;
-        }
-        .month-total .value {
-            font-size: 18px;
-            font-weight: 700;
-        }
-        .month-total .month-item.total {
-            border-right: 1px solid rgba(255,255,255,0.3);
-            padding-right: 12px;
-        }
-
-        /* ДЕЙСТВИЯ */
-        .actions {
-            display: flex;
-            gap: 8px;
-            margin-top: 14px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-        .btn-action {
-            padding: 6px 14px;
+            padding: 8px 16px;
             border: none;
             border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
-            font-size: 12px;
+            transition: all 0.2s;
+            font-size: 13px;
         }
-        .btn-export { background: #48bb78; color: white; }
-        .btn-export:hover { background: #38a169; transform: translateY(-2px); }
-        .btn-clear { background: #fc8181; color: white; }
-        .btn-clear:hover { background: #f56565; transform: translateY(-2px); }
-        .btn-import { background: #4299e1; color: white; position: relative; overflow: hidden; }
-        .btn-import:hover { background: #3182ce; transform: translateY(-2px); }
+
+        .btn-cat-add {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-cat-add:hover {
+            background: #38a169;
+        }
+
+        .btn-cat-edit {
+            background: #4299e1;
+            color: white;
+        }
+
+        .btn-cat-edit:hover {
+            background: #3182ce;
+        }
+
+        .btn-cat-delete {
+            background: #fc8181;
+            color: white;
+        }
+
+        .btn-cat-delete:hover {
+            background: #f56565;
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .category-item {
+            background: white;
+            padding: 10px 16px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .category-item:hover {
+            border-color: #667eea;
+            background: #f7fafc;
+        }
+
+        .category-item.active {
+            border-color: #667eea;
+            background: #ebf4ff;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+        }
+
+        .category-item .cat-name {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .category-item .cat-total {
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .category-select-hint {
+            font-size: 11px;
+            color: #718096;
+            margin-top: 3px;
+        }
+
+        /* ===== ЗАКУПКИ ===== */
+        .restock-section {
+            background: #fff5f0;
+            border: 2px solid #ed8936;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .restock-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .restock-header h3 {
+            color: #dd6b20;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .restock-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .restock-controls input {
+            padding: 8px 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            min-width: 180px;
+        }
+
+        .restock-controls input:focus {
+            outline: none;
+            border-color: #ed8936;
+        }
+
+        .btn-restock-item {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        .btn-restock-add {
+            background: #ed8936;
+            color: white;
+        }
+
+        .btn-restock-add:hover {
+            background: #dd6b20;
+        }
+
+        .btn-restock-delete {
+            background: #fc8181;
+            color: white;
+            padding: 4px 10px;
+            font-size: 11px;
+            border-radius: 6px;
+        }
+
+        .btn-restock-delete:hover {
+            background: #f56565;
+        }
+
+        .btn-restock-copy {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-restock-copy:hover {
+            background: #38a169;
+        }
+
+        .btn-restock-export {
+            background: #4299e1;
+            color: white;
+        }
+
+        .btn-restock-export:hover {
+            background: #3182ce;
+        }
+
+        .restock-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .restock-item {
+            background: white;
+            padding: 10px 16px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #fed7d0;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .restock-item:hover {
+            border-color: #ed8936;
+        }
+
+        .restock-item .item-name {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .restock-empty {
+            text-align: center;
+            padding: 20px;
+            color: #a0aec0;
+            font-size: 14px;
+        }
+
+        /* ===== МЕСЯЦ ===== */
+        .month-total {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 20px;
+        }
+
+        .month-total .month-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .month-total .label {
+            font-size: 13px;
+            font-weight: 600;
+            opacity: 0.9;
+        }
+
+        .month-total .value {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .month-total .month-item.total {
+            border-right: 1px solid rgba(255,255,255,0.3);
+            padding-right: 20px;
+        }
+
+        /* ===== ДЕЙСТВИЯ ===== */
+        .actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .btn-action {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .btn-export {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-export:hover {
+            background: #38a169;
+            transform: translateY(-2px);
+        }
+
+        .btn-clear {
+            background: #fc8181;
+            color: white;
+        }
+
+        .btn-clear:hover {
+            background: #f56565;
+            transform: translateY(-2px);
+        }
+
+        .btn-import {
+            background: #4299e1;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-import:hover {
+            background: #3182ce;
+            transform: translateY(-2px);
+        }
+
         .file-input-wrapper {
             position: relative;
             overflow: hidden;
             display: inline-block;
         }
+
         .file-input-wrapper input[type="file"] {
             position: absolute;
             left: 0;
@@ -675,10 +1003,18 @@
             cursor: pointer;
         }
 
-        .empty-state { text-align: center; padding: 20px; color: #a0aec0; }
-        .empty-state .icon { font-size: 32px; margin-bottom: 6px; }
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #a0aec0;
+        }
 
-        /* МОДАЛКИ */
+        .empty-state .icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        /* ===== МОДАЛКИ ===== */
         .modal {
             display: none;
             position: fixed;
@@ -691,134 +1027,410 @@
             justify-content: center;
             align-items: center;
         }
-        .modal.active { display: flex; }
+
+        .modal.active {
+            display: flex;
+        }
+
         .modal-content {
             background: white;
-            padding: 20px;
+            padding: 30px;
             border-radius: 16px;
-            max-width: 450px;
-            width: 92%;
+            max-width: 500px;
+            width: 90%;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             max-height: 90vh;
             overflow-y: auto;
         }
-        .modal-content h2 { color: #2d3748; margin-bottom: 14px; font-size: 18px; }
-        .modal-content .form-group { margin-bottom: 10px; }
+
+        .modal-content h2 {
+            color: #2d3748;
+            margin-bottom: 20px;
+        }
+
+        .modal-content .form-group {
+            margin-bottom: 15px;
+        }
+
         .modal-content .form-group label {
             font-weight: 600;
             color: #4a5568;
-            margin-bottom: 3px;
+            margin-bottom: 5px;
             display: block;
-            font-size: 12px;
+            font-size: 13px;
         }
+
         .modal-content .form-group input,
         .modal-content .form-group select {
             width: 100%;
-            padding: 6px 10px;
+            padding: 10px 14px;
             border: 2px solid #e2e8f0;
             border-radius: 8px;
-            font-size: 13px;
+            font-size: 15px;
         }
+
         .modal-content .form-group input:focus,
         .modal-content .form-group select:focus {
             outline: none;
             border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
+
         .modal-actions {
             display: flex;
-            gap: 8px;
-            margin-top: 14px;
+            gap: 10px;
+            margin-top: 20px;
             justify-content: flex-end;
         }
+
         .btn-modal-save {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            padding: 6px 18px;
+            padding: 10px 24px;
             border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
+            transition: all 0.3s;
         }
-        .btn-modal-save:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(102,126,234,0.4); }
+
+        .btn-modal-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
         .btn-modal-cancel {
             background: #e2e8f0;
             color: #4a5568;
             border: none;
-            padding: 6px 18px;
+            padding: 10px 24px;
             border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
+            transition: all 0.3s;
         }
-        .btn-modal-cancel:hover { background: #cbd5e0; }
 
-        /* УВЕДОМЛЕНИЯ */
+        .btn-modal-cancel:hover {
+            background: #cbd5e0;
+        }
+
+        .import-preview {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .import-preview table {
+            font-size: 12px;
+        }
+
+        .import-preview th {
+            background: #e2e8f0;
+            color: #2d3748;
+            padding: 6px 10px;
+            font-size: 11px;
+        }
+
+        .import-preview td {
+            padding: 4px 10px;
+            font-size: 12px;
+        }
+
+        .import-options {
+            margin: 15px 0;
+            padding: 15px;
+            background: #f7fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .import-options label {
+            display: block;
+            margin: 8px 0;
+            cursor: pointer;
+            font-size: 14px;
+            color: #2d3748;
+        }
+
+        .import-options label input[type="radio"] {
+            margin-right: 10px;
+            accent-color: #667eea;
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .import-options .option-desc {
+            font-size: 12px;
+            color: #718096;
+            margin-left: 28px;
+            margin-top: 2px;
+        }
+
+        .import-stats {
+            background: #ebf8ff;
+            border: 1px solid #bee3f8;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-top: 10px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .import-stats .stat-item {
+            font-size: 13px;
+            color: #2c5282;
+        }
+
+        .import-stats .stat-item strong {
+            font-weight: 700;
+        }
+
+        /* ===== УВЕДОМЛЕНИЯ ===== */
         .toast {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
+            bottom: 30px;
+            right: 30px;
             background: #2d3748;
             color: white;
-            padding: 10px 18px;
-            border-radius: 10px;
+            padding: 15px 25px;
+            border-radius: 12px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.3);
             font-weight: 600;
             z-index: 2000;
             animation: slideUp 0.3s ease;
-            max-width: 320px;
+            max-width: 400px;
+            font-size: 14px;
+        }
+
+        .toast.success {
+            background: #48bb78;
+        }
+
+        .toast.error {
+            background: #fc8181;
+        }
+
+        .toast.info {
+            background: #4299e1;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .sync-config-modal .token-input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 15px;
+            font-family: monospace;
+            background: #f7fafc;
+        }
+
+        .sync-config-modal .token-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .sync-config-modal .hint {
+            font-size: 12px;
+            color: #718096;
+            margin-top: 5px;
+        }
+
+        .sync-config-modal .hint a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .sync-config-modal .hint a:hover {
+            text-decoration: underline;
+        }
+
+        .test-result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            display: none;
+        }
+
+        .test-result.success {
+            display: block;
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .test-result.error {
+            display: block;
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .test-result.info {
+            display: block;
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .time-column {
+            font-weight: 500;
+            color: #718096;
             font-size: 13px;
         }
-        .toast.success { background: #48bb78; }
-        .toast.error { background: #fc8181; }
-        .toast.info { background: #4299e1; }
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+
+        /* ===== АДАПТИВ ===== */
+        @media (max-width: 1200px) {
+            .add-form {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
         }
 
-        .time-column { font-weight: 500; color: #718096; font-size: 11px; white-space: nowrap; }
-
-        /* АДАПТИВ */
-        @media (max-width: 1024px) {
-            .add-form { grid-template-columns: 1fr 1fr 1fr; }
-        }
         @media (max-width: 768px) {
-            body { padding: 6px; }
-            .container { padding: 10px; border-radius: 14px; }
-            .add-form { grid-template-columns: 1fr 1fr; gap: 8px; }
-            .day-stats { grid-template-columns: 1fr 1fr; gap: 6px; }
-            .month-total { grid-template-columns: 1fr 1fr; gap: 8px; }
-            .month-total .month-item.total { border-right: none; padding-right: 0; }
-            .date-selector { flex-direction: column; align-items: stretch; gap: 6px; }
-            .date-selector .day-total-info { margin-left: 0; text-align: center; }
-            .restock-grid { grid-template-columns: 1fr; }
-            .restock-controls { flex-direction: column; width: 100%; }
-            .restock-controls input { width: 100%; min-width: unset; }
-            .restock-controls .btn-restock-item { width: 100%; justify-content: center; }
-            .settings-dropdown { width: 210px; right: 5px; left: auto; padding: 10px; }
-            .header { gap: 4px; }
-            .logo-text { font-size: 20px; }
-            .header-title { font-size: 16px; }
-            .settings-float { top: 8px; right: 8px; }
-            .settings-float button { width: 32px; height: 32px; font-size: 14px; }
-            .stat-card .value { font-size: 17px; }
-            table { font-size: 11px; }
-            th, td { padding: 5px 8px; }
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 15px;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+
+            .header-actions {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .header-actions .btn-restock {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .logo-text {
+                font-size: 28px;
+            }
+
+            .header-title {
+                font-size: 20px;
+            }
+
+            .header-divider {
+                display: none;
+            }
+
+            .add-form {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .day-stats {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .month-total {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .month-total .month-item.total {
+                border-right: none;
+                padding-right: 0;
+            }
+
+            .date-selector {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .date-selector .day-total-info {
+                margin-left: 0;
+                text-align: center;
+            }
+
+            .restock-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .restock-controls {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .restock-controls input {
+                width: 100%;
+                min-width: unset;
+            }
+
+            .restock-controls .btn-restock-item {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .settings-dropdown {
+                width: 280px;
+                right: 10px;
+            }
+
+            .settings-float {
+                top: 15px;
+                right: 15px;
+            }
+
+            .settings-float button {
+                width: 38px;
+                height: 38px;
+                font-size: 18px;
+            }
         }
+
         @media (max-width: 480px) {
-            .container { padding: 8px; border-radius: 10px; }
-            .add-form { grid-template-columns: 1fr; gap: 6px; }
-            .day-stats { grid-template-columns: 1fr; }
-            .month-total { grid-template-columns: 1fr; }
-            .stat-card .value { font-size: 16px; }
-            .settings-dropdown { width: 190px; right: 4px; padding: 8px; }
-            .settings-dropdown .sync-btn { font-size: 10px; padding: 3px 8px; }
-            .modal-content { padding: 16px; }
+            .add-form {
+                grid-template-columns: 1fr;
+            }
+
+            .day-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .month-total {
+                grid-template-columns: 1fr;
+            }
+
+            .settings-dropdown {
+                width: 260px;
+                right: 5px;
+                left: 5px;
+            }
+
+            .stat-card .value {
+                font-size: 20px;
+            }
         }
-</style>
+    </style>
 </head>
 <body>
     <div class="container">
-        <!-- ========== КНОПКА НАСТРОЕК ========== -->
+        <!-- ===== КНОПКА НАСТРОЕК ===== -->
         <div class="settings-float" id="settingsFloat">
             <button onclick="toggleSettings()" title="Настройки синхронизации">
                 ⚙️
@@ -830,43 +1442,44 @@
                     <span id="syncStatusText">Загрузка...</span>
                 </div>
                 <div class="sync-info-text" id="syncInfo">⏳ Проверка подключения...</div>
-                <div style="display:flex;flex-wrap:wrap;gap:3px;">
-                    <button class="sync-btn sync-btn-primary" onclick="manualSync()">🔄 Синхр.</button>
+                <div style="display:flex;flex-wrap:wrap;gap:5px;">
+                    <button class="sync-btn sync-btn-primary" onclick="manualSync()">🔄 Синхронизировать</button>
                     <button class="sync-btn sync-btn-warning" onclick="forcePullFromGitHub()">📥 Загрузить</button>
                     <button class="sync-btn sync-btn-danger" onclick="testGitHubConnection()">🔍 Проверить</button>
                 </div>
-                <span class="sync-last" id="syncLast">Последняя: неизвестно</span>
+                <span class="sync-last" id="syncLast">Последняя синхронизация: неизвестно</span>
                 <div class="config-link" onclick="showConfigModal()">⚙️ Полные настройки</div>
             </div>
         </div>
 
-        <!-- ========== ШАПКА ========== -->
+        <!-- ===== ШАПКА ===== -->
         <div class="header">
             <span class="logo-text">CONNECT</span>
             <span class="header-divider">|</span>
             <span class="header-title">Учет продаж</span>
             <div class="header-actions">
                 <button class="btn-restock" onclick="toggleRestockSection()">
-                    📦 Закупка <span class="badge" id="restockCount">0</span>
+                    📦 Нужно закупить
+                    <span class="badge" id="restockCount">0</span>
                 </button>
             </div>
         </div>
 
-        <!-- ========== ФОРМА ========== -->
+        <!-- ===== ФОРМА ===== -->
         <div class="add-section">
             <form class="add-form" id="addForm">
                 <div class="form-group">
-                    <label>Дата</label>
+                    <label>Дата продажи</label>
                     <input type="date" id="saleDate">
                     <div class="quick-date-buttons">
                         <button type="button" class="quick-date-btn" onclick="setDateToday()">Сегодня</button>
                         <button type="button" class="quick-date-btn" onclick="setDateYesterday()">Вчера</button>
-                        <button type="button" class="quick-date-btn" onclick="setDateDaysAgo(3)">3д</button>
-                        <button type="button" class="quick-date-btn" onclick="setDateDaysAgo(7)">7д</button>
+                        <button type="button" class="quick-date-btn" onclick="setDateDaysAgo(3)">3 дня</button>
+                        <button type="button" class="quick-date-btn" onclick="setDateDaysAgo(7)">Неделя</button>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>Товар</label>
+                    <label>Название товара</label>
                     <input type="text" id="productName" placeholder="Чехол iPhone 15" required>
                 </div>
                 <div class="form-group">
@@ -878,7 +1491,7 @@
                     <input type="number" id="price" placeholder="0" min="0" step="1" required>
                 </div>
                 <div class="form-group">
-                    <label>Оплата</label>
+                    <label>Способ оплаты</label>
                     <select id="paymentMethod">
                         <option value="Наличные">💰 Наличные</option>
                         <option value="Безналичные">💳 Безналичные</option>
@@ -887,14 +1500,15 @@
                 </div>
                 <div class="form-group checkbox-group">
                     <label>
-                        <input type="checkbox" id="lastItem"> 📦 Последний
+                        <input type="checkbox" id="lastItem">
+                        📦 Последний
                     </label>
                 </div>
                 <button type="submit" class="btn-add">➕ Добавить</button>
             </form>
         </div>
 
-        <!-- ========== ЗАКУПКИ ========== -->
+        <!-- ===== ЗАКУПКИ ===== -->
         <div class="restock-section" id="restockSection" style="display:none;">
             <div class="restock-header">
                 <h3>📦 Товары для закупки</h3>
@@ -902,7 +1516,7 @@
                     <input type="text" id="restockInput" placeholder="Название товара" maxlength="50">
                     <button class="btn-restock-item btn-restock-add" onclick="addRestockItem()">➕ Добавить</button>
                     <button class="btn-restock-item btn-restock-copy" onclick="copyRestockList()">📋 Копировать</button>
-                    <button class="btn-restock-item btn-restock-export" onclick="exportRestockToFile()">💾 TXT</button>
+                    <button class="btn-restock-item btn-restock-export" onclick="exportRestockToFile()">💾 Скачать TXT</button>
                 </div>
             </div>
             <div class="restock-grid" id="restockGrid">
@@ -910,11 +1524,11 @@
             </div>
         </div>
 
-        <!-- ========== СТАТИСТИКА ========== -->
+        <!-- ===== СТАТИСТИКА ===== -->
         <div class="today-label">📊 <span id="selectedDateLabel">Сегодня</span></div>
         <div class="day-stats" id="dayStats">
             <div class="stat-card total-day">
-                <div class="label">📊 Выручка</div>
+                <div class="label">📊 Выручка за день</div>
                 <div class="value" id="dayTotal">0 ₽</div>
             </div>
             <div class="stat-card cash">
@@ -931,9 +1545,9 @@
             </div>
         </div>
 
-        <!-- ========== ВЫБОР ДАТЫ ========== -->
+        <!-- ===== ВЫБОР ДАТЫ ===== -->
         <div class="date-selector">
-            <label>📅 Показать за:</label>
+            <label>📅 Показать продажи за:</label>
             <input type="date" id="viewDate">
             <button class="btn-today" onclick="setTodayView()">📆 Сегодня</button>
             <div class="day-total-info">
@@ -941,37 +1555,54 @@
             </div>
         </div>
 
-        <!-- ========== ТАБЛИЦА ========== -->
+        <!-- ===== ТАБЛИЦА ===== -->
         <div class="today-label">📋 <span id="salesListLabel">Продажи за сегодня</span></div>
         <div class="table-wrapper">
             <table>
-                <thead><tr>
-                    <th>Дата</th><th>Время</th><th>Товар</th><th>Категория</th><th>Стоимость</th><th>Оплата</th><th>Действие</th>
-                </tr></thead>
+                <thead>
+                    <tr>
+                        <th>Дата</th>
+                        <th>Время</th>
+                        <th>Товар</th>
+                        <th>Категория</th>
+                        <th>Стоимость</th>
+                        <th>Оплата</th>
+                        <th>Действие</th>
+                    </tr>
+                </thead>
                 <tbody id="salesTableBody">
-                    <tr><td colspan="7"><div class="empty-state"><div class="icon">📦</div><p>Нет продаж</p></div></td></tr>
+                    <tr>
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <div class="icon">📦</div>
+                                <p>Нет продаж за выбранную дату</p>
+                            </div>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
 
-        <!-- ========== КАТЕГОРИИ ========== -->
+        <!-- ===== КАТЕГОРИИ ===== -->
         <div class="categories-management">
             <div class="categories-header">
-                <h3>📂 Категории</h3>
+                <h3>📂 Управление категориями</h3>
                 <div class="category-controls">
                     <input type="text" id="newCategoryInput" placeholder="Новая категория" maxlength="30">
                     <button class="btn-cat btn-cat-add" onclick="addCategory()">➕ Добавить</button>
                     <input type="text" id="editCategoryInput" placeholder="Новое название" maxlength="30" style="display:none;">
                     <button class="btn-cat btn-cat-edit" id="editCategoryBtn" onclick="saveCategoryEdit()" style="display:none;">✏️ Сохранить</button>
-                    <button class="btn-cat btn-cat-edit" onclick="editSelectedCategory()">✏️ Ред.</button>
+                    <button class="btn-cat btn-cat-edit" onclick="editSelectedCategory()">✏️ Редактировать</button>
                     <button class="btn-cat btn-cat-delete" onclick="deleteSelectedCategory()">🗑️ Удалить</button>
                 </div>
             </div>
-            <div class="categories-grid" id="categoriesGrid"></div>
-            <div class="category-select-hint">💡 Кликните по категории, чтобы выбрать</div>
+            <div class="categories-grid" id="categoriesGrid">
+                <!-- Категории будут здесь -->
+            </div>
+            <div class="category-select-hint">💡 Кликните по категории в списке ниже, чтобы выбрать её для редактирования или удаления</div>
         </div>
 
-        <!-- ========== МЕСЯЦ ========== -->
+        <!-- ===== МЕСЯЦ ===== -->
         <div class="month-total" id="monthTotal">
             <div class="month-item total">
                 <span class="label">📆 Итого за месяц</span>
@@ -991,24 +1622,24 @@
             </div>
         </div>
 
-        <!-- ========== ДЕЙСТВИЯ ========== -->
+        <!-- ===== ДЕЙСТВИЯ ===== -->
         <div class="actions">
             <button class="btn-action btn-export" onclick="exportCSV()">📊 Экспорт CSV</button>
             <div class="file-input-wrapper">
                 <button class="btn-action btn-import">📤 Импорт CSV</button>
                 <input type="file" accept=".csv" onchange="importCSV(event)">
             </div>
-            <button class="btn-action btn-clear" onclick="clearAll()">🗑️ Очистить</button>
+            <button class="btn-action btn-clear" onclick="clearAll()">🗑️ Очистить все</button>
         </div>
     </div>
 
-    <!-- ========== МОДАЛКИ ========== -->
+    <!-- ===== МОДАЛКИ ===== -->
     <div class="modal" id="editModal">
         <div class="modal-content">
-            <h2>✏️ Редактировать</h2>
+            <h2>✏️ Редактировать продажу</h2>
             <form id="editForm">
                 <div class="form-group">
-                    <label>Товар</label>
+                    <label>Название товара</label>
                     <input type="text" id="editProductName" required>
                 </div>
                 <div class="form-group">
@@ -1020,7 +1651,7 @@
                     <input type="number" id="editPrice" min="0" step="1" required>
                 </div>
                 <div class="form-group">
-                    <label>Оплата</label>
+                    <label>Способ оплаты</label>
                     <select id="editPaymentMethod">
                         <option value="Наличные">💰 Наличные</option>
                         <option value="Безналичные">💳 Безналичные</option>
@@ -1038,41 +1669,68 @@
     <div class="modal" id="importModal">
         <div class="modal-content">
             <h2>📤 Импорт CSV</h2>
-            <p style="font-size:12px;color:#718096;margin-bottom:10px;">
-                Формат: <strong>Дата;Время;Товар;Категория;Стоимость;Оплата</strong>
+            <p style="color: #718096; margin-bottom: 15px; font-size: 14px;">
+                📋 Формат CSV: <strong>Дата;Время;Товар;Категория;Стоимость;Оплата</strong>
+                <br>⏰ Время можно не указывать — подставится автоматически
+                <br>📅 Поддерживаются форматы даты: <strong>ГГГГ-ММ-ДД</strong> или <strong>ДД/ММ/ГГГГ</strong>
+                <br>📌 <strong>Важно:</strong> Файл должен быть в кодировке UTF-8
+                <br>💡 Пример: <em>2026-08-07;14:30;Чехол iPhone 15;Чехлы;1500;Наличные</em>
             </p>
+
             <div class="import-options">
-                <label><input type="radio" name="importMode" value="add" checked> ➕ Добавить</label>
-                <label><input type="radio" name="importMode" value="replace"> 🔄 Заменить</label>
-                <label><input type="radio" name="importMode" value="skip"> 🚫 Пропускать дубли</label>
+                <label>
+                    <input type="radio" name="importMode" value="add" checked>
+                    ➕ Добавить к существующим
+                    <div class="option-desc">Новые записи добавятся в конец списка</div>
+                </label>
+                <label>
+                    <input type="radio" name="importMode" value="replace">
+                    🔄 Заменить все данные
+                    <div class="option-desc">Все текущие данные будут удалены и заменены импортируемыми</div>
+                </label>
+                <label>
+                    <input type="radio" name="importMode" value="skip">
+                    🚫 Пропускать дубликаты
+                    <div class="option-desc">Записи с одинаковой датой, временем, товаром и ценой будут пропущены</div>
+                </label>
             </div>
+
             <div id="importPreview"></div>
+            
             <div class="modal-actions">
                 <button type="button" class="btn-modal-cancel" onclick="closeImportModal()">Отмена</button>
-                <button type="button" class="btn-modal-save" id="confirmImportBtn" onclick="confirmImport()" style="display:none;">✅ Подтвердить</button>
+                <button type="button" class="btn-modal-save" id="confirmImportBtn" onclick="confirmImport()" style="display:none;">✅ Подтвердить импорт</button>
             </div>
         </div>
     </div>
 
     <div class="modal" id="configModal">
         <div class="modal-content sync-config-modal">
-            <h2>⚙️ Настройки</h2>
+            <h2>⚙️ Настройки синхронизации</h2>
+            
             <div class="form-group">
                 <label>GitHub Token</label>
-                <input type="password" class="token-input" id="githubToken" placeholder="Введите токен">
-                <div class="hint" style="font-size:10px;color:#718096;margin-top:3px;">
-                    <a href="https://github.com/settings/tokens" target="_blank">Создать токен</a> (права: repo)
+                <input type="password" class="token-input" id="githubToken" placeholder="Введите ваш GitHub токен">
+                <div class="hint">
+                    <a href="https://github.com/settings/tokens" target="_blank">Создать токен</a>
+                    (нужны права: repo)
                 </div>
             </div>
+            
             <div class="form-group">
                 <label>Репозиторий</label>
                 <input type="text" class="token-input" id="githubRepo" placeholder="username/repo">
+                <div class="hint">Например: yourname/connect-sales</div>
             </div>
+            
             <div class="form-group">
                 <label>Файл данных</label>
                 <input type="text" class="token-input" id="githubFile" value="data.json">
+                <div class="hint">Имя файла для хранения данных</div>
             </div>
+
             <div id="testResult" class="test-result"></div>
+
             <div class="modal-actions">
                 <button type="button" class="btn-modal-cancel" onclick="closeConfigModal()">Отмена</button>
                 <button type="button" class="btn-modal-save" onclick="saveConfig()">💾 Сохранить</button>
@@ -1081,9 +1739,8 @@
     </div>
 
     <script>
-        // ========================================================================
-        // 1. ОСНОВНЫЕ ПЕРЕМЕННЫЕ
-        // ========================================================================
+        // ===== ПОЛНЫЙ JS КОД (СОХРАНЯЕМ ВСЕ ФУНКЦИИ) =====
+        // ===== ОСНОВНЫЕ ПЕРЕМЕННЫЕ =====
         let sales = [];
         let categories = ['Чехлы', 'Стекло', 'Зарядка', 'Наушники', 'Аксессуары'];
         let restockItems = [];
@@ -1093,13 +1750,18 @@
         let selectedCategoryForEdit = null;
         let importedData = [];
         let isSyncing = false;
+        let syncTimeout = null;
+        let initialLoadDone = false;
 
-        // ========================================================================
-        // 2. НАСТРОЙКИ СИНХРОНИЗАЦИИ
-        // ========================================================================
+        // ===== НАСТРОЙКИ СИНХРОНИЗАЦИИ =====
         const CONFIG_KEY = 'connect_sync_config';
-        let syncConfig = { token: '', repo: '', file: 'data.json' };
+        let syncConfig = {
+            token: '',
+            repo: '',
+            file: 'data.json'
+        };
 
+        // ===== ЗАГРУЗКА КОНФИГА =====
         function loadConfig() {
             try {
                 const saved = localStorage.getItem(CONFIG_KEY);
@@ -1109,22 +1771,33 @@
                     document.getElementById('githubToken').value = parsed.token || '';
                     document.getElementById('githubRepo').value = parsed.repo || '';
                     document.getElementById('githubFile').value = parsed.file || 'data.json';
+                    console.log('Конфиг загружен из localStorage');
+                } else {
+                    document.getElementById('githubToken').value = '';
+                    document.getElementById('githubRepo').value = '';
+                    document.getElementById('githubFile').value = 'data.json';
+                    console.log('Конфиг не найден');
                 }
-            } catch(e) {}
+            } catch (e) {
+                console.log('Ошибка загрузки конфига:', e);
+            }
         }
 
         function saveConfig() {
             const token = document.getElementById('githubToken').value.trim();
             const repo = document.getElementById('githubRepo').value.trim();
             const file = document.getElementById('githubFile').value.trim() || 'data.json';
+
             if (!token || !repo) {
                 showToast('❌ Заполните токен и репозиторий', 'error');
                 return;
             }
+
             syncConfig = { token, repo, file };
             localStorage.setItem(CONFIG_KEY, JSON.stringify(syncConfig));
             closeConfigModal();
             showToast('✅ Настройки сохранены!');
+            console.log('Настройки сохранены: repo=' + repo);
             checkSyncStatus();
         }
 
@@ -1139,23 +1812,23 @@
             document.getElementById('configModal').classList.remove('active');
         }
 
-        // ========================================================================
-        // 3. НАСТРОЙКИ ВЫПАДАЮЩАЯ ПАНЕЛЬ
-        // ========================================================================
+        // ===== НАСТРОЙКИ ВЫПАДАЮЩЕЙ ПАНЕЛИ =====
         function toggleSettings() {
-            const dd = document.getElementById('settingsDropdown');
-            dd.classList.toggle('active');
-            if (dd.classList.contains('active')) checkSyncStatus();
+            const dropdown = document.getElementById('settingsDropdown');
+            dropdown.classList.toggle('active');
+            if (dropdown.classList.contains('active')) {
+                checkSyncStatus();
+            }
         }
 
         function closeSettings() {
             document.getElementById('settingsDropdown').classList.remove('active');
         }
 
-        // ========================================================================
-        // 4. ПРОВЕРКА СТАТУСА
-        // ========================================================================
+        // ===== ПРОВЕРКА СТАТУСА =====
         async function checkSyncStatus() {
+            console.log('Проверка статуса синхронизации...');
+            
             const info = document.getElementById('syncInfo');
             const indicator = document.getElementById('syncIndicator');
             const statusText = document.getElementById('syncStatusText');
@@ -1164,146 +1837,261 @@
             if (!syncConfig.token || !syncConfig.repo) {
                 indicator.className = 'indicator offline';
                 statusText.textContent = 'Не настроено';
-                info.innerHTML = '⚠️ Заполните настройки';
+                info.innerHTML = '⚠️ Заполните настройки синхронизации в ⚙️';
                 dot.className = 'sync-dot offline';
                 return;
             }
 
             try {
+                console.log('Проверка токена...');
                 const testResponse = await fetch('https://api.github.com/user', {
-                    headers: { 'Authorization': `token ${syncConfig.token}`, 'Accept': 'application/vnd.github.v3+json' }
+                    headers: {
+                        'Authorization': `token ${syncConfig.token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
                 });
+
                 if (!testResponse.ok) {
                     indicator.className = 'indicator offline';
                     statusText.textContent = 'Ошибка токена';
-                    info.innerHTML = '❌ Токен недействителен';
+                    info.innerHTML = '❌ Токен недействителен. Создайте новый токен с правами repo';
+                    dot.className = 'sync-dot offline';
+                    console.log('Ошибка токена:', testResponse.status);
+                    return;
+                }
+
+                console.log('Токен OK, проверка репозитория...');
+                const repoResponse = await fetch(`https://api.github.com/repos/${syncConfig.repo}`, {
+                    headers: {
+                        'Authorization': `token ${syncConfig.token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+
+                if (!repoResponse.ok) {
+                    indicator.className = 'indicator offline';
+                    statusText.textContent = 'Репозиторий не найден';
+                    info.innerHTML = `❌ Репозиторий "${syncConfig.repo}" не найден`;
                     dot.className = 'sync-dot offline';
                     return;
                 }
 
+                console.log('Репозиторий OK, проверка файла...');
                 const fileResponse = await fetch(`https://api.github.com/repos/${syncConfig.repo}/contents/data.json?t=${Date.now()}`, {
-                    headers: { 'Authorization': `token ${syncConfig.token}`, 'Accept': 'application/vnd.github.v3+json' }
+                    headers: {
+                        'Authorization': `token ${syncConfig.token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
                 });
 
                 let remoteSales = 0;
+                let remoteRestock = 0;
                 let fileExists = false;
+
                 if (fileResponse.ok) {
                     const data = await fileResponse.json();
                     const content = atob(data.content);
                     try {
                         const parsed = JSON.parse(content);
                         remoteSales = parsed.sales?.length || 0;
+                        remoteRestock = parsed.restockItems?.length || 0;
                         fileExists = true;
-                    } catch(e) {}
+                        console.log('Файл найден, продаж:', remoteSales, 'закупок:', remoteRestock);
+                    } catch (e) {
+                        console.log('Ошибка парсинга файла:', e.message);
+                    }
+                } else if (fileResponse.status === 404) {
+                    console.log('Файл data.json не найден (404)');
+                } else {
+                    console.log('Ошибка проверки файла:', fileResponse.status);
                 }
 
                 indicator.className = 'indicator online';
                 statusText.textContent = '✅ Подключение есть';
                 dot.className = 'sync-dot';
                 
-                let html = fileExists ? `📊 На сервере: ${remoteSales} продаж` : 'ℹ️ Файл ещё не создан';
-                html += `<br>🖥️ Локально: ${sales.length} продаж`;
-                if (fileExists && remoteSales !== sales.length) {
-                    html += ` <span style="color:#ed8936;">⚠️ Отличаются</span>`;
-                } else if (fileExists) {
-                    html += ` <span style="color:#48bb78;">✅ Синхронизированы</span>`;
+                let infoHtml = '';
+                if (fileExists) {
+                    infoHtml = `📊 На сервере: <span class="success">${remoteSales}</span> продаж, <span class="success">${remoteRestock}</span> товаров в закупке`;
+                } else {
+                    infoHtml = 'ℹ️ Файл data.json ещё не создан';
                 }
-                info.innerHTML = html;
+                
+                const localSales = sales.length;
+                const localRestock = restockItems.length;
+                
+                infoHtml += `<br>🖥️ Локально: <span>${localSales}</span> продаж, <span>${localRestock}</span> товаров в закупке`;
+                
+                if (fileExists) {
+                    if (remoteSales !== localSales || remoteRestock !== localRestock) {
+                        infoHtml += ` <span class="warning">⚠️ Данные отличаются</span>`;
+                    } else {
+                        infoHtml += ` <span class="success">✅ Данные синхронизированы</span>`;
+                    }
+                }
 
-            } catch(error) {
+                info.innerHTML = infoHtml;
+                console.log('Статус обновлен');
+
+            } catch (error) {
+                console.log('Ошибка проверки статуса:', error.message);
                 indicator.className = 'indicator offline';
-                statusText.textContent = 'Ошибка';
+                statusText.textContent = 'Ошибка соединения';
                 info.innerHTML = `❌ Ошибка: ${error.message}`;
                 dot.className = 'sync-dot offline';
             }
         }
 
-        // ========================================================================
-        // 5. СИНХРОНИЗАЦИЯ
-        // ========================================================================
+        // ===== ПРИНУДИТЕЛЬНАЯ ЗАГРУЗКА С СЕРВЕРА =====
         async function forcePullFromGitHub() {
-            if (isSyncing) { showToast('⏳ Уже выполняется', 'info'); return; }
+            console.log('=== ПРИНУДИТЕЛЬНАЯ ЗАГРУЗКА С СЕРВЕРА ===');
+            
+            if (isSyncing) {
+                showToast('⏳ Синхронизация уже выполняется', 'info');
+                return;
+            }
+
             if (!syncConfig.token || !syncConfig.repo) {
-                showToast('❌ Настройте синхронизацию', 'error');
+                showToast('❌ Сначала настройте синхронизацию', 'error');
                 showConfigModal();
                 return;
             }
-            if (!confirm('⚠️ ЗАМЕНИТЬ все локальные данные на данные с сервера?')) return;
+
+            if (!confirm('⚠️ Эта операция ЗАМЕНИТ все локальные данные на данные с сервера. Продолжить?')) {
+                return;
+            }
 
             isSyncing = true;
-            updateSyncUI('syncing', 'Загрузка...');
+            updateSyncUI('syncing', 'Синхронизация...');
 
             try {
+                console.log('Загрузка файла с GitHub...');
                 const response = await fetch(`https://api.github.com/repos/${syncConfig.repo}/contents/${syncConfig.file}?t=${Date.now()}`, {
-                    headers: { 'Authorization': `token ${syncConfig.token}`, 'Accept': 'application/vnd.github.v3+json' }
+                    headers: {
+                        'Authorization': `token ${syncConfig.token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
                 });
+
                 if (!response.ok) {
-                    if (response.status === 404) throw new Error('Файл data.json не найден');
+                    if (response.status === 404) {
+                        throw new Error('Файл data.json не найден на сервере.');
+                    }
                     const errorData = await response.json();
-                    throw new Error(errorData.message || `Ошибка ${response.status}`);
+                    throw new Error(errorData.message || `Ошибка GitHub: ${response.status}`);
                 }
+
                 const data = await response.json();
                 const content = atob(data.content);
-                let remoteData = JSON.parse(content);
+                console.log('Файл загружен, размер:', content.length, 'символов');
+                
+                let remoteData;
+                try {
+                    remoteData = JSON.parse(content);
+                    console.log('Данные распарсены');
+                } catch (e) {
+                    throw new Error('Ошибка парсинга данных с сервера: ' + e.message);
+                }
 
-                // === ПРАВИЛЬНАЯ ЗАГРУЗКА С СОХРАНЕНИЕМ КИРИЛЛИЦЫ ===
-                sales = remoteData.sales || [];
-                categories = remoteData.categories || ['Чехлы', 'Стекло', 'Зарядка', 'Наушники', 'Аксессуары'];
-                restockItems = remoteData.restockItems || [];
+                const newSales = remoteData.sales || [];
+                const newCategories = remoteData.categories || ['Чехлы', 'Стекло', 'Зарядка', 'Наушники', 'Аксессуары'];
+                const newRestock = remoteData.restockItems || [];
+
+                console.log('Загружено:', newSales.length, 'продаж,', newRestock.length, 'товаров в закупке');
+
+                sales = newSales;
+                categories = newCategories;
+                restockItems = newRestock;
                 
                 saveDataLocal();
                 updateCategorySelect();
                 updateEditCategorySelect();
                 render();
                 
-                showToast(`✅ Загружено! (${sales.length} продаж)`);
+                showToast(`✅ Данные загружены с сервера! (${sales.length} продаж, ${restockItems.length} товаров в закупке)`);
+                console.log('Данные успешно загружены!');
+                
                 isSyncing = false;
-                updateSyncUI('online', 'Готов');
+                updateSyncUI('online', 'Готов к синхронизации');
+                
                 const now = new Date();
-                document.getElementById('syncLast').textContent = `Последняя: ${now.toLocaleString('ru-RU')}`;
+                document.getElementById('syncLast').textContent = 
+                    `Последняя синхронизация: ${now.toLocaleString('ru-RU')}`;
                 localStorage.setItem('connect_last_sync', now.toISOString());
+                
                 checkSyncStatus();
-            } catch(error) {
+                
+            } catch (error) {
+                console.log('ОШИБКА:', error.message);
                 showToast(`❌ Ошибка: ${error.message}`, 'error');
                 isSyncing = false;
                 updateSyncUI('offline', 'Ошибка');
             }
         }
 
+        // ===== РУЧНАЯ СИНХРОНИЗАЦИЯ =====
         async function manualSync() {
-            if (isSyncing) { showToast('⏳ Уже выполняется', 'info'); return; }
+            console.log('=== РУЧНАЯ СИНХРОНИЗАЦИЯ ===');
+            
+            if (isSyncing) {
+                showToast('⏳ Синхронизация уже выполняется', 'info');
+                return;
+            }
+
             if (!syncConfig.token || !syncConfig.repo) {
-                showToast('❌ Настройте синхронизацию', 'error');
+                showToast('❌ Сначала настройте синхронизацию', 'error');
                 showConfigModal();
                 return;
             }
 
             isSyncing = true;
-            updateSyncUI('syncing', 'Синхр...');
+            updateSyncUI('syncing', 'Синхронизация...');
 
             try {
+                console.log('Проверка токена...');
                 const testResponse = await fetch('https://api.github.com/user', {
-                    headers: { 'Authorization': `token ${syncConfig.token}`, 'Accept': 'application/vnd.github.v3+json' }
+                    headers: {
+                        'Authorization': `token ${syncConfig.token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
                 });
-                if (!testResponse.ok) {
-                    if (testResponse.status === 401) throw new Error('Неверный токен');
-                    throw new Error(`Ошибка авторизации: ${testResponse.status}`);
-                }
 
+                if (!testResponse.ok) {
+                    if (testResponse.status === 401) {
+                        throw new Error('Неверный токен. Создайте новый токен с правами repo');
+                    } else {
+                        throw new Error(`Ошибка авторизации: ${testResponse.status}`);
+                    }
+                }
+                console.log('Токен OK');
+
+                console.log('Загрузка файла с GitHub...');
                 const response = await fetch(`https://api.github.com/repos/${syncConfig.repo}/contents/${syncConfig.file}?t=${Date.now()}`, {
-                    headers: { 'Authorization': `token ${syncConfig.token}`, 'Accept': 'application/vnd.github.v3+json' }
+                    headers: {
+                        'Authorization': `token ${syncConfig.token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
                 });
 
                 let remoteData = null;
                 let sha = null;
+
                 if (response.ok) {
                     const data = await response.json();
                     sha = data.sha;
                     const content = atob(data.content);
-                    remoteData = JSON.parse(content);
-                } else if (response.status !== 404) {
+                    try {
+                        remoteData = JSON.parse(content);
+                        console.log('Данные с сервера распарсены:', remoteData.sales?.length || 0, 'продаж');
+                    } catch (e) {
+                        console.log('Ошибка парсинга:', e.message);
+                        remoteData = null;
+                    }
+                } else if (response.status === 404) {
+                    console.log('Файл на сервере не найден (404)');
+                } else {
                     const errorData = await response.json();
-                    throw new Error(errorData.message || `Ошибка ${response.status}`);
+                    throw new Error(errorData.message || `Ошибка GitHub: ${response.status}`);
                 }
 
                 const localData = {
@@ -1317,7 +2105,10 @@
                     const localTime = new Date(localData.updatedAt);
                     const remoteTime = new Date(remoteData.updatedAt || 0);
                     
+                    console.log('Сравнение времени: локальное', localTime.toISOString(), 'серверное', remoteTime.toISOString());
+                    
                     if (remoteTime > localTime) {
+                        console.log('Данные на сервере новее, загружаем...');
                         sales = remoteData.sales || [];
                         categories = remoteData.categories || ['Чехлы', 'Стекло', 'Зарядка', 'Наушники', 'Аксессуары'];
                         restockItems = remoteData.restockItems || [];
@@ -1325,27 +2116,39 @@
                         updateCategorySelect();
                         updateEditCategorySelect();
                         render();
-                        showToast(`📥 Загружено (${sales.length} продаж)`);
+                        showToast(`📥 Загружено с сервера (${sales.length} продаж)`);
+                        console.log('Данные загружены с сервера');
                     } else if (localTime > remoteTime) {
+                        console.log('Локальные данные новее, отправляем...');
                         await uploadToGitHub(localData, sha);
-                        showToast(`📤 Отправлено (${sales.length} продаж)`);
+                        showToast(`📤 Отправлено на сервер (${sales.length} продаж)`);
+                        console.log('Данные отправлены на сервер');
                     } else {
+                        console.log('Данные синхронизированы');
                         showToast('✅ Данные синхронизированы');
                     }
-                } else if (sales.length > 0) {
+                } else if (sales.length > 0 || restockItems.length > 0) {
+                    console.log('На сервере нет данных, создаем...');
                     await uploadToGitHub(localData, null);
-                    showToast(`📤 Создано на сервере (${sales.length} продаж)`);
+                    showToast(`📤 Данные созданы на сервере (${sales.length} продаж)`);
+                    console.log('Данные созданы на сервере');
                 } else {
-                    showToast('ℹ️ Нет данных', 'info');
+                    console.log('Данных нет ни на сервере, ни локально');
+                    showToast('ℹ️ Данных нет ни на сервере, ни локально', 'info');
                 }
 
                 isSyncing = false;
-                updateSyncUI('online', 'Готов');
+                updateSyncUI('online', 'Готов к синхронизации');
+                
                 const now = new Date();
-                document.getElementById('syncLast').textContent = `Последняя: ${now.toLocaleString('ru-RU')}`;
+                document.getElementById('syncLast').textContent = 
+                    `Последняя синхронизация: ${now.toLocaleString('ru-RU')}`;
                 localStorage.setItem('connect_last_sync', now.toISOString());
+                
                 checkSyncStatus();
-            } catch(error) {
+                
+            } catch (error) {
+                console.log('ОШИБКА:', error.message);
                 showToast(`❌ Ошибка: ${error.message}`, 'error');
                 isSyncing = false;
                 updateSyncUI('offline', 'Ошибка');
@@ -1356,6 +2159,7 @@
             const indicator = document.getElementById('syncIndicator');
             const statusText = document.getElementById('syncStatusText');
             const dot = document.getElementById('syncDot');
+            
             if (status === 'syncing') {
                 indicator.className = 'indicator syncing';
                 dot.className = 'sync-dot syncing';
@@ -1369,14 +2173,23 @@
             statusText.textContent = text;
         }
 
+        // ===== ЗАГРУЗКА НА GITHUB =====
         async function uploadToGitHub(data, sha) {
             const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
+            console.log('Подготовка к отправке, размер данных:', content.length);
+            
             const body = {
                 message: `Обновление данных ${new Date().toLocaleString('ru-RU')}`,
                 content: content,
                 branch: 'main'
             };
-            if (sha) body.sha = sha;
+            
+            if (sha) {
+                body.sha = sha;
+                console.log('SHA для обновления:', sha.substring(0, 20) + '...');
+            } else {
+                console.log('Создание нового файла (без SHA)');
+            }
 
             const response = await fetch(`https://api.github.com/repos/${syncConfig.repo}/contents/${syncConfig.file}`, {
                 method: 'PUT',
@@ -1387,64 +2200,84 @@
                 },
                 body: JSON.stringify(body)
             });
+
             if (!response.ok) {
                 const error = await response.json();
+                console.log('Ошибка отправки:', response.status, '-', error.message || '');
                 throw new Error(error.message || `Ошибка ${response.status}`);
             }
+
+            console.log('Данные успешно отправлены на сервер');
             return await response.json();
         }
 
+        // ===== ПРОВЕРКА ПОДКЛЮЧЕНИЯ =====
         async function testGitHubConnection() {
             const token = document.getElementById('githubToken').value.trim();
             const repo = document.getElementById('githubRepo').value.trim();
             const resultDiv = document.getElementById('testResult');
+            
             if (!token || !repo) {
                 resultDiv.className = 'test-result error';
                 resultDiv.textContent = '❌ Заполните токен и репозиторий';
                 resultDiv.style.display = 'block';
                 return;
             }
+
             resultDiv.className = 'test-result';
-            resultDiv.textContent = '⏳ Проверка...';
+            resultDiv.textContent = '⏳ Проверка подключения...';
             resultDiv.style.display = 'block';
             resultDiv.style.background = '#fff3cd';
             resultDiv.style.color = '#856404';
+            resultDiv.style.border = '1px solid #ffc107';
 
             try {
                 const testResponse = await fetch('https://api.github.com/user', {
-                    headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' }
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
                 });
+
                 if (!testResponse.ok) {
                     if (testResponse.status === 401) {
                         resultDiv.className = 'test-result error';
-                        resultDiv.innerHTML = '❌ Неверный токен! Создайте новый с правами <strong>repo</strong>';
+                        resultDiv.innerHTML = '❌ Неверный токен! Создайте новый токен с правами <strong>repo</strong>';
                     } else {
                         resultDiv.className = 'test-result error';
-                        resultDiv.textContent = `❌ Ошибка: ${testResponse.status}`;
+                        resultDiv.textContent = `❌ Ошибка: ${testResponse.status} - ${testResponse.statusText}`;
                     }
                     return;
                 }
 
                 const repoResponse = await fetch(`https://api.github.com/repos/${repo}`, {
-                    headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' }
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
                 });
+
                 if (!repoResponse.ok) {
                     if (repoResponse.status === 404) {
                         resultDiv.className = 'test-result error';
-                        resultDiv.textContent = `❌ Репозиторий "${repo}" не найден`;
+                        resultDiv.textContent = `❌ Репозиторий "${repo}" не найден. Проверьте название.`;
                     } else if (repoResponse.status === 403) {
                         resultDiv.className = 'test-result error';
-                        resultDiv.textContent = '❌ Нет доступа. Проверьте права токена (нужны repo)';
+                        resultDiv.textContent = '❌ Нет доступа к репозиторию. Проверьте права токена (нужны права repo)';
                     } else {
                         resultDiv.className = 'test-result error';
-                        resultDiv.textContent = `❌ Ошибка: ${repoResponse.status}`;
+                        resultDiv.textContent = `❌ Ошибка доступа к репозиторию: ${repoResponse.status}`;
                     }
                     return;
                 }
 
                 const fileResponse = await fetch(`https://api.github.com/repos/${repo}/contents/data.json?t=${Date.now()}`, {
-                    headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' }
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
                 });
+
                 if (fileResponse.status === 404) {
                     resultDiv.className = 'test-result info';
                     resultDiv.textContent = 'ℹ️ Подключение работает! Файл data.json будет создан при синхронизации.';
@@ -1454,33 +2287,56 @@
                     try {
                         const parsed = JSON.parse(content);
                         resultDiv.className = 'test-result success';
-                        resultDiv.textContent = `✅ Подключение работает! На сервере ${parsed.sales?.length || 0} продаж.`;
-                    } catch(e) {
+                        resultDiv.textContent = `✅ Подключение работает! На сервере ${parsed.sales?.length || 0} продаж, ${parsed.restockItems?.length || 0} товаров в закупке.`;
+                    } catch (e) {
                         resultDiv.className = 'test-result success';
                         resultDiv.textContent = '✅ Подключение работает! Файл data.json найден.';
                     }
+                } else {
+                    resultDiv.className = 'test-result error';
+                    resultDiv.textContent = `❌ Ошибка при проверке файла: ${fileResponse.status}`;
                 }
-            } catch(error) {
+
+            } catch (error) {
                 resultDiv.className = 'test-result error';
-                resultDiv.textContent = `❌ Ошибка: ${error.message}`;
+                resultDiv.textContent = `❌ Ошибка подключения: ${error.message}`;
             }
         }
 
-        // ========================================================================
-        // 6. ЗАГРУЗКА ДАННЫХ
-        // ========================================================================
+        // ===== ЗАГРУЗКА ДАННЫХ =====
         function loadData() {
+            console.log('Загрузка данных из localStorage...');
+            
             const stored = localStorage.getItem('salesData');
             if (stored) {
-                try { sales = JSON.parse(stored); } catch(e) { sales = []; }
+                try {
+                    sales = JSON.parse(stored);
+                    console.log('Загружено продаж:', sales.length);
+                } catch (e) {
+                    sales = [];
+                    console.log('Ошибка парсинга продаж:', e.message);
+                }
+            } else {
+                console.log('Нет данных в localStorage');
             }
+            
             const storedCategories = localStorage.getItem('categoriesData');
             if (storedCategories) {
-                try { categories = JSON.parse(storedCategories); } catch(e) { categories = ['Чехлы','Стекло','Зарядка','Наушники','Аксессуары']; }
+                try {
+                    categories = JSON.parse(storedCategories);
+                } catch (e) {
+                    categories = ['Чехлы', 'Стекло', 'Зарядка', 'Наушники', 'Аксессуары'];
+                }
             }
+
             const storedRestock = localStorage.getItem('restockData');
             if (storedRestock) {
-                try { restockItems = JSON.parse(storedRestock); } catch(e) { restockItems = []; }
+                try {
+                    restockItems = JSON.parse(storedRestock);
+                    console.log('Загружено товаров в закупке:', restockItems.length);
+                } catch (e) {
+                    restockItems = [];
+                }
             }
             
             updateCategorySelect();
@@ -1495,96 +2351,139 @@
             if (lastSync) {
                 try {
                     const date = new Date(lastSync);
-                    document.getElementById('syncLast').textContent = `Последняя: ${date.toLocaleString('ru-RU')}`;
-                } catch(e) {}
+                    document.getElementById('syncLast').textContent = 
+                        `Последняя синхронизация: ${date.toLocaleString('ru-RU')}`;
+                } catch (e) {}
             }
             
             render();
-            
-            setTimeout(() => {
-                if (syncConfig.token && syncConfig.repo) {
-                    manualSync();
-                }
-                checkSyncStatus();
-            }, 1000);
+            checkSyncStatus();
+
+            // Автоматическая синхронизация при загрузке
+            if (syncConfig.token && syncConfig.repo) {
+                console.log('Запуск автоматической синхронизации...');
+                setTimeout(async () => {
+                    await manualSync();
+                    initialLoadDone = true;
+                }, 1500);
+            } else {
+                console.log('Авто-синхронизация пропущена (нет настроек)');
+                initialLoadDone = true;
+            }
         }
 
         function saveDataLocal() {
             localStorage.setItem('salesData', JSON.stringify(sales));
             localStorage.setItem('categoriesData', JSON.stringify(categories));
             localStorage.setItem('restockData', JSON.stringify(restockItems));
+            console.log('Данные сохранены локально');
         }
 
         function saveData() {
             saveDataLocal();
-            if (syncConfig.token && syncConfig.repo) {
-                setTimeout(() => manualSync(), 500);
-            }
         }
 
-        // ========================================================================
-        // 7. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
-        // ========================================================================
+        // ===== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ =====
         function getCurrentDateTime() {
             const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
             return {
-                date: `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`,
-                time: `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`
+                date: `${year}-${month}-${day}`,
+                time: `${hours}:${minutes}`
             };
         }
 
         function convertDate(dateStr) {
-            if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr;
+            if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+                return dateStr;
+            }
             if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) {
-                const p = dateStr.split('/');
-                return `${p[2]}-${p[1]}-${p[0]}`;
+                const parts = dateStr.split('/');
+                return `${parts[2]}-${parts[1]}-${parts[0]}`;
             }
             if (/^\d{2}\.\d{2}\.\d{4}$/.test(dateStr)) {
-                const p = dateStr.split('.');
-                return `${p[2]}-${p[1]}-${p[0]}`;
+                const parts = dateStr.split('.');
+                return `${parts[2]}-${parts[1]}-${parts[0]}`;
+            }
+            if (/^\d{2}-\d{2}-\d{4}$/.test(dateStr)) {
+                const parts = dateStr.split('-');
+                return `${parts[2]}-${parts[1]}-${parts[0]}`;
             }
             return null;
         }
 
         function formatDateDisplay(dateStr) {
             if (!dateStr) return '';
-            const p = dateStr.split('-');
-            const months = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
-            return `${parseInt(p[2])} ${months[parseInt(p[1])-1]} ${p[0]}`;
+            const parts = dateStr.split('-');
+            const months = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
+            return `${parseInt(parts[2])} ${months[parseInt(parts[1]) - 1]} ${parts[0]}`;
         }
 
-        function formatPrice(v) { return v.toLocaleString('ru-RU') + ' ₽'; }
-
-        function getPaymentBadge(m) {
-            return { 'Наличные':'badge-cash','Безналичные':'badge-card','Перевод':'badge-transfer' }[m] || 'badge-cash';
+        function formatPrice(value) {
+            return value.toLocaleString('ru-RU') + ' ₽';
         }
 
-        function getPaymentEmoji(m) {
-            return { 'Наличные':'💰','Безналичные':'💳','Перевод':'📱' }[m] || '';
+        function getPaymentBadge(method) {
+            const map = {
+                'Наличные': 'badge-cash',
+                'Безналичные': 'badge-card',
+                'Перевод': 'badge-transfer'
+            };
+            return map[method] || 'badge-cash';
         }
 
-        function showToast(msg, type = 'success') {
-            const old = document.querySelectorAll('.toast');
-            old.forEach(t => t.remove());
+        function getPaymentEmoji(method) {
+            const map = {
+                'Наличные': '💰',
+                'Безналичные': '💳',
+                'Перевод': '📱'
+            };
+            return map[method] || '';
+        }
+
+        function showToast(message, type = 'success') {
+            const oldToasts = document.querySelectorAll('.toast');
+            oldToasts.forEach(t => t.remove());
+            
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
-            toast.textContent = msg;
+            toast.textContent = message;
             document.body.appendChild(toast);
-            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
         }
 
-        // ========================================================================
-        // 8. БЫСТРЫЕ ДАТЫ
-        // ========================================================================
-        function setDateToday() { document.getElementById('saleDate').value = getCurrentDateTime().date; }
+        // ===== БЫСТРЫЕ КНОПКИ ДЛЯ ДАТЫ =====
+        function setDateToday() {
+            document.getElementById('saleDate').value = getCurrentDateTime().date;
+        }
+
         function setDateYesterday() {
-            const d = new Date(); d.setDate(d.getDate()-1);
-            document.getElementById('saleDate').value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+            const date = new Date();
+            date.setDate(date.getDate() - 1);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            document.getElementById('saleDate').value = `${year}-${month}-${day}`;
         }
+
         function setDateDaysAgo(days) {
-            const d = new Date(); d.setDate(d.getDate()-days);
-            document.getElementById('saleDate').value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+            const date = new Date();
+            date.setDate(date.getDate() - days);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            document.getElementById('saleDate').value = `${year}-${month}-${day}`;
         }
+
         function setTodayView() {
             const today = getCurrentDateTime().date;
             document.getElementById('viewDate').value = today;
@@ -1592,130 +2491,218 @@
             render();
         }
 
-        // ========================================================================
-        // 9. КАТЕГОРИИ
-        // ========================================================================
+        // ===== УПРАВЛЕНИЕ КАТЕГОРИЯМИ =====
         function updateCategorySelect() {
             const select = document.getElementById('category');
-            const val = select.value;
+            const currentValue = select.value;
             select.innerHTML = '';
-            if (categories.length === 0) categories = ['Чехлы','Стекло','Зарядка','Наушники','Аксессуары'];
-            categories.forEach(c => {
-                const opt = document.createElement('option');
-                opt.value = c; opt.textContent = c;
-                select.appendChild(opt);
+            
+            if (categories.length === 0) {
+                categories = ['Чехлы', 'Стекло', 'Зарядка', 'Наушники', 'Аксессуары'];
+                saveDataLocal();
+            }
+            
+            categories.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat;
+                option.textContent = cat;
+                select.appendChild(option);
             });
-            if (categories.includes(val)) select.value = val;
+            
+            if (categories.includes(currentValue)) {
+                select.value = currentValue;
+            }
         }
 
         function updateEditCategorySelect() {
             const select = document.getElementById('editCategory');
-            const val = select.value;
+            const currentValue = select.value;
             select.innerHTML = '';
-            categories.forEach(c => {
-                const opt = document.createElement('option');
-                opt.value = c; opt.textContent = c;
-                select.appendChild(opt);
+            
+            categories.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat;
+                option.textContent = cat;
+                select.appendChild(option);
             });
-            if (categories.includes(val)) select.value = val;
+            
+            if (categories.includes(currentValue)) {
+                select.value = currentValue;
+            }
         }
 
-        function selectCategory(name) {
-            selectedCategoryForEdit = name;
+        function selectCategory(categoryName) {
+            selectedCategoryForEdit = categoryName;
             document.querySelectorAll('.category-item').forEach(el => {
-                el.classList.toggle('active', el.dataset.category === name);
+                el.classList.remove('active');
+                if (el.dataset.category === categoryName) {
+                    el.classList.add('active');
+                }
             });
         }
 
         function addCategory() {
             const input = document.getElementById('newCategoryInput');
             const name = input.value.trim();
-            if (!name) { alert('Введите название'); return; }
-            if (categories.includes(name)) { alert('Уже существует'); return; }
+            if (!name) {
+                alert('Введите название категории');
+                return;
+            }
+            if (categories.includes(name)) {
+                alert('Такая категория уже существует');
+                return;
+            }
             categories.push(name);
             input.value = '';
-            updateCategorySelect(); updateEditCategorySelect();
-            render(); selectedCategoryForEdit = null;
+            updateCategorySelect();
+            updateEditCategorySelect();
+            render();
+            selectedCategoryForEdit = null;
             saveData();
         }
 
         function deleteSelectedCategory() {
-            if (!selectedCategoryForEdit) { alert('Выберите категорию (кликните по ней)'); return; }
-            if (selectedCategoryForEdit === 'Другое') { alert('Нельзя удалить "Другое"'); return; }
-            if (!confirm(`Удалить "${selectedCategoryForEdit}"?`)) return;
-            sales.forEach(s => { if (s.category === selectedCategoryForEdit) s.category = 'Другое'; });
+            if (!selectedCategoryForEdit) {
+                alert('Сначала выберите категорию для удаления (кликните по ней в списке)');
+                return;
+            }
+            
+            if (selectedCategoryForEdit === 'Другое') {
+                alert('Нельзя удалить категорию "Другое"');
+                return;
+            }
+            
+            if (!confirm(`Удалить категорию "${selectedCategoryForEdit}"? Это не удалит продажи, они будут перенесены в "Другое".`)) {
+                return;
+            }
+            
+            sales.forEach(sale => {
+                if (sale.category === selectedCategoryForEdit) {
+                    sale.category = 'Другое';
+                }
+            });
+            
             categories = categories.filter(c => c !== selectedCategoryForEdit);
-            if (!categories.includes('Другое')) categories.push('Другое');
+            if (!categories.includes('Другое')) {
+                categories.push('Другое');
+            }
+            
             selectedCategoryForEdit = null;
-            updateCategorySelect(); updateEditCategorySelect();
-            render(); saveData();
+            updateCategorySelect();
+            updateEditCategorySelect();
+            render();
+            saveData();
         }
 
         function editSelectedCategory() {
-            if (!selectedCategoryForEdit) { alert('Выберите категорию (кликните по ней)'); return; }
-            if (selectedCategoryForEdit === 'Другое') { alert('Нельзя редактировать "Другое"'); return; }
+            if (!selectedCategoryForEdit) {
+                alert('Сначала выберите категорию для редактирования (кликните по ней в списке)');
+                return;
+            }
+            
+            if (selectedCategoryForEdit === 'Другое') {
+                alert('Нельзя редактировать категорию "Другое"');
+                return;
+            }
+            
             editingCategory = selectedCategoryForEdit;
-            document.getElementById('editCategoryInput').value = selectedCategoryForEdit;
-            document.getElementById('editCategoryInput').style.display = 'block';
-            document.getElementById('editCategoryBtn').style.display = 'block';
-            document.getElementById('editCategoryInput').focus();
+            const editInput = document.getElementById('editCategoryInput');
+            const editBtn = document.getElementById('editCategoryBtn');
+            editInput.value = selectedCategoryForEdit;
+            editInput.style.display = 'block';
+            editBtn.style.display = 'block';
+            editInput.focus();
         }
 
         function saveCategoryEdit() {
-            const input = document.getElementById('editCategoryInput');
-            const newName = input.value.trim();
-            if (!newName) { alert('Введите новое название'); return; }
-            if (categories.includes(newName) && newName !== editingCategory) { alert('Уже существует'); return; }
-            sales.forEach(s => { if (s.category === editingCategory) s.category = newName; });
-            const idx = categories.indexOf(editingCategory);
-            if (idx !== -1) categories[idx] = newName;
+            const editInput = document.getElementById('editCategoryInput');
+            const newName = editInput.value.trim();
+            
+            if (!newName) {
+                alert('Введите новое название');
+                return;
+            }
+            
+            if (categories.includes(newName) && newName !== editingCategory) {
+                alert('Категория с таким названием уже существует');
+                return;
+            }
+            
+            sales.forEach(sale => {
+                if (sale.category === editingCategory) {
+                    sale.category = newName;
+                }
+            });
+            
+            const index = categories.indexOf(editingCategory);
+            if (index !== -1) {
+                categories[index] = newName;
+            }
+            
             editingCategory = null;
-            input.style.display = 'none';
+            selectedCategoryForEdit = null;
+            editInput.style.display = 'none';
             document.getElementById('editCategoryBtn').style.display = 'none';
-            input.value = '';
-            updateCategorySelect(); updateEditCategorySelect();
-            render(); saveData();
+            editInput.value = '';
+            
+            updateCategorySelect();
+            updateEditCategorySelect();
+            render();
+            saveData();
         }
 
-        // ========================================================================
-        // 10. ЗАКУПКИ
-        // ========================================================================
+        // ===== УПРАВЛЕНИЕ СПИСКОМ ЗАКУПОК =====
         function toggleRestockSection() {
-            const s = document.getElementById('restockSection');
-            s.style.display = s.style.display === 'none' ? 'block' : 'none';
-            if (s.style.display === 'block') renderRestock();
+            const section = document.getElementById('restockSection');
+            if (section.style.display === 'none') {
+                section.style.display = 'block';
+                renderRestock();
+            } else {
+                section.style.display = 'none';
+            }
         }
 
         function addRestockItem() {
             const input = document.getElementById('restockInput');
             const name = input.value.trim();
-            if (!name) { showToast('❌ Введите название', 'error'); return; }
-            if (restockItems.includes(name)) { showToast('❌ Уже есть', 'error'); return; }
+            if (!name) {
+                showToast('❌ Введите название товара', 'error');
+                return;
+            }
+            if (restockItems.includes(name)) {
+                showToast('❌ Этот товар уже есть в списке', 'error');
+                return;
+            }
             restockItems.push(name);
             input.value = '';
-            renderRestock(); updateRestockBadge();
-            showToast(`✅ "${name}" добавлен`);
+            renderRestock();
+            updateRestockBadge();
+            showToast(`✅ "${name}" добавлен в список закупки`);
             saveData();
         }
 
         function deleteRestockItem(name) {
-            if (!confirm(`Удалить "${name}"?`)) return;
-            restockItems = restockItems.filter(i => i !== name);
-            renderRestock(); updateRestockBadge();
-            showToast(`🗑️ "${name}" удален`);
-            saveData();
+            if (confirm(`Удалить "${name}" из списка на закупку?`)) {
+                restockItems = restockItems.filter(item => item !== name);
+                renderRestock();
+                updateRestockBadge();
+                showToast(`🗑️ "${name}" удален из списка`);
+                saveData();
+            }
         }
 
         function renderRestock() {
             const grid = document.getElementById('restockGrid');
             if (restockItems.length === 0) {
-                grid.innerHTML = '<div class="restock-empty">✨ Все товары в наличии</div>';
+                grid.innerHTML = `<div class="restock-empty">✨ Все товары в наличии</div>`;
                 return;
             }
             grid.innerHTML = restockItems.map(item => `
                 <div class="restock-item">
                     <span class="item-name">${item}</span>
-                    <button class="btn-restock-delete" onclick="deleteRestockItem('${item}')">✕</button>
+                    <div class="item-actions">
+                        <button class="btn-restock-delete" onclick="deleteRestockItem('${item}')">✕</button>
+                    </div>
                 </div>
             `).join('');
         }
@@ -1724,47 +2711,77 @@
             document.getElementById('restockCount').textContent = restockItems.length;
         }
 
+        // ===== ЭКСПОРТ СПИСКА ЗАКУПОК =====
         function copyRestockList() {
-            if (restockItems.length === 0) { showToast('📦 Список пуст', 'error'); return; }
-            let text = '📦 СПИСОК ЗАКУПКИ\n' + '='.repeat(40) + '\n';
-            text += `Дата: ${getCurrentDateTime().date}\nВсего: ${restockItems.length}\n` + '='.repeat(40) + '\n\n';
-            restockItems.forEach((item, i) => text += `${i+1}. ${item}\n`);
-            text += '\n' + '='.repeat(40) + '\nCONNECT | Учет продаж';
-            navigator.clipboard.writeText(text).then(() => showToast(`✅ Скопирован! (${restockItems.length})`))
-                .catch(() => {
-                    const ta = document.createElement('textarea');
-                    ta.value = text;
-                    document.body.appendChild(ta);
-                    ta.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(ta);
-                    showToast(`✅ Скопирован! (${restockItems.length})`);
-                });
+            if (restockItems.length === 0) {
+                showToast('📦 Список закупок пуст', 'error');
+                return;
+            }
+
+            let text = '📦 СПИСОК ТОВАРОВ ДЛЯ ЗАКУПКИ\n';
+            text += '='.repeat(50) + '\n';
+            text += `Дата: ${getCurrentDateTime().date}\n`;
+            text += `Всего позиций: ${restockItems.length}\n`;
+            text += '='.repeat(50) + '\n\n';
+            
+            restockItems.forEach((item, index) => {
+                text += `${index + 1}. ${item}\n`;
+            });
+            
+            text += '\n' + '='.repeat(50) + '\n';
+            text += `CONNECT | Учет продаж`;
+
+            navigator.clipboard.writeText(text).then(() => {
+                showToast(`✅ Список скопирован! (${restockItems.length} позиций)`);
+            }).catch(() => {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showToast(`✅ Список скопирован! (${restockItems.length} позиций)`);
+            });
         }
 
         function exportRestockToFile() {
-            if (restockItems.length === 0) { showToast('📦 Список пуст', 'error'); return; }
-            let text = '📦 СПИСОК ЗАКУПКИ\n' + '='.repeat(40) + '\n';
-            text += `Дата: ${getCurrentDateTime().date}\nВремя: ${getCurrentDateTime().time}\nВсего: ${restockItems.length}\n` + '='.repeat(40) + '\n\n';
-            restockItems.forEach((item, i) => text += `${i+1}. ${item}\n`);
-            text += '\n' + '='.repeat(40) + '\nCONNECT | Учет продаж';
+            if (restockItems.length === 0) {
+                showToast('📦 Список закупок пуст', 'error');
+                return;
+            }
+
+            let text = '📦 СПИСОК ТОВАРОВ ДЛЯ ЗАКУПКИ\n';
+            text += '='.repeat(50) + '\n';
+            text += `Дата: ${getCurrentDateTime().date}\n`;
+            text += `Время: ${getCurrentDateTime().time}\n`;
+            text += `Всего позиций: ${restockItems.length}\n`;
+            text += '='.repeat(50) + '\n\n';
+            
+            restockItems.forEach((item, index) => {
+                text += `${index + 1}. ${item}\n`;
+            });
+            
+            text += '\n' + '='.repeat(50) + '\n';
+            text += `CONNECT | Учет продаж\n`;
+            text += `Сгенерировано: ${getCurrentDateTime().date} ${getCurrentDateTime().time}`;
+
             const blob = new Blob([text], { type: 'text/plain;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `Список_закупки_${getCurrentDateTime().date}.txt`;
+            a.download = `Список_закупки_CONNECT_${getCurrentDateTime().date}.txt`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-            showToast(`💾 Файл скачан! (${restockItems.length})`);
+            
+            showToast(`💾 Файл скачан! (${restockItems.length} позиций)`);
         }
 
-        // ========================================================================
-        // 11. ДОБАВЛЕНИЕ ПРОДАЖИ
-        // ========================================================================
+        // ===== ДОБАВЛЕНИЕ ПРОДАЖИ =====
         document.getElementById('addForm').addEventListener('submit', function(e) {
             e.preventDefault();
+
             const now = getCurrentDateTime();
             const date = document.getElementById('saleDate').value;
             const name = document.getElementById('productName').value.trim();
@@ -1772,35 +2789,58 @@
             const price = parseFloat(document.getElementById('price').value);
             const payment = document.getElementById('paymentMethod').value;
             const lastItem = document.getElementById('lastItem').checked;
-            if (!date || !name || !price) { alert('Заполните все поля!'); return; }
-            const sale = { id: Date.now(), date, time: now.time, name, category, price, payment };
+
+            if (!date || !name || !price) {
+                alert('Заполните все поля!');
+                return;
+            }
+
+            const sale = {
+                id: Date.now(),
+                date: date,
+                time: now.time,
+                name: name,
+                category: category,
+                price: price,
+                payment: payment
+            };
+
             sales.push(sale);
-            if (lastItem && !restockItems.includes(name)) { restockItems.push(name); updateRestockBadge(); }
+            
+            if (lastItem && !restockItems.includes(name)) {
+                restockItems.push(name);
+                updateRestockBadge();
+            }
+            
             render();
+
             document.getElementById('productName').value = '';
             document.getElementById('price').value = '';
             document.getElementById('lastItem').checked = false;
             document.getElementById('productName').focus();
+            
             saveData();
         });
 
-        // ========================================================================
-        // 12. УДАЛЕНИЕ И РЕДАКТИРОВАНИЕ
-        // ========================================================================
+        // ===== УДАЛЕНИЕ И РЕДАКТИРОВАНИЕ ПРОДАЖ =====
         function deleteSale(id) {
-            if (!confirm('Удалить продажу?')) return;
-            sales = sales.filter(s => s.id !== id);
-            render(); saveData();
+            if (confirm('Удалить эту продажу?')) {
+                sales = sales.filter(s => s.id !== id);
+                render();
+                saveData();
+            }
         }
 
         function openEditModal(id) {
             const sale = sales.find(s => s.id === id);
             if (!sale) return;
+
             editingSaleId = id;
             document.getElementById('editProductName').value = sale.name;
             document.getElementById('editCategory').value = sale.category;
             document.getElementById('editPrice').value = sale.price;
             document.getElementById('editPaymentMethod').value = sale.payment;
+            
             document.getElementById('editModal').classList.add('active');
         }
 
@@ -1811,82 +2851,148 @@
 
         document.getElementById('editForm').addEventListener('submit', function(e) {
             e.preventDefault();
+
             if (editingSaleId === null) return;
+
             const name = document.getElementById('editProductName').value.trim();
             const category = document.getElementById('editCategory').value;
             const price = parseFloat(document.getElementById('editPrice').value);
             const payment = document.getElementById('editPaymentMethod').value;
-            if (!name || !price) { alert('Заполните поля'); return; }
-            const idx = sales.findIndex(s => s.id === editingSaleId);
-            if (idx !== -1) {
-                sales[idx].name = name;
-                sales[idx].category = category;
-                sales[idx].price = price;
-                sales[idx].payment = payment;
-                render(); closeEditModal(); saveData();
+
+            if (!name || !price) {
+                alert('Заполните все поля!');
+                return;
+            }
+
+            const index = sales.findIndex(s => s.id === editingSaleId);
+            if (index !== -1) {
+                sales[index].name = name;
+                sales[index].category = category;
+                sales[index].price = price;
+                sales[index].payment = payment;
+                render();
+                closeEditModal();
+                saveData();
             }
         });
 
         document.getElementById('editModal').addEventListener('click', function(e) {
-            if (e.target === this) closeEditModal();
+            if (e.target === this) {
+                closeEditModal();
+            }
         });
 
-        // ========================================================================
-        // 13. ИМПОРТ CSV
-        // ========================================================================
+        // ===== ИМПОРТ CSV =====
         function findDuplicates(newData) {
-            const dup = [], uniq = [];
+            const duplicates = [];
+            const unique = [];
+            
             newData.forEach(item => {
-                const isDup = sales.some(s => s.date === item.date && s.time === item.time && s.name === item.name && s.price === item.price);
-                isDup ? dup.push(item) : uniq.push(item);
+                const isDuplicate = sales.some(s => 
+                    s.date === item.date && 
+                    s.time === item.time && 
+                    s.name === item.name && 
+                    s.price === item.price
+                );
+                
+                if (isDuplicate) {
+                    duplicates.push(item);
+                } else {
+                    unique.push(item);
+                }
             });
-            return { duplicates: dup, unique: uniq };
+            
+            return { duplicates, unique };
         }
 
         function importCSV(event) {
             const file = event.target.files[0];
             if (!file) return;
+
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
                     let text = e.target.result;
-                    let delimiter = text.includes(';') && !text.includes(',') ? ';' : ',';
-                    const lines = text.split('\n').filter(l => l.trim());
-                    if (lines.length < 2) { alert('Файл должен содержать заголовки и данные'); return; }
-                    const headers = lines[0].split(delimiter).map(h => h.trim());
-                    const expected = ['Дата','Время','Товар','Категория','Стоимость','Оплата'];
-                    if (!expected.every(h => headers.includes(h))) {
-                        alert('Неверный формат. Ожидаются: Дата,Время,Товар,Категория,Стоимость,Оплата');
+                    
+                    let delimiter = ';';
+                    if (text.includes(',') && !text.includes(';')) {
+                        delimiter = ',';
+                    }
+                    
+                    const lines = text.split('\n').filter(line => line.trim());
+                    
+                    if (lines.length < 2) {
+                        alert('Файл должен содержать заголовки и хотя бы одну запись');
                         return;
                     }
+
+                    const headers = lines[0].split(delimiter).map(h => h.trim());
+                    const expectedHeaders = ['Дата', 'Время', 'Товар', 'Категория', 'Стоимость', 'Оплата'];
+                    
+                    const headerMatch = expectedHeaders.every(h => headers.includes(h));
+                    if (!headerMatch) {
+                        alert('Неверный формат CSV. Ожидаются заголовки: Дата,Время,Товар,Категория,Стоимость,Оплата');
+                        return;
+                    }
+
                     importedData = [];
                     let errors = [];
                     const now = getCurrentDateTime();
+
                     for (let i = 1; i < lines.length; i++) {
-                        const vals = lines[i].split(delimiter).map(v => v.trim());
-                        if (vals.length < 6) { errors.push(`Строка ${i}: недостаточно данных`); continue; }
-                        const dateStr = vals[0];
-                        let time = vals[1] || now.time;
-                        const name = vals[2];
-                        const category = vals[3];
-                        const price = parseFloat(vals[4]);
-                        const payment = vals[5];
+                        const values = lines[i].split(delimiter).map(v => v.trim());
+                        if (values.length < 6) {
+                            errors.push(`Строка ${i}: недостаточно данных (${values.length} полей, нужно 6)`);
+                            continue;
+                        }
+
+                        const dateStr = values[0];
+                        let time = values[1] || now.time;
+                        const name = values[2];
+                        const category = values[3];
+                        const price = parseFloat(values[4]);
+                        const payment = values[5];
+
                         if (!dateStr || !name || isNaN(price) || !payment) {
                             errors.push(`Строка ${i}: ${lines[i]}`);
                             continue;
                         }
+
                         const date = convertDate(dateStr);
-                        if (!date) { errors.push(`Строка ${i}: неверный формат даты`); continue; }
-                        if (!time) time = now.time;
-                        if (!categories.includes(category) && category !== 'Другое') categories.push(category);
-                        importedData.push({ date, time, name, category, price, payment });
+                        if (!date) {
+                            errors.push(`Строка ${i}: неверный формат даты (поддерживается ГГГГ-ММ-ДД или ДД/ММ/ГГГГ)`);
+                            continue;
+                        }
+
+                        if (!time || time === '') {
+                            time = now.time;
+                        }
+
+                        if (!categories.includes(category) && category !== 'Другое') {
+                            categories.push(category);
+                        }
+
+                        importedData.push({
+                            date: date,
+                            time: time,
+                            name: name,
+                            category: category,
+                            price: price,
+                            payment: payment
+                        });
                     }
+
                     if (importedData.length === 0) {
-                        alert('Не найдено корректных записей' + (errors.length ? `\nОшибки:\n${errors.join('\n')}` : ''));
+                        alert('Не найдено корректных записей для импорта' + 
+                              (errors.length ? `\n\nОшибки:\n${errors.join('\n')}` : ''));
                         return;
                     }
+
                     showImportPreview(importedData, errors);
-                } catch(err) { alert('Ошибка: ' + err.message); }
+                    
+                } catch (err) {
+                    alert('Ошибка при чтении файла: ' + err.message);
+                }
             };
             reader.readAsText(file, 'UTF-8');
             event.target.value = '';
@@ -1894,24 +3000,89 @@
 
         function showImportPreview(data, errors) {
             const preview = document.getElementById('importPreview');
+            
             const { duplicates, unique } = findDuplicates(data);
-            let html = `<div style="margin-bottom:6px;font-weight:600;color:#48bb78;">✅ Найдено ${data.length} записей</div>`;
-            if (duplicates.length > 0) html += `<div style="margin-bottom:6px;font-weight:600;color:#ed8936;">⚠️ ${duplicates.length} дубликатов</div>`;
-            if (errors.length > 0) html += `<div style="margin-bottom:6px;font-weight:600;color:#fc8181;">⚠️ ${errors.length} ошибок</div>`;
-            html += `<div class="import-preview"><table><thead><tr><th>Дата</th><th>Время</th><th>Товар</th><th>Категория</th><th>Стоимость</th><th>Оплата</th></tr></thead><tbody>`;
-            data.slice(0, 10).forEach(item => {
-                const isDup = sales.some(s => s.date === item.date && s.time === item.time && s.name === item.name && s.price === item.price);
-                html += `<tr${isDup ? ' style="background:#fff5f5;"' : ''}>
-                    <td>${item.date}</td><td>${item.time}</td><td>${item.name}</td><td>${item.category}</td><td>${item.price}</td><td>${item.payment}</td>
-                </tr>`;
-            });
-            if (data.length > 10) html += `<tr><td colspan="6" style="text-align:center;color:#718096;">... и еще ${data.length-10}</td></tr>`;
-            html += `</tbody></table></div>`;
-            if (duplicates.length > 0) {
-                html += `<div class="import-stats"><div class="stat-item">📊 Всего: <strong>${data.length}</strong></div>
-                    <div class="stat-item">🆕 Новых: <strong>${unique.length}</strong></div>
-                    <div class="stat-item">🔄 Дубликатов: <strong>${duplicates.length}</strong></div></div>`;
+            const duplicateCount = duplicates.length;
+            
+            let html = `
+                <div style="margin-bottom: 10px; font-weight: 600; color: #48bb78;">
+                    ✅ Найдено ${data.length} записей для импорта
+                </div>
+            `;
+
+            if (duplicateCount > 0) {
+                html += `
+                    <div style="margin-bottom: 10px; font-weight: 600; color: #ed8936;">
+                        ⚠️ Из них ${duplicateCount} дубликатов (будут пропущены в режиме "Пропускать дубликаты")
+                    </div>
+                `;
             }
+
+            if (errors.length > 0) {
+                html += `
+                    <div style="margin-bottom: 10px; font-weight: 600; color: #fc8181;">
+                        ⚠️ Пропущено ${errors.length} строк с ошибками
+                    </div>
+                `;
+            }
+
+            html += `
+                <div class="import-preview">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Дата</th>
+                                <th>Время</th>
+                                <th>Товар</th>
+                                <th>Категория</th>
+                                <th>Стоимость</th>
+                                <th>Оплата</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            const showData = data.slice(0, 10);
+            showData.forEach(item => {
+                const isDuplicate = sales.some(s => 
+                    s.date === item.date && 
+                    s.time === item.time && 
+                    s.name === item.name && 
+                    s.price === item.price
+                );
+                const dupClass = isDuplicate ? ' style="background:#fff5f5;"' : '';
+                html += `
+                    <tr${dupClass}>
+                        <td>${item.date}</td>
+                        <td>${item.time}</td>
+                        <td>${item.name}</td>
+                        <td>${item.category}</td>
+                        <td>${item.price}</td>
+                        <td>${item.payment}</td>
+                    </tr>
+                `;
+            });
+
+            if (data.length > 10) {
+                html += `<tr><td colspan="6" style="text-align:center; color:#718096;">... и еще ${data.length - 10} записей</td></tr>`;
+            }
+
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            if (duplicateCount > 0) {
+                html += `
+                    <div class="import-stats">
+                        <div class="stat-item">📊 Всего записей: <strong>${data.length}</strong></div>
+                        <div class="stat-item">🆕 Новых: <strong>${unique.length}</strong></div>
+                        <div class="stat-item">🔄 Дубликатов: <strong>${duplicateCount}</strong></div>
+                    </div>
+                `;
+            }
+
             preview.innerHTML = html;
             document.getElementById('confirmImportBtn').style.display = 'block';
             document.getElementById('importModal').classList.add('active');
@@ -1919,36 +3090,86 @@
 
         function confirmImport() {
             if (importedData.length === 0) return;
+
             const mode = document.querySelector('input[name="importMode"]:checked').value;
-            let data = [...importedData];
-            let stats = { added: 0, skipped: 0 };
+            let dataToImport = [...importedData];
+            let stats = {
+                added: 0,
+                skipped: 0,
+                total: importedData.length
+            };
+
             if (mode === 'replace') {
-                if (!confirm('⚠️ Все данные будут удалены. Продолжить?')) return;
+                if (!confirm('⚠️ Все текущие данные будут удалены. Продолжить?')) {
+                    return;
+                }
                 sales = [];
-                data.forEach(item => {
-                    sales.push({ id: Date.now()+Math.random()*1000, ...item });
+                dataToImport.forEach(item => {
+                    const sale = {
+                        id: Date.now() + Math.random() * 1000,
+                        date: item.date,
+                        time: item.time,
+                        name: item.name,
+                        category: item.category,
+                        price: item.price,
+                        payment: item.payment
+                    };
+                    sales.push(sale);
                 });
-                stats.added = data.length;
-            } else if (mode === 'skip') {
-                const { duplicates, unique } = findDuplicates(data);
+                stats.added = dataToImport.length;
+            } 
+            else if (mode === 'skip') {
+                const { duplicates, unique } = findDuplicates(dataToImport);
                 stats.skipped = duplicates.length;
+                
                 unique.forEach(item => {
-                    sales.push({ id: Date.now()+Math.random()*1000, ...item });
+                    const sale = {
+                        id: Date.now() + Math.random() * 1000,
+                        date: item.date,
+                        time: item.time,
+                        name: item.name,
+                        category: item.category,
+                        price: item.price,
+                        payment: item.payment
+                    };
+                    sales.push(sale);
                 });
                 stats.added = unique.length;
-            } else {
-                data.forEach(item => {
-                    sales.push({ id: Date.now()+Math.random()*1000, ...item });
+            } 
+            else {
+                dataToImport.forEach(item => {
+                    const sale = {
+                        id: Date.now() + Math.random() * 1000,
+                        date: item.date,
+                        time: item.time,
+                        name: item.name,
+                        category: item.category,
+                        price: item.price,
+                        payment: item.payment
+                    };
+                    sales.push(sale);
                 });
-                stats.added = data.length;
+                stats.added = dataToImport.length;
             }
-            updateCategorySelect(); updateEditCategorySelect();
+
+            updateCategorySelect();
+            updateEditCategorySelect();
+            
+            const count = stats.added;
+            const skipped = stats.skipped;
             importedData = [];
             closeImportModal();
-            render(); saveData();
-            let msg = `✅ Импортировано ${stats.added} записей!`;
-            if (stats.skipped > 0) msg += `\n⏭️ Пропущено дубликатов: ${stats.skipped}`;
-            alert(msg);
+            render();
+            saveData();
+            
+            let message = `✅ Успешно импортировано ${count} записей!`;
+            if (skipped > 0) {
+                message += `\n⏭️ Пропущено дубликатов: ${skipped}`;
+            }
+            if (mode === 'replace') {
+                message = `🔄 Данные заменены! Импортировано ${count} записей.`;
+            }
+            alert(message);
         }
 
         function closeImportModal() {
@@ -1958,23 +3179,32 @@
             importedData = [];
         }
 
-        // ========================================================================
-        // 14. РЕНДЕР
-        // ========================================================================
+        // ===== РЕНДЕР =====
         function render() {
             const viewDate = currentViewDate || getCurrentDateTime().date;
             const daySales = sales.filter(s => s.date === viewDate);
-            const sorted = [...daySales].sort((a,b) => {
+            
+            const sortedDay = [...daySales].sort((a, b) => {
                 if (a.time < b.time) return -1;
                 if (a.time > b.time) return 1;
                 return a.id - b.id;
             });
 
             const tbody = document.getElementById('salesTableBody');
+
             if (daySales.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="icon">📦</div><p>Нет продаж за ${formatDateDisplay(viewDate)}</p></div></td></tr>`;
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <div class="icon">📦</div>
+                                <p>Нет продаж за ${formatDateDisplay(viewDate)}</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
             } else {
-                tbody.innerHTML = sorted.map(s => `
+                tbody.innerHTML = sortedDay.map(s => `
                     <tr>
                         <td>${s.date}</td>
                         <td class="time-column">${s.time || '--:--'}</td>
@@ -1992,10 +3222,10 @@
                 `).join('');
             }
 
-            const dayTotal = daySales.reduce((s, i) => s + i.price, 0);
-            const dayCash = daySales.filter(i => i.payment === 'Наличные').reduce((s, i) => s + i.price, 0);
-            const dayCard = daySales.filter(i => i.payment === 'Безналичные').reduce((s, i) => s + i.price, 0);
-            const dayTransfer = daySales.filter(i => i.payment === 'Перевод').reduce((s, i) => s + i.price, 0);
+            const dayTotal = daySales.reduce((sum, s) => sum + s.price, 0);
+            const dayCash = daySales.filter(s => s.payment === 'Наличные').reduce((sum, s) => sum + s.price, 0);
+            const dayCard = daySales.filter(s => s.payment === 'Безналичные').reduce((sum, s) => sum + s.price, 0);
+            const dayTransfer = daySales.filter(s => s.payment === 'Перевод').reduce((sum, s) => sum + s.price, 0);
 
             document.getElementById('dayTotal').textContent = formatPrice(dayTotal);
             document.getElementById('dayCash').textContent = formatPrice(dayCash);
@@ -2010,19 +3240,21 @@
                 document.getElementById('selectedDateLabel').textContent = formatDateDisplay(viewDate);
                 document.getElementById('salesListLabel').textContent = `Продажи за ${formatDateDisplay(viewDate)}`;
             }
+
             document.getElementById('viewDayTotal').textContent = formatPrice(dayTotal);
 
             const now = new Date();
-            const curMonth = String(now.getMonth()+1).padStart(2,'0');
-            const curYear = now.getFullYear();
+            const currentMonth = String(now.getMonth() + 1).padStart(2, '0');
+            const currentYear = now.getFullYear();
             const monthSales = sales.filter(s => {
-                const [y,m] = s.date.split('-');
-                return y === String(curYear) && m === curMonth;
+                const [year, month] = s.date.split('-');
+                return year === String(currentYear) && month === currentMonth;
             });
-            const monthTotal = monthSales.reduce((s,i) => s+i.price, 0);
-            const monthCash = monthSales.filter(i => i.payment === 'Наличные').reduce((s,i) => s+i.price, 0);
-            const monthCard = monthSales.filter(i => i.payment === 'Безналичные').reduce((s,i) => s+i.price, 0);
-            const monthTransfer = monthSales.filter(i => i.payment === 'Перевод').reduce((s,i) => s+i.price, 0);
+            
+            const monthTotal = monthSales.reduce((sum, s) => sum + s.price, 0);
+            const monthCash = monthSales.filter(s => s.payment === 'Наличные').reduce((sum, s) => sum + s.price, 0);
+            const monthCard = monthSales.filter(s => s.payment === 'Безналичные').reduce((sum, s) => sum + s.price, 0);
+            const monthTransfer = monthSales.filter(s => s.payment === 'Перевод').reduce((sum, s) => sum + s.price, 0);
             
             document.getElementById('monthTotalValue').textContent = formatPrice(monthTotal);
             document.getElementById('monthCash').textContent = formatPrice(monthCash);
@@ -2030,36 +3262,51 @@
             document.getElementById('monthTransfer').textContent = formatPrice(monthTransfer);
 
             const grid = document.getElementById('categoriesGrid');
-            const stats = {};
-            categories.forEach(c => { stats[c] = sales.filter(s => s.category === c).reduce((sum, s) => sum + s.price, 0); });
-            grid.innerHTML = categories.map(c => `
-                <div class="category-item ${selectedCategoryForEdit === c ? 'active' : ''}" data-category="${c}" onclick="selectCategory('${c}')">
-                    <span class="cat-name">${c}</span>
-                    <span class="cat-total">${formatPrice(stats[c] || 0)}</span>
+            const catStats = {};
+            categories.forEach(cat => {
+                const sum = sales.filter(s => s.category === cat).reduce((sum, s) => sum + s.price, 0);
+                catStats[cat] = sum;
+            });
+            
+            grid.innerHTML = categories.map(cat => `
+                <div class="category-item ${selectedCategoryForEdit === cat ? 'active' : ''}" 
+                     data-category="${cat}"
+                     onclick="selectCategory('${cat}')">
+                    <span class="cat-name">${cat}</span>
+                    <span class="cat-total">${formatPrice(catStats[cat] || 0)}</span>
                 </div>
             `).join('');
 
             renderRestock();
             updateRestockBadge();
+
             document.getElementById('saleDate').value = getCurrentDateTime().date;
         }
 
-        // ========================================================================
-        // 15. ЭКСПОРТ CSV
-        // ========================================================================
+        // ===== ЭКСПОРТ CSV =====
         function exportCSV() {
-            if (sales.length === 0) { alert('Нет данных'); return; }
-            const sorted = [...sales].sort((a,b) => {
+            if (sales.length === 0) {
+                alert('Нет данных для экспорта');
+                return;
+            }
+            
+            const sortedSales = [...sales].sort((a, b) => {
                 if (a.date < b.date) return -1;
                 if (a.date > b.date) return 1;
                 if (a.time < b.time) return -1;
                 if (a.time > b.time) return 1;
                 return 0;
             });
-            const headers = ['Дата','Время','Товар','Категория','Стоимость','Оплата'];
-            const rows = sorted.map(s => [s.date, s.time || '', s.name, s.category, s.price, s.payment]);
-            let csv = headers.join(';') + '\n';
-            rows.forEach(r => { csv += r.join(';') + '\n'; });
+            
+            const delimiter = ';';
+            const headers = ['Дата', 'Время', 'Товар', 'Категория', 'Стоимость', 'Оплата'];
+            const rows = sortedSales.map(s => [s.date, s.time || '', s.name, s.category, s.price, s.payment]);
+            
+            let csv = headers.join(delimiter) + '\n';
+            rows.forEach(row => {
+                csv += row.join(delimiter) + '\n';
+            });
+            
             const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -2072,36 +3319,60 @@
         }
 
         function clearAll() {
-            if (!confirm('Удалить все данные? Отменить нельзя!')) return;
-            if (!confirm('Вы уверены?')) return;
-            sales = [];
-            render(); saveData();
+            if (confirm('Удалить все данные? Это действие нельзя отменить!')) {
+                if (confirm('Вы уверены?')) {
+                    sales = [];
+                    render();
+                    saveData();
+                }
+            }
         }
 
-        // ========================================================================
-        // 16. ИНИЦИАЛИЗАЦИЯ
-        // ========================================================================
+        // ===== ИНИЦИАЛИЗАЦИЯ =====
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('=== CONNECT ЗАГРУЖЕН ===');
+            console.log('=== ПРИЛОЖЕНИЕ ЗАГРУЖЕНО ===');
             loadConfig();
             loadData();
             
             document.addEventListener('click', function(e) {
-                const dd = document.getElementById('settingsDropdown');
-                const btn = document.getElementById('settingsFloat');
-                if (dd.classList.contains('active')) {
-                    if (!btn.contains(e.target) && !dd.contains(e.target)) closeSettings();
+                const dropdown = document.getElementById('settingsDropdown');
+                const floatBtn = document.getElementById('settingsFloat');
+                if (dropdown.classList.contains('active')) {
+                    if (!floatBtn.contains(e.target) && !dropdown.contains(e.target)) {
+                        closeSettings();
+                    }
+                }
+            });
+            
+            document.getElementById('newCategoryInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    addCategory();
+                }
+            });
+            
+            document.getElementById('editCategoryInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    saveCategoryEdit();
                 }
             });
 
-            document.getElementById('newCategoryInput').addEventListener('keypress', e => { if (e.key === 'Enter') addCategory(); });
-            document.getElementById('editCategoryInput').addEventListener('keypress', e => { if (e.key === 'Enter') saveCategoryEdit(); });
-            document.getElementById('restockInput').addEventListener('keypress', e => { if (e.key === 'Enter') addRestockItem(); });
-            document.getElementById('configModal').addEventListener('click', function(e) { if (e.target === this) closeConfigModal(); });
+            document.getElementById('restockInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    addRestockItem();
+                }
+            });
+
+            document.getElementById('configModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeConfigModal();
+                }
+            });
+
             document.getElementById('viewDate').addEventListener('change', function() {
                 currentViewDate = this.value;
                 render();
             });
+            
             console.log('Инициализация завершена');
         });
     </script>
