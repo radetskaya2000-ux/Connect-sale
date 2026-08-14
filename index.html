@@ -6,8 +6,6 @@
     <title>Учет продаж - CONNECT</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📱</text></svg>">
     <style>
-        /* ===== ВЕСЬ CSS ОСТАЕТСЯ БЕЗ ИЗМЕНЕНИЙ ===== */
-        /* (используем CSS из предыдущего рабочего ответа) */
         * {
             margin: 0;
             padding: 0;
@@ -19,6 +17,7 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
+            overflow-x: hidden;
         }
 
         .container {
@@ -152,16 +151,17 @@
             50% { opacity: 0.3; }
         }
 
+        /* ===== ВЫПАДАЮЩЕЕ МЕНЮ НАСТРОЕК (АДАПТИВНОЕ) ===== */
         .settings-dropdown {
             position: absolute;
-            top: 70px;
-            right: 20px;
+            top: 55px;
+            right: 0;
             background: white;
             border-radius: 12px;
             border: 2px solid #e2e8f0;
             box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-            padding: 20px;
-            width: 320px;
+            padding: 15px;
+            width: 300px;
             display: none;
             z-index: 200;
         }
@@ -176,7 +176,7 @@
             gap: 8px;
             font-size: 13px;
             color: #4a5568;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .settings-dropdown .sync-status .indicator {
@@ -202,7 +202,7 @@
         .settings-dropdown .sync-info-text {
             font-size: 12px;
             color: #718096;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             line-height: 1.5;
         }
 
@@ -215,6 +215,9 @@
             transition: all 0.2s;
             font-size: 12px;
             margin: 3px;
+            flex: 1;
+            text-align: center;
+            min-width: 80px;
         }
 
         .settings-dropdown .sync-btn-primary {
@@ -244,17 +247,25 @@
             background: #f56565;
         }
 
+        .settings-dropdown .sync-btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 8px;
+        }
+
         .settings-dropdown .sync-last {
             font-size: 11px;
             color: #a0aec0;
-            margin-top: 10px;
             display: block;
+            text-align: center;
+            margin-top: 8px;
         }
 
         .settings-dropdown .config-link {
             display: block;
             text-align: center;
-            margin-top: 10px;
+            margin-top: 8px;
             padding: 8px;
             background: #f7fafc;
             border-radius: 6px;
@@ -268,7 +279,7 @@
             background: #edf2f7;
         }
 
-        /* ===== ФОРМА ДОБАВЛЕНИЯ ===== */
+        /* ===== ОСТАЛЬНЫЕ СТИЛИ (БЕЗ ИЗМЕНЕНИЙ) ===== */
         .add-section {
             background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
             border: 2px solid #667eea;
@@ -1388,12 +1399,32 @@
                 justify-content: center;
             }
 
+            /* ===== АДАПТИВНОЕ МЕНЮ НАСТРОЕК ===== */
             .settings-dropdown {
-                width: 280px;
-                right: 10px;
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 90%;
+                max-width: 340px;
+                right: auto;
+                max-height: 80vh;
+                overflow-y: auto;
+                padding: 20px;
+            }
+
+            .settings-dropdown .sync-btn-group {
+                flex-direction: column;
+            }
+
+            .settings-dropdown .sync-btn {
+                width: 100%;
+                padding: 10px;
+                font-size: 14px;
             }
 
             .settings-float {
+                position: absolute;
                 top: 15px;
                 right: 15px;
             }
@@ -1419,9 +1450,9 @@
             }
 
             .settings-dropdown {
-                width: 260px;
-                right: 5px;
-                left: 5px;
+                width: 95%;
+                max-width: 320px;
+                padding: 15px;
             }
 
             .stat-card .value {
@@ -1444,7 +1475,7 @@
                     <span id="syncStatusText">Загрузка...</span>
                 </div>
                 <div class="sync-info-text" id="syncInfo">⏳ Проверка подключения...</div>
-                <div style="display:flex;flex-wrap:wrap;gap:5px;">
+                <div class="sync-btn-group">
                     <button class="sync-btn sync-btn-primary" onclick="manualSync()">🔄 Синхронизировать</button>
                     <button class="sync-btn sync-btn-warning" onclick="forcePullFromGitHub()">📥 Загрузить</button>
                     <button class="sync-btn sync-btn-danger" onclick="testGitHubConnection()">🔍 Проверить</button>
@@ -1889,7 +1920,6 @@
 
                 if (fileResponse.ok) {
                     const data = await fileResponse.json();
-                    // ===== ИСПРАВЛЕНИЕ КОДИРОВКИ =====
                     const content = atob(data.content);
                     try {
                         const parsed = JSON.parse(content);
@@ -1942,16 +1972,7 @@
             }
         }
 
-        // ===== ФУНКЦИЯ ДЛЯ ПРАВИЛЬНОГО ПАРСИНГА ДАННЫХ =====
-        function safeDecodeURIComponent(str) {
-            try {
-                return decodeURIComponent(str);
-            } catch (e) {
-                return str;
-            }
-        }
-
-        // ===== ПРИНУДИТЕЛЬНАЯ ЗАГРУЗКА С СЕРВЕРА (С ИСПРАВЛЕНИЕМ КОДИРОВКИ) =====
+        // ===== ПРИНУДИТЕЛЬНАЯ ЗАГРУЗКА С СЕРВЕРА =====
         async function forcePullFromGitHub() {
             console.log('=== ПРИНУДИТЕЛЬНАЯ ЗАГРУЗКА С СЕРВЕРА ===');
             
@@ -1996,14 +2017,12 @@
                 
                 let remoteData;
                 try {
-                    // ===== ПРАВИЛЬНЫЙ ПАРСИНГ =====
                     remoteData = JSON.parse(content);
                     console.log('Данные распарсены');
                 } catch (e) {
                     throw new Error('Ошибка парсинга данных с сервера: ' + e.message);
                 }
 
-                // ===== ПРИМЕНЯЕМ ДАННЫЕ =====
                 const newSales = remoteData.sales || [];
                 const newCategories = remoteData.categories || ['Чехлы', 'Стекло', 'Зарядка', 'Наушники', 'Аксессуары'];
                 const newRestock = remoteData.restockItems || [];
@@ -2040,7 +2059,7 @@
             }
         }
 
-        // ===== РУЧНАЯ СИНХРОНИЗАЦИЯ (С ИСПРАВЛЕНИЕМ КОДИРОВКИ) =====
+        // ===== РУЧНАЯ СИНХРОНИЗАЦИЯ =====
         async function manualSync() {
             console.log('=== РУЧНАЯ СИНХРОНИЗАЦИЯ ===');
             
@@ -2092,7 +2111,6 @@
                     sha = data.sha;
                     const content = atob(data.content);
                     try {
-                        // ===== ПРАВИЛЬНЫЙ ПАРСИНГ =====
                         remoteData = JSON.parse(content);
                         console.log('Данные с сервера распарсены:', remoteData.sales?.length || 0, 'продаж');
                     } catch (e) {
@@ -2121,7 +2139,6 @@
                     
                     if (remoteTime > localTime) {
                         console.log('Данные на сервере новее, загружаем...');
-                        // ===== ЗАГРУЗКА С ПРАВИЛЬНОЙ КОДИРОВКОЙ =====
                         sales = remoteData.sales || [];
                         categories = remoteData.categories || ['Чехлы', 'Стекло', 'Зарядка', 'Наушники', 'Аксессуары'];
                         restockItems = remoteData.restockItems || [];
@@ -2188,7 +2205,6 @@
 
         // ===== ЗАГРУЗКА НА GITHUB =====
         async function uploadToGitHub(data, sha) {
-            // ===== ПРАВИЛЬНОЕ КОДИРОВАНИЕ ДЛЯ UTF-8 =====
             const jsonString = JSON.stringify(data, null, 2);
             const content = btoa(unescape(encodeURIComponent(jsonString)));
             console.log('Подготовка к отправке, размер данных:', content.length);
@@ -2394,7 +2410,6 @@
 
         function saveData() {
             saveDataLocal();
-            // Автоматическая синхронизация после изменения
             if (syncConfig.token && syncConfig.repo) {
                 console.log('Автоматическая синхронизация после изменения...');
                 setTimeout(() => {
@@ -3327,7 +3342,6 @@
                 csv += row.join(delimiter) + '\n';
             });
             
-            // ===== ДОБАВЛЯЕМ BOM ДЛЯ ПРАВИЛЬНОЙ UTF-8 =====
             const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
