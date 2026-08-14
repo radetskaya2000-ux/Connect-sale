@@ -1703,7 +1703,6 @@
                     document.getElementById('githubFile').value = parsed.file || 'data.json';
                     console.log('Конфиг загружен из localStorage');
                 } else {
-                    // Значения по умолчанию
                     document.getElementById('githubToken').value = '';
                     document.getElementById('githubRepo').value = '';
                     document.getElementById('githubFile').value = 'data.json';
@@ -1742,7 +1741,7 @@
             document.getElementById('configModal').classList.remove('active');
         }
 
-        // ========== ПРОВЕРКА СТАТУСА ==========
+        // ========== ПРОВЕРКА СТАТУСА (ИСПРАВЛЕНО) ==========
         async function checkSyncStatus() {
             console.log('Проверка статуса синхронизации...');
             
@@ -1754,7 +1753,6 @@
                 indicator.className = 'indicator offline';
                 statusText.textContent = 'Не настроено';
                 info.innerHTML = '⚠️ Заполните настройки синхронизации в ⚙️';
-                console.log('Синхронизация не настроена');
                 return;
             }
 
@@ -1763,8 +1761,7 @@
                 const testResponse = await fetch('https://api.github.com/user', {
                     headers: {
                         'Authorization': `token ${syncConfig.token}`,
-                        'Accept': 'application/vnd.github.v3+json',
-                        'Cache-Control': 'no-cache, no-store, must-revalidate'
+                        'Accept': 'application/vnd.github.v3+json'
                     }
                 });
 
@@ -1780,8 +1777,7 @@
                 const repoResponse = await fetch(`https://api.github.com/repos/${syncConfig.repo}`, {
                     headers: {
                         'Authorization': `token ${syncConfig.token}`,
-                        'Accept': 'application/vnd.github.v3+json',
-                        'Cache-Control': 'no-cache, no-store, must-revalidate'
+                        'Accept': 'application/vnd.github.v3+json'
                     }
                 });
 
@@ -1789,7 +1785,6 @@
                     indicator.className = 'indicator offline';
                     statusText.textContent = 'Репозиторий не найден';
                     info.innerHTML = `❌ Репозиторий "${syncConfig.repo}" не найден`;
-                    console.log('Репозиторий не найден:', repoResponse.status);
                     return;
                 }
 
@@ -1797,8 +1792,7 @@
                 const fileResponse = await fetch(`https://api.github.com/repos/${syncConfig.repo}/contents/data.json?t=${Date.now()}`, {
                     headers: {
                         'Authorization': `token ${syncConfig.token}`,
-                        'Accept': 'application/vnd.github.v3+json',
-                        'Cache-Control': 'no-cache, no-store, must-revalidate'
+                        'Accept': 'application/vnd.github.v3+json'
                     }
                 });
 
@@ -1842,17 +1836,8 @@
                 if (fileExists) {
                     if (remoteSales !== localSales || remoteRestock !== localRestock) {
                         infoHtml += ` <span class="warning">⚠️ Данные отличаются</span>`;
-                        if (remoteSales > localSales) {
-                            infoHtml += `<br><span class="warning">📥 На сервере больше продаж (${remoteSales} vs ${localSales})</span>`;
-                        } else if (localSales > remoteSales) {
-                            infoHtml += `<br><span class="warning">📤 Локально больше продаж (${localSales} vs ${remoteSales})</span>`;
-                        }
                     } else {
                         infoHtml += ` <span class="success">✅ Данные синхронизированы</span>`;
-                    }
-                } else {
-                    if (localSales > 0) {
-                        infoHtml += `<br><span class="warning">📤 Локальные данные можно отправить на сервер</span>`;
                     }
                 }
 
@@ -1867,7 +1852,7 @@
             }
         }
 
-        // ========== ПРИНУДИТЕЛЬНАЯ ЗАГРУЗКА С СЕРВЕРА ==========
+        // ========== ПРИНУДИТЕЛЬНАЯ ЗАГРУЗКА С СЕРВЕРА (ИСПРАВЛЕНО) ==========
         async function forcePullFromGitHub() {
             console.log('=== ПРИНУДИТЕЛЬНАЯ ЗАГРУЗКА С СЕРВЕРА ===');
             
@@ -1883,7 +1868,6 @@
             }
 
             if (!confirm('⚠️ Эта операция ЗАМЕНИТ все локальные данные на данные с сервера. Продолжить?')) {
-                console.log('Пользователь отменил операцию');
                 return;
             }
 
@@ -1896,9 +1880,7 @@
                 const response = await fetch(`https://api.github.com/repos/${syncConfig.repo}/contents/${syncConfig.file}?t=${Date.now()}`, {
                     headers: {
                         'Authorization': `token ${syncConfig.token}`,
-                        'Accept': 'application/vnd.github.v3+json',
-                        'Cache-Control': 'no-cache, no-store, must-revalidate',
-                        'Pragma': 'no-cache'
+                        'Accept': 'application/vnd.github.v3+json'
                     }
                 });
 
@@ -1960,7 +1942,7 @@
             }
         }
 
-        // ========== РУЧНАЯ СИНХРОНИЗАЦИЯ ==========
+        // ========== РУЧНАЯ СИНХРОНИЗАЦИЯ (ИСПРАВЛЕНО) ==========
         async function manualSync() {
             console.log('=== РУЧНАЯ СИНХРОНИЗАЦИЯ ===');
             
@@ -2001,8 +1983,7 @@
                 const response = await fetch(`https://api.github.com/repos/${syncConfig.repo}/contents/${syncConfig.file}?t=${Date.now()}`, {
                     headers: {
                         'Authorization': `token ${syncConfig.token}`,
-                        'Accept': 'application/vnd.github.v3+json',
-                        'Cache-Control': 'no-cache, no-store, must-revalidate'
+                        'Accept': 'application/vnd.github.v3+json'
                     }
                 });
 
@@ -2034,7 +2015,6 @@
                     updatedAt: new Date().toISOString()
                 };
 
-                // Если на сервере есть данные
                 if (remoteData) {
                     const localTime = new Date(localData.updatedAt);
                     const remoteTime = new Date(remoteData.updatedAt || 0);
@@ -2042,7 +2022,6 @@
                     console.log('Сравнение времени: локальное', localTime.toISOString(), 'серверное', remoteTime.toISOString());
                     
                     if (remoteTime > localTime) {
-                        // На сервере данные новее - загружаем
                         console.log('Данные на сервере новее, загружаем...');
                         sales = remoteData.sales || [];
                         categories = remoteData.categories || ['Чехлы', 'Стекло', 'Зарядка', 'Наушники', 'Аксессуары'];
@@ -2054,7 +2033,6 @@
                         showToast(`📥 Загружено с сервера (${sales.length} продаж)`);
                         console.log('Данные загружены с сервера');
                     } else if (localTime > remoteTime) {
-                        // Локальные данные новее - отправляем
                         console.log('Локальные данные новее, отправляем...');
                         await uploadToGitHub(localData, sha);
                         showToast(`📤 Отправлено на сервер (${sales.length} продаж)`);
@@ -2064,7 +2042,6 @@
                         showToast('✅ Данные синхронизированы');
                     }
                 } else if (sales.length > 0 || restockItems.length > 0) {
-                    // На сервере нет данных, но локальные есть - создаем
                     console.log('На сервере нет данных, создаем...');
                     await uploadToGitHub(localData, null);
                     showToast(`📤 Данные созданы на сервере (${sales.length} продаж)`);
@@ -2132,7 +2109,7 @@
             return await response.json();
         }
 
-        // ========== ПРОВЕРКА ПОДКЛЮЧЕНИЯ ==========
+        // ========== ПРОВЕРКА ПОДКЛЮЧЕНИЯ (ИСПРАВЛЕНО) ==========
         async function testGitHubConnection() {
             const token = document.getElementById('githubToken').value.trim();
             const repo = document.getElementById('githubRepo').value.trim();
@@ -2195,8 +2172,7 @@
                 const fileResponse = await fetch(`https://api.github.com/repos/${repo}/contents/data.json?t=${Date.now()}`, {
                     headers: {
                         'Authorization': `token ${token}`,
-                        'Accept': 'application/vnd.github.v3+json',
-                        'Cache-Control': 'no-cache, no-store, must-revalidate'
+                        'Accept': 'application/vnd.github.v3+json'
                     }
                 });
 
