@@ -26,6 +26,7 @@
             border-radius: 20px;
             padding: 30px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            position: relative;
         }
 
         .header {
@@ -94,44 +95,180 @@
             font-weight: 700;
         }
 
-        .sync-bar {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            background: #f7fafc;
-            padding: 10px 20px;
-            border-radius: 12px;
-            border: 2px solid #e2e8f0;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
+        /* ========== НОВАЯ КНОПКА НАСТРОЕК ========== */
+        .settings-float {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
         }
 
-        .sync-status {
+        .settings-float button {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .settings-float button:hover {
+            transform: rotate(90deg);
+            border-color: #667eea;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .settings-float .sync-dot {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #48bb78;
+            border: 2px solid white;
+        }
+
+        .settings-float .sync-dot.offline {
+            background: #fc8181;
+        }
+
+        .settings-float .sync-dot.syncing {
+            background: #ed8936;
+            animation: pulse 1s infinite;
+        }
+
+        /* ========== ВЫПАДАЮЩАЯ ПАНЕЛЬ НАСТРОЕК ========== */
+        .settings-dropdown {
+            position: absolute;
+            top: 70px;
+            right: 20px;
+            background: white;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            padding: 20px;
+            width: 320px;
+            display: none;
+            z-index: 200;
+        }
+
+        .settings-dropdown.active {
+            display: block;
+        }
+
+        .settings-dropdown .sync-status {
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 14px;
+            font-size: 13px;
             color: #4a5568;
+            margin-bottom: 10px;
         }
 
-        .sync-status .indicator {
+        .settings-dropdown .sync-status .indicator {
             width: 10px;
             height: 10px;
             border-radius: 50%;
             display: inline-block;
         }
 
-        .sync-status .indicator.online {
+        .settings-dropdown .sync-status .indicator.online {
             background: #48bb78;
         }
 
-        .sync-status .indicator.offline {
+        .settings-dropdown .sync-status .indicator.offline {
             background: #fc8181;
         }
 
-        .sync-status .indicator.syncing {
+        .settings-dropdown .sync-status .indicator.syncing {
             background: #ed8936;
             animation: pulse 1s infinite;
+        }
+
+        .settings-dropdown .sync-info-text {
+            font-size: 12px;
+            color: #718096;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .settings-dropdown .sync-btn {
+            padding: 6px 14px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 12px;
+            margin: 3px;
+        }
+
+        .settings-dropdown .sync-btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .settings-dropdown .sync-btn-primary:hover {
+            background: #5a67d8;
+        }
+
+        .settings-dropdown .sync-btn-warning {
+            background: #ed8936;
+            color: white;
+        }
+
+        .settings-dropdown .sync-btn-warning:hover {
+            background: #dd6b20;
+        }
+
+        .settings-dropdown .sync-btn-success {
+            background: #48bb78;
+            color: white;
+        }
+
+        .settings-dropdown .sync-btn-success:hover {
+            background: #38a169;
+        }
+
+        .settings-dropdown .sync-btn-danger {
+            background: #fc8181;
+            color: white;
+        }
+
+        .settings-dropdown .sync-btn-danger:hover {
+            background: #f56565;
+        }
+
+        .settings-dropdown .sync-last {
+            font-size: 11px;
+            color: #a0aec0;
+            margin-top: 10px;
+            display: block;
+        }
+
+        .settings-dropdown .config-link {
+            display: block;
+            text-align: center;
+            margin-top: 10px;
+            padding: 8px;
+            background: #f7fafc;
+            border-radius: 6px;
+            color: #667eea;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .settings-dropdown .config-link:hover {
+            background: #edf2f7;
         }
 
         @keyframes pulse {
@@ -139,86 +276,7 @@
             50% { opacity: 0.3; }
         }
 
-        .sync-btn {
-            padding: 6px 16px;
-            border: none;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 13px;
-        }
-
-        .sync-btn-primary {
-            background: #667eea;
-            color: white;
-        }
-
-        .sync-btn-primary:hover {
-            background: #5a67d8;
-            transform: translateY(-1px);
-        }
-
-        .sync-btn-success {
-            background: #48bb78;
-            color: white;
-        }
-
-        .sync-btn-success:hover {
-            background: #38a169;
-            transform: translateY(-1px);
-        }
-
-        .sync-btn-danger {
-            background: #fc8181;
-            color: white;
-        }
-
-        .sync-btn-danger:hover {
-            background: #f56565;
-            transform: translateY(-1px);
-        }
-
-        .sync-btn-warning {
-            background: #ed8936;
-            color: white;
-        }
-
-        .sync-btn-warning:hover {
-            background: #dd6b20;
-            transform: translateY(-1px);
-        }
-
-        .sync-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none !important;
-        }
-
-        .sync-last {
-            font-size: 12px;
-            color: #a0aec0;
-            margin-left: auto;
-        }
-
-        .sync-info-text {
-            font-size: 12px;
-            color: #718096;
-            flex: 1;
-            min-width: 150px;
-            line-height: 1.5;
-        }
-
-        .sync-info-text .success {
-            color: #48bb78;
-        }
-        .sync-info-text .error {
-            color: #fc8181;
-        }
-        .sync-info-text .warning {
-            color: #ed8936;
-        }
-
+        /* ========== ОСТАЛЬНЫЕ СТИЛИ (БЕЗ ИЗМЕНЕНИЙ) ========== */
         .add-section {
             background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
             border: 2px solid #667eea;
@@ -1319,18 +1377,14 @@
                 justify-content: center;
             }
 
-            .sync-bar {
-                flex-direction: column;
-                align-items: stretch;
+            .settings-dropdown {
+                width: 280px;
+                right: 10px;
             }
 
-            .sync-last {
-                margin-left: 0;
-                text-align: center;
-            }
-
-            .sync-info-text {
-                text-align: center;
+            .settings-float {
+                top: 10px;
+                right: 10px;
             }
         }
 
@@ -1346,6 +1400,12 @@
             .month-total {
                 grid-template-columns: 1fr;
             }
+
+            .settings-dropdown {
+                width: 260px;
+                right: 5px;
+                left: 5px;
+            }
         }
 
         .time-column {
@@ -1357,7 +1417,45 @@
 </head>
 <body>
     <div class="container">
-        <!-- Шапка -->
+        <!-- ========== КНОПКА НАСТРОЕК ========== -->
+        <div class="settings-float" id="settingsFloat">
+            <button onclick="toggleSettings()" title="Настройки синхронизации">
+                ⚙️
+                <span class="sync-dot" id="syncDot"></span>
+            </button>
+            
+            <!-- Выпадающая панель -->
+            <div class="settings-dropdown" id="settingsDropdown">
+                <div class="sync-status">
+                    <span class="indicator" id="syncIndicator"></span>
+                    <span id="syncStatusText">Загрузка...</span>
+                </div>
+                
+                <div class="sync-info-text" id="syncInfo">
+                    ⏳ Проверка подключения...
+                </div>
+                
+                <div style="display: flex; flex-wrap: wrap; gap: 5px;">
+                    <button class="sync-btn sync-btn-primary" onclick="manualSync()">
+                        🔄 Синхронизировать
+                    </button>
+                    <button class="sync-btn sync-btn-warning" onclick="forcePullFromGitHub()">
+                        📥 Загрузить
+                    </button>
+                    <button class="sync-btn sync-btn-danger" onclick="testGitHubConnection()">
+                        🔍 Проверить
+                    </button>
+                </div>
+                
+                <span class="sync-last" id="syncLast">Последняя синхронизация: неизвестно</span>
+                
+                <div class="config-link" onclick="showConfigModal()">
+                    ⚙️ Полные настройки
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== ШАПКА ========== -->
         <div class="header">
             <span class="logo-text">CONNECT</span>
             <span class="header-divider">|</span>
@@ -1368,32 +1466,6 @@
                     <span class="badge" id="restockCount">0</span>
                 </button>
             </div>
-        </div>
-
-        <!-- Панель синхронизации -->
-        <div class="sync-bar" id="syncBar">
-            <div class="sync-status">
-                <span class="indicator offline" id="syncIndicator"></span>
-                <span id="syncStatusText">Загрузка...</span>
-            </div>
-            
-            <div class="sync-info-text" id="syncInfo">
-                ⏳ Проверка подключения...
-            </div>
-            
-            <button class="sync-btn sync-btn-primary" onclick="manualSync()">
-                🔄 Синхронизировать
-            </button>
-            <button class="sync-btn sync-btn-warning" onclick="forcePullFromGitHub()">
-                📥 Загрузить с сервера
-            </button>
-            <button class="sync-btn sync-btn-success" onclick="showConfigModal()">
-                ⚙️ Настройки
-            </button>
-            <button class="sync-btn sync-btn-danger" onclick="testGitHubConnection()">
-                🔍 Проверить
-            </button>
-            <span class="sync-last" id="syncLast">Последняя синхронизация: неизвестно</span>
         </div>
 
         <!-- Блок добавления продажи -->
@@ -1682,6 +1754,7 @@
         let selectedCategoryForEdit = null;
         let importedData = [];
         let isSyncing = false;
+        let initialLoadDone = false;
 
         // ========== НАСТРОЙКИ СИНХРОНИЗАЦИИ ==========
         const CONFIG_KEY = 'connect_sync_config';
@@ -1735,24 +1808,40 @@
             document.getElementById('configModal').classList.add('active');
             document.getElementById('testResult').className = 'test-result';
             document.getElementById('testResult').style.display = 'none';
+            closeSettings(); // Закрываем выпадающую панель
         }
 
         function closeConfigModal() {
             document.getElementById('configModal').classList.remove('active');
         }
 
-        // ========== ПРОВЕРКА СТАТУСА (ИСПРАВЛЕНО) ==========
+        // ========== УПРАВЛЕНИЕ ВЫПАДАЮЩЕЙ ПАНЕЛЬЮ ==========
+        function toggleSettings() {
+            const dropdown = document.getElementById('settingsDropdown');
+            dropdown.classList.toggle('active');
+            if (dropdown.classList.contains('active')) {
+                checkSyncStatus();
+            }
+        }
+
+        function closeSettings() {
+            document.getElementById('settingsDropdown').classList.remove('active');
+        }
+
+        // ========== ПРОВЕРКА СТАТУСА ==========
         async function checkSyncStatus() {
             console.log('Проверка статуса синхронизации...');
             
             const info = document.getElementById('syncInfo');
             const indicator = document.getElementById('syncIndicator');
             const statusText = document.getElementById('syncStatusText');
+            const dot = document.getElementById('syncDot');
             
             if (!syncConfig.token || !syncConfig.repo) {
                 indicator.className = 'indicator offline';
                 statusText.textContent = 'Не настроено';
                 info.innerHTML = '⚠️ Заполните настройки синхронизации в ⚙️';
+                dot.className = 'sync-dot offline';
                 return;
             }
 
@@ -1769,6 +1858,7 @@
                     indicator.className = 'indicator offline';
                     statusText.textContent = 'Ошибка токена';
                     info.innerHTML = '❌ Токен недействителен. Создайте новый токен с правами repo';
+                    dot.className = 'sync-dot offline';
                     console.log('Ошибка токена:', testResponse.status);
                     return;
                 }
@@ -1785,6 +1875,7 @@
                     indicator.className = 'indicator offline';
                     statusText.textContent = 'Репозиторий не найден';
                     info.innerHTML = `❌ Репозиторий "${syncConfig.repo}" не найден`;
+                    dot.className = 'sync-dot offline';
                     return;
                 }
 
@@ -1820,6 +1911,7 @@
 
                 indicator.className = 'indicator online';
                 statusText.textContent = '✅ Подключение есть';
+                dot.className = 'sync-dot';
                 
                 let infoHtml = '';
                 if (fileExists) {
@@ -1849,10 +1941,11 @@
                 indicator.className = 'indicator offline';
                 statusText.textContent = 'Ошибка соединения';
                 info.innerHTML = `❌ Ошибка: ${error.message}`;
+                dot.className = 'sync-dot offline';
             }
         }
 
-        // ========== ПРИНУДИТЕЛЬНАЯ ЗАГРУЗКА С СЕРВЕРА (ИСПРАВЛЕНО) ==========
+        // ========== ПРИНУДИТЕЛЬНАЯ ЗАГРУЗКА С СЕРВЕРА ==========
         async function forcePullFromGitHub() {
             console.log('=== ПРИНУДИТЕЛЬНАЯ ЗАГРУЗКА С СЕРВЕРА ===');
             
@@ -1872,8 +1965,7 @@
             }
 
             isSyncing = true;
-            document.getElementById('syncIndicator').className = 'indicator syncing';
-            document.getElementById('syncStatusText').textContent = 'Синхронизация...';
+            updateSyncUI('syncing', 'Синхронизация...');
 
             try {
                 console.log('Загрузка файла с GitHub...');
@@ -1922,9 +2014,8 @@
                 showToast(`✅ Данные загружены с сервера! (${sales.length} продаж, ${restockItems.length} товаров в закупке)`);
                 console.log('Данные успешно загружены!');
                 
-                document.getElementById('syncIndicator').className = 'indicator online';
-                document.getElementById('syncStatusText').textContent = 'Готов к синхронизации';
                 isSyncing = false;
+                updateSyncUI('online', 'Готов к синхронизации');
                 
                 const now = new Date();
                 document.getElementById('syncLast').textContent = 
@@ -1936,13 +2027,12 @@
             } catch (error) {
                 console.log('ОШИБКА:', error.message);
                 showToast(`❌ Ошибка: ${error.message}`, 'error');
-                document.getElementById('syncIndicator').className = 'indicator offline';
-                document.getElementById('syncStatusText').textContent = 'Ошибка';
                 isSyncing = false;
+                updateSyncUI('offline', 'Ошибка');
             }
         }
 
-        // ========== РУЧНАЯ СИНХРОНИЗАЦИЯ (ИСПРАВЛЕНО) ==========
+        // ========== РУЧНАЯ СИНХРОНИЗАЦИЯ ==========
         async function manualSync() {
             console.log('=== РУЧНАЯ СИНХРОНИЗАЦИЯ ===');
             
@@ -1958,8 +2048,7 @@
             }
 
             isSyncing = true;
-            document.getElementById('syncIndicator').className = 'indicator syncing';
-            document.getElementById('syncStatusText').textContent = 'Синхронизация...';
+            updateSyncUI('syncing', 'Синхронизация...');
 
             try {
                 console.log('Проверка токена...');
@@ -2051,9 +2140,8 @@
                     showToast('ℹ️ Данных нет ни на сервере, ни локально', 'info');
                 }
 
-                document.getElementById('syncIndicator').className = 'indicator online';
-                document.getElementById('syncStatusText').textContent = 'Готов к синхронизации';
                 isSyncing = false;
+                updateSyncUI('online', 'Готов к синхронизации');
                 
                 const now = new Date();
                 document.getElementById('syncLast').textContent = 
@@ -2065,10 +2153,28 @@
             } catch (error) {
                 console.log('ОШИБКА:', error.message);
                 showToast(`❌ Ошибка: ${error.message}`, 'error');
-                document.getElementById('syncIndicator').className = 'indicator offline';
-                document.getElementById('syncStatusText').textContent = 'Ошибка';
                 isSyncing = false;
+                updateSyncUI('offline', 'Ошибка');
             }
+        }
+
+        // ========== ОБНОВЛЕНИЕ UI СИНХРОНИЗАЦИИ ==========
+        function updateSyncUI(status, text) {
+            const indicator = document.getElementById('syncIndicator');
+            const statusText = document.getElementById('syncStatusText');
+            const dot = document.getElementById('syncDot');
+            
+            if (status === 'syncing') {
+                indicator.className = 'indicator syncing';
+                dot.className = 'sync-dot syncing';
+            } else if (status === 'online') {
+                indicator.className = 'indicator online';
+                dot.className = 'sync-dot';
+            } else {
+                indicator.className = 'indicator offline';
+                dot.className = 'sync-dot offline';
+            }
+            statusText.textContent = text;
         }
 
         // ========== ЗАГРУЗКА НА GITHUB ==========
@@ -2109,7 +2215,7 @@
             return await response.json();
         }
 
-        // ========== ПРОВЕРКА ПОДКЛЮЧЕНИЯ (ИСПРАВЛЕНО) ==========
+        // ========== ПРОВЕРКА ПОДКЛЮЧЕНИЯ ==========
         async function testGitHubConnection() {
             const token = document.getElementById('githubToken').value.trim();
             const repo = document.getElementById('githubRepo').value.trim();
@@ -2248,7 +2354,15 @@
             }
             
             render();
-            checkSyncStatus();
+            
+            // Автоматическая синхронизация при загрузке
+            setTimeout(() => {
+                if (syncConfig.token && syncConfig.repo) {
+                    console.log('Автоматическая синхронизация при загрузке...');
+                    manualSync();
+                }
+                checkSyncStatus();
+            }, 1000);
         }
 
         function saveDataLocal() {
@@ -2259,6 +2373,13 @@
 
         function saveData() {
             saveDataLocal();
+            // Автоматическая синхронизация после изменения
+            if (syncConfig.token && syncConfig.repo) {
+                console.log('Автоматическая синхронизация после изменения...');
+                setTimeout(() => {
+                    manualSync();
+                }, 500);
+            }
         }
 
         // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
@@ -3211,6 +3332,17 @@
             console.log('=== ПРИЛОЖЕНИЕ ЗАГРУЖЕНО ===');
             loadConfig();
             loadData();
+            
+            // Закрываем настройки при клике вне
+            document.addEventListener('click', function(e) {
+                const dropdown = document.getElementById('settingsDropdown');
+                const floatBtn = document.getElementById('settingsFloat');
+                if (dropdown.classList.contains('active')) {
+                    if (!floatBtn.contains(e.target) && !dropdown.contains(e.target)) {
+                        closeSettings();
+                    }
+                }
+            });
             
             document.getElementById('newCategoryInput').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
