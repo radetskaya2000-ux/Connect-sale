@@ -6,6 +6,7 @@
     <title>Учет продаж - CONNECT</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📱</text></svg>">
     <style>
+        /* ===== ВЕСЬ CSS (БЕЗ ИЗМЕНЕНИЙ) ===== */
         * {
             margin: 0;
             padding: 0;
@@ -144,6 +145,11 @@
             animation: pulse 1s infinite;
         }
 
+        .settings-float .sync-dot.auto {
+            background: #4299e1;
+            animation: pulse 1.5s infinite;
+        }
+
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.3; }
@@ -198,6 +204,11 @@
         .settings-dropdown .sync-status .indicator.syncing {
             background: #ed8936;
             animation: pulse 1s infinite;
+        }
+
+        .settings-dropdown .sync-status .indicator.auto {
+            background: #4299e1;
+            animation: pulse 1.5s infinite;
         }
 
         .settings-dropdown .sync-info-text {
@@ -1298,6 +1309,26 @@
             font-size: 13px;
         }
 
+        /* ===== НОВЫЙ СТАТУС АВТО-СИНХРОНИЗАЦИИ ===== */
+        .auto-sync-label {
+            font-size: 11px;
+            color: #4299e1;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 5px;
+            justify-content: center;
+        }
+
+        .auto-sync-label .pulse-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4299e1;
+            display: inline-block;
+            animation: pulse 2s infinite;
+        }
+
         @media (max-width: 1200px) {
             .add-form {
                 grid-template-columns: 1fr 1fr 1fr;
@@ -1448,6 +1479,10 @@
                     <button class="sync-btn sync-btn-danger" onclick="testGitHubConnection()">🔍 Проверить</button>
                 </div>
                 <span class="sync-last" id="syncLast">Последняя синхронизация: неизвестно</span>
+                <div class="auto-sync-label">
+                    <span class="pulse-dot"></span>
+                    Авто-синхронизация активна
+                </div>
                 <div class="config-link" onclick="showConfigModal()">⚙️ Полные настройки</div>
             </div>
         </div>
@@ -1749,6 +1784,8 @@
         let selectedCategoryForEdit = null;
         let importedData = [];
         let isSyncing = false;
+        let autoSyncInterval = null;
+        let syncInProgress = false;
 
         // ===== НАСТРОЙКИ СИНХРОНИЗАЦИИ =====
         const CONFIG_KEY = 'connect_sync_config';
@@ -1807,6 +1844,223 @@
             return data;
         }
 
+        // ===== УМНАЯ СИНХРОНИЗАЦИЯ (ВАРИАНТ 4) =====
+        async function smartSync(showToastMessage = false) {
+            if (syncInProgress) {
+                console.log('Синхронизация уже выполняется, пропускаем');
+                return;
+            }
+            if (!syncConfig.token || !syncConfig.repo) {
+                console.log('Синхронизация не настроена');
+                return;
+            }
+
+            syncInProgress = true;
+            updateSyncUI('syncing', 'Синхронизация...');
+
+            try {
+                console.log('=== УМНАЯ СИНХРОНИЗАЦИЯ ===');
+                
+                // 1. Загружаем данные с сервера
+                const response = await fetch(`https://api.github.com/repos/${syncConfig.repo}/contents/${syncConfig.file}?t=${Date.now()}`, {
+                    headers: {
+                        'Authorization': `token ${syncConfig.token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+
+                let serverData = null;
+                let sha = null;
+
+                if (response.ok) {
+                    const data = await response.json();
+                    sha = data.sha;
+                    const content = atob(data.content);
+                    try {
+                        serverData = JSON.parse(content);
+                        console.log('Данные с сервера загружены');
+                    } catch (e) {
+                        console.log('Ошибка парсинга данных с сервера');
+                        serverData = null;
+                    }
+                } else if (response.status !== 404) {
+                    console.log('Ошибка загрузки с сервера:', response.status);
+                    syncInProgress = false;
+                    updateSyncUI('offline', 'Ошибка');
+                    return;
+                }
+
+                // 2. Если на сервере нет данных, но локальные есть — создаем
+                if (!serverData && sales.length > 0) {
+                    console.log('На сервере нет данных, создаем...');
+                    const localData = {
+                        sales: sales,
+                        categories: categories,
+                        restockItems: restockItems,
+                        updatedAt: new Date().toISOString()
+                    };
+                    await uploadToGitHub(localData, null);
+                    syncInProgress = false;
+                    updateSyncUI('online', 'Готов');
+                    if (showToastMessage) showToast('📤 Данные созданы на сервере');
+                    return;
+                }
+
+                // 3. Если нет данных нигде
+                if (!serverData && sales.length === 0) {
+                    console.log('Нет данных ни на сервере, ни локально');
+                    syncInProgress = false;
+                    updateSyncUI('online', 'Готов');
+                    return;
+                }
+
+                // 4. Объединяем данные (умный мерж)
+                const serverSales = serverData.sales || [];
+                const localSales = sales;
+
+                // Создаем карту по ID для быстрого поиска
+                const serverMap = {};
+                serverSales.forEach(s => { serverMap[s.id] = s; });
+                
+                const localMap = {};
+                localSales.forEach(s => { localMap[s.id] = s; });
+
+                // Находим новые записи на сервере (которых нет локально)
+                const newOnServer = serverSales.filter(s => !localMap[s.id]);
+                // Находим новые записи локально (которых нет на сервере)
+                const newLocally = localSales.filter(s => !serverMap[s.id]);
+                // Находим общие записи (сравниваем, может быть изменены)
+                const common = localSales.filter(s => serverMap[s.id]);
+
+                console.log(`Новых на сервере: ${newOnServer.length}, новых локально: ${newLocally.length}, общих: ${common.length}`);
+
+                // Если есть новые на сервере и локально нет данных — просто загружаем с сервера
+                if (newOnServer.length > 0 && localSales.length === 0) {
+                    console.log('Локально нет данных, загружаем с сервера');
+                    sales = serverSales.map(s => ({
+                        ...s,
+                        name: fixEncoding(s.name || ''),
+                        category: fixEncoding(s.category || ''),
+                        payment: fixEncoding(s.payment || '')
+                    }));
+                    categories = (serverData.categories || ['Чехлы', 'Стекло', 'Зарядка', 'Наушники', 'Аксессуары']).map(c => fixEncoding(c));
+                    restockItems = (serverData.restockItems || []).map(c => fixEncoding(c));
+                    saveDataLocal();
+                    updateCategorySelect();
+                    updateEditCategorySelect();
+                    render();
+                    if (showToastMessage) showToast(`📥 Загружено с сервера (${sales.length} продаж)`);
+                    syncInProgress = false;
+                    updateSyncUI('online', 'Готов');
+                    return;
+                }
+
+                // Если есть новые локально и на сервере нет данных — отправляем на сервер
+                if (newLocally.length > 0 && serverSales.length === 0) {
+                    console.log('На сервере нет данных, отправляем локальные');
+                    const localData = {
+                        sales: sales,
+                        categories: categories,
+                        restockItems: restockItems,
+                        updatedAt: new Date().toISOString()
+                    };
+                    await uploadToGitHub(localData, null);
+                    if (showToastMessage) showToast(`📤 Отправлено на сервер (${sales.length} продаж)`);
+                    syncInProgress = false;
+                    updateSyncUI('online', 'Готов');
+                    return;
+                }
+
+                // Объединяем данные (берем все записи с обоих устройств)
+                let mergedSales = [...localSales];
+
+                // Добавляем новые с сервера (которых нет локально)
+                newOnServer.forEach(s => {
+                    mergedSales.push({
+                        ...s,
+                        name: fixEncoding(s.name || ''),
+                        category: fixEncoding(s.category || ''),
+                        payment: fixEncoding(s.payment || '')
+                    });
+                });
+
+                // Проверяем общие записи на изменения
+                common.forEach(localItem => {
+                    const serverItem = serverMap[localItem.id];
+                    // Если серверная версия новее (по времени изменения) — используем её
+                    // Для простоты считаем, что если на сервере есть запись, которой нет локально — это новое
+                    // А если локальная запись есть на сервере, но отличается — используем локальную (приоритет локальных изменений)
+                    // Это простое решение: локальные изменения имеют приоритет
+                    // Но если на сервере есть поля, которых нет локально — добавляем их
+                    if (serverItem) {
+                        const mergedItem = { ...localItem };
+                        // Добавляем поля с сервера, если их нет локально
+                        if (!mergedItem.name && serverItem.name) mergedItem.name = fixEncoding(serverItem.name);
+                        if (!mergedItem.category && serverItem.category) mergedItem.category = fixEncoding(serverItem.category);
+                        if (!mergedItem.payment && serverItem.payment) mergedItem.payment = fixEncoding(serverItem.payment);
+                        // Заменяем в mergedSales
+                        const idx = mergedSales.findIndex(s => s.id === localItem.id);
+                        if (idx !== -1) {
+                            mergedSales[idx] = mergedItem;
+                        }
+                    }
+                });
+
+                // Обновляем категории и список закупок (объединяем)
+                const mergedCategories = [...categories];
+                (serverData.categories || []).forEach(c => {
+                    const fixed = fixEncoding(c);
+                    if (!mergedCategories.includes(fixed)) {
+                        mergedCategories.push(fixed);
+                    }
+                });
+
+                const mergedRestock = [...restockItems];
+                (serverData.restockItems || []).forEach(c => {
+                    const fixed = fixEncoding(c);
+                    if (!mergedRestock.includes(fixed)) {
+                        mergedRestock.push(fixed);
+                    }
+                });
+
+                // Применяем объединенные данные
+                sales = mergedSales;
+                categories = mergedCategories;
+                restockItems = mergedRestock;
+
+                saveDataLocal();
+                updateCategorySelect();
+                updateEditCategorySelect();
+                render();
+
+                // Отправляем объединенные данные на сервер
+                const finalData = {
+                    sales: sales,
+                    categories: categories,
+                    restockItems: restockItems,
+                    updatedAt: new Date().toISOString()
+                };
+                await uploadToGitHub(finalData, sha);
+
+                const totalNew = newOnServer.length + newLocally.length;
+                if (totalNew > 0 && showToastMessage) {
+                    showToast(`🔄 Синхронизировано! Добавлено ${totalNew} записей`);
+                } else if (showToastMessage) {
+                    showToast('✅ Данные синхронизированы');
+                }
+
+                console.log('Синхронизация завершена успешно');
+                syncInProgress = false;
+                updateSyncUI('online', 'Готов');
+
+            } catch (error) {
+                console.log('Ошибка синхронизации:', error);
+                if (showToastMessage) showToast(`❌ Ошибка: ${error.message}`, 'error');
+                syncInProgress = false;
+                updateSyncUI('offline', 'Ошибка');
+            }
+        }
+
         // ===== ЗАГРУЗКА КОНФИГА =====
         function loadConfig() {
             try {
@@ -1845,6 +2099,11 @@
             showToast('✅ Настройки сохранены!');
             console.log('Настройки сохранены: repo=' + repo);
             checkSyncStatus();
+            
+            // После сохранения настроек запускаем синхронизацию
+            setTimeout(() => {
+                smartSync(true);
+            }, 500);
         }
 
         function showConfigModal() {
@@ -1988,7 +2247,13 @@
             }
         }
 
-        // ===== ПРИНУДИТЕЛЬНАЯ ЗАГРУЗКА С СЕРВЕРА (С ДВОЙНЫМ ИСПРАВЛЕНИЕМ) =====
+        // ===== РУЧНАЯ СИНХРОНИЗАЦИЯ (ВЫЗЫВАЕТ УМНУЮ) =====
+        async function manualSync() {
+            console.log('=== РУЧНАЯ СИНХРОНИЗАЦИЯ ===');
+            await smartSync(true);
+        }
+
+        // ===== ПРИНУДИТЕЛЬНАЯ ЗАГРУЗКА С СЕРВЕРА =====
         async function forcePullFromGitHub() {
             console.log('=== ПРИНУДИТЕЛЬНАЯ ЗАГРУЗКА С СЕРВЕРА ===');
             
@@ -2008,7 +2273,7 @@
             }
 
             isSyncing = true;
-            updateSyncUI('syncing', 'Синхронизация...');
+            updateSyncUI('syncing', 'Загрузка...');
 
             try {
                 console.log('Загрузка файла с GitHub...');
@@ -2039,27 +2304,16 @@
                     throw new Error('Ошибка парсинга данных с сервера: ' + e.message);
                 }
 
-                // ===== ПРИМЕНЯЕМ ИСПРАВЛЕНИЕ КОДИРОВКИ =====
-                const fixedData = parseDataWithFix(remoteData);
-                
-                const newSales = fixedData.sales || [];
-                const newCategories = fixedData.categories || ['Чехлы', 'Стекло', 'Зарядка', 'Наушники', 'Аксессуары'];
-                const newRestock = fixedData.restockItems || [];
+                const newSales = remoteData.sales || [];
+                const newCategories = remoteData.categories || ['Чехлы', 'Стекло', 'Зарядка', 'Наушники', 'Аксессуары'];
+                const newRestock = remoteData.restockItems || [];
 
-                // ===== ДОПОЛНИТЕЛЬНАЯ ПРОВЕРКА: ПРОХОДИМ ПО ВСЕМ ПРОДАЖАМ =====
-                const finalSales = newSales.map(sale => {
-                    return {
-                        ...sale,
-                        name: fixEncoding(sale.name || ''),
-                        category: fixEncoding(sale.category || ''),
-                        payment: fixEncoding(sale.payment || '')
-                    };
-                });
-
-                console.log('Загружено (с исправленной кодировкой):', finalSales.length, 'продаж,', newRestock.length, 'товаров в закупке');
-
-                // ===== ПРИМЕНЯЕМ ДАННЫЕ =====
-                sales = finalSales;
+                sales = newSales.map(s => ({
+                    ...s,
+                    name: fixEncoding(s.name || ''),
+                    category: fixEncoding(s.category || ''),
+                    payment: fixEncoding(s.payment || '')
+                }));
                 categories = newCategories.map(c => fixEncoding(c));
                 restockItems = newRestock.map(c => fixEncoding(c));
                 
@@ -2072,134 +2326,7 @@
                 console.log('Данные успешно загружены!');
                 
                 isSyncing = false;
-                updateSyncUI('online', 'Готов к синхронизации');
-                
-                const now = new Date();
-                document.getElementById('syncLast').textContent = 
-                    `Последняя синхронизация: ${now.toLocaleString('ru-RU')}`;
-                localStorage.setItem('connect_last_sync', now.toISOString());
-                
-                checkSyncStatus();
-                
-            } catch (error) {
-                console.log('ОШИБКА:', error.message);
-                showToast(`❌ Ошибка: ${error.message}`, 'error');
-                isSyncing = false;
-                updateSyncUI('offline', 'Ошибка');
-            }
-        }
-
-        // ===== РУЧНАЯ СИНХРОНИЗАЦИЯ =====
-        async function manualSync() {
-            console.log('=== РУЧНАЯ СИНХРОНИЗАЦИЯ ===');
-            
-            if (isSyncing) {
-                showToast('⏳ Синхронизация уже выполняется', 'info');
-                return;
-            }
-
-            if (!syncConfig.token || !syncConfig.repo) {
-                showToast('❌ Сначала настройте синхронизацию', 'error');
-                showConfigModal();
-                return;
-            }
-
-            isSyncing = true;
-            updateSyncUI('syncing', 'Синхронизация...');
-
-            try {
-                console.log('Проверка токена...');
-                const testResponse = await fetch('https://api.github.com/user', {
-                    headers: {
-                        'Authorization': `token ${syncConfig.token}`,
-                        'Accept': 'application/vnd.github.v3+json'
-                    }
-                });
-
-                if (!testResponse.ok) {
-                    if (testResponse.status === 401) {
-                        throw new Error('Неверный токен. Создайте новый токен с правами repo');
-                    } else {
-                        throw new Error(`Ошибка авторизации: ${testResponse.status}`);
-                    }
-                }
-                console.log('Токен OK');
-
-                console.log('Загрузка файла с GitHub...');
-                const response = await fetch(`https://api.github.com/repos/${syncConfig.repo}/contents/${syncConfig.file}?t=${Date.now()}`, {
-                    headers: {
-                        'Authorization': `token ${syncConfig.token}`,
-                        'Accept': 'application/vnd.github.v3+json'
-                    }
-                });
-
-                let remoteData = null;
-                let sha = null;
-
-                if (response.ok) {
-                    const data = await response.json();
-                    sha = data.sha;
-                    const content = atob(data.content);
-                    try {
-                        remoteData = JSON.parse(content);
-                        console.log('Данные с сервера распарсены:', remoteData.sales?.length || 0, 'продаж');
-                    } catch (e) {
-                        console.log('Ошибка парсинга:', e.message);
-                        remoteData = null;
-                    }
-                } else if (response.status === 404) {
-                    console.log('Файл на сервере не найден (404)');
-                } else {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || `Ошибка GitHub: ${response.status}`);
-                }
-
-                const localData = {
-                    sales: sales,
-                    categories: categories,
-                    restockItems: restockItems,
-                    updatedAt: new Date().toISOString()
-                };
-
-                if (remoteData) {
-                    const localTime = new Date(localData.updatedAt);
-                    const remoteTime = new Date(remoteData.updatedAt || 0);
-                    
-                    console.log('Сравнение времени: локальное', localTime.toISOString(), 'серверное', remoteTime.toISOString());
-                    
-                    if (remoteTime > localTime) {
-                        console.log('Данные на сервере новее, загружаем...');
-                        const fixedData = parseDataWithFix(remoteData);
-                        sales = fixedData.sales || [];
-                        categories = fixedData.categories || ['Чехлы', 'Стекло', 'Зарядка', 'Наушники', 'Аксессуары'];
-                        restockItems = fixedData.restockItems || [];
-                        saveDataLocal();
-                        updateCategorySelect();
-                        updateEditCategorySelect();
-                        render();
-                        showToast(`📥 Загружено с сервера (${sales.length} продаж)`);
-                        console.log('Данные загружены с сервера');
-                    } else if (localTime > remoteTime) {
-                        console.log('Локальные данные новее, отправляем...');
-                        await uploadToGitHub(localData, sha);
-                        showToast(`📤 Отправлено на сервер (${sales.length} продаж)`);
-                        console.log('Данные отправлены на сервер');
-                    } else {
-                        console.log('Данные синхронизированы');
-                        showToast('✅ Данные синхронизированы');
-                    }
-                } else if (sales.length > 0 || restockItems.length > 0) {
-                    console.log('На сервере нет данных, создаем...');
-                    await uploadToGitHub(localData, null);
-                    showToast(`📤 Данные созданы на сервере (${sales.length} продаж)`);
-                    console.log('Данные созданы на сервере');
-                } else {
-                    console.log('Данных нет ни на сервере, ни локально');
-                    showToast('ℹ️ Данных нет ни на сервере, ни локально', 'info');
-                }
-
-                isSyncing = false;
-                updateSyncUI('online', 'Готов к синхронизации');
+                updateSyncUI('online', 'Готов');
                 
                 const now = new Date();
                 document.getElementById('syncLast').textContent = 
@@ -2421,14 +2548,34 @@
             render();
             checkSyncStatus();
 
+            // ===== АВТОМАТИЧЕСКАЯ СИНХРОНИЗАЦИЯ ПРИ ЗАГРУЗКЕ =====
             if (syncConfig.token && syncConfig.repo) {
-                console.log('Запуск автоматической синхронизации...');
+                console.log('Запуск автоматической синхронизации при загрузке...');
                 setTimeout(async () => {
-                    await manualSync();
-                }, 1500);
+                    await smartSync(true);
+                    startAutoSync();
+                }, 1000);
             } else {
                 console.log('Авто-синхронизация пропущена (нет настроек)');
             }
+        }
+
+        // ===== АВТОМАТИЧЕСКАЯ СИНХРОНИЗАЦИЯ КАЖДЫЕ 30 СЕКУНД =====
+        function startAutoSync() {
+            if (autoSyncInterval) {
+                clearInterval(autoSyncInterval);
+            }
+            
+            // Запускаем проверку каждые 30 секунд
+            autoSyncInterval = setInterval(async () => {
+                if (syncInProgress) return;
+                if (!syncConfig.token || !syncConfig.repo) return;
+                
+                console.log('⏰ Автоматическая проверка обновлений...');
+                await smartSync(false);
+            }, 30000); // 30 секунд
+            
+            console.log('🔄 Авто-синхронизация запущена (каждые 30 секунд)');
         }
 
         function saveDataLocal() {
@@ -2438,12 +2585,14 @@
             console.log('Данные сохранены локально');
         }
 
+        // ===== ОБНОВЛЕННАЯ ФУНКЦИЯ СОХРАНЕНИЯ С АВТО-СИНХРОНИЗАЦИЕЙ =====
         function saveData() {
             saveDataLocal();
-            if (syncConfig.token && syncConfig.repo) {
+            // После сохранения запускаем умную синхронизацию
+            if (syncConfig.token && syncConfig.repo && !syncInProgress) {
                 console.log('Автоматическая синхронизация после изменения...');
                 setTimeout(() => {
-                    manualSync();
+                    smartSync(false);
                 }, 500);
             }
         }
