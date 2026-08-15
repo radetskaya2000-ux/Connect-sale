@@ -6,7 +6,6 @@
     <title>Учет продаж - CONNECT</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📱</text></svg>">
     <style>
-        /* ===== ВЕСЬ CSS (БЕЗ ИЗМЕНЕНИЙ) ===== */
         * {
             margin: 0;
             padding: 0;
@@ -1759,27 +1758,24 @@
             file: 'data.json'
         };
 
-        // ===== ФУНКЦИЯ ДЛЯ ИСПРАВЛЕНИЯ КОДИРОВКИ (РАСШИРЕННАЯ) =====
+        // ===== ФУНКЦИЯ ДЛЯ ИСПРАВЛЕНИЯ КОДИРОВКИ =====
         function fixEncoding(str) {
             if (!str) return str;
             try {
-                // Пробуем декодировать как UTF-8
                 return decodeURIComponent(escape(str));
             } catch (e) {
                 return str;
             }
         }
 
-        // ===== ФУНКЦИЯ ДЛЯ ПРАВИЛЬНОГО ПАРСИНГА ДАННЫХ (РАСШИРЕННАЯ) =====
+        // ===== ФУНКЦИЯ ДЛЯ ПРАВИЛЬНОГО ПАРСИНГА ДАННЫХ =====
         function parseDataWithFix(data) {
             if (!data) return data;
             
-            // Если это массив продаж
             if (Array.isArray(data)) {
                 return data.map(item => {
                     if (typeof item === 'object' && item !== null) {
                         const newItem = { ...item };
-                        // Исправляем все строковые поля
                         if (newItem.name) newItem.name = fixEncoding(newItem.name);
                         if (newItem.category) newItem.category = fixEncoding(newItem.category);
                         if (newItem.payment) newItem.payment = fixEncoding(newItem.payment);
@@ -1788,7 +1784,7 @@
                     return item;
                 });
             }
-            // Если это объект
+            
             if (typeof data === 'object' && data !== null) {
                 const newData = { ...data };
                 if (newData.sales) {
@@ -1992,7 +1988,7 @@
             }
         }
 
-        // ===== ПРИНУДИТЕЛЬНАЯ ЗАГРУЗКА С СЕРВЕРА (С ИСПРАВЛЕНИЕМ КОДИРОВКИ) =====
+        // ===== ПРИНУДИТЕЛЬНАЯ ЗАГРУЗКА С СЕРВЕРА (С ДВОЙНЫМ ИСПРАВЛЕНИЕМ) =====
         async function forcePullFromGitHub() {
             console.log('=== ПРИНУДИТЕЛЬНАЯ ЗАГРУЗКА С СЕРВЕРА ===');
             
@@ -2043,18 +2039,29 @@
                     throw new Error('Ошибка парсинга данных с сервера: ' + e.message);
                 }
 
-                // ===== ПРИМЕНЯЕМ ИСПРАВЛЕНИЕ КОДИРОВКИ (РАСШИРЕННОЕ) =====
+                // ===== ПРИМЕНЯЕМ ИСПРАВЛЕНИЕ КОДИРОВКИ =====
                 const fixedData = parseDataWithFix(remoteData);
                 
                 const newSales = fixedData.sales || [];
                 const newCategories = fixedData.categories || ['Чехлы', 'Стекло', 'Зарядка', 'Наушники', 'Аксессуары'];
                 const newRestock = fixedData.restockItems || [];
 
-                console.log('Загружено (с исправленной кодировкой):', newSales.length, 'продаж,', newRestock.length, 'товаров в закупке');
+                // ===== ДОПОЛНИТЕЛЬНАЯ ПРОВЕРКА: ПРОХОДИМ ПО ВСЕМ ПРОДАЖАМ =====
+                const finalSales = newSales.map(sale => {
+                    return {
+                        ...sale,
+                        name: fixEncoding(sale.name || ''),
+                        category: fixEncoding(sale.category || ''),
+                        payment: fixEncoding(sale.payment || '')
+                    };
+                });
 
-                sales = newSales;
-                categories = newCategories;
-                restockItems = newRestock;
+                console.log('Загружено (с исправленной кодировкой):', finalSales.length, 'продаж,', newRestock.length, 'товаров в закупке');
+
+                // ===== ПРИМЕНЯЕМ ДАННЫЕ =====
+                sales = finalSales;
+                categories = newCategories.map(c => fixEncoding(c));
+                restockItems = newRestock.map(c => fixEncoding(c));
                 
                 saveDataLocal();
                 updateCategorySelect();
@@ -2162,7 +2169,6 @@
                     
                     if (remoteTime > localTime) {
                         console.log('Данные на сервере новее, загружаем...');
-                        // ===== ЗАГРУЗКА С ИСПРАВЛЕНИЕМ КОДИРОВКИ (РАСШИРЕННОЕ) =====
                         const fixedData = parseDataWithFix(remoteData);
                         sales = fixedData.sales || [];
                         categories = fixedData.categories || ['Чехлы', 'Стекло', 'Зарядка', 'Наушники', 'Аксессуары'];
@@ -2415,7 +2421,6 @@
             render();
             checkSyncStatus();
 
-            // Автоматическая синхронизация при загрузке
             if (syncConfig.token && syncConfig.repo) {
                 console.log('Запуск автоматической синхронизации...');
                 setTimeout(async () => {
