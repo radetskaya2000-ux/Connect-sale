@@ -6,7 +6,7 @@
     <title>Учет продаж - CONNECT</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📱</text></svg>">
     <style>
-        /* ===== ВЕСЬ CSS (БЕЗ ИЗМЕНЕНИЙ) ===== */
+        /* ===== ВЕСЬ CSS ===== */
         * {
             margin: 0;
             padding: 0;
@@ -272,6 +272,25 @@
             margin-top: 8px;
         }
 
+        .settings-dropdown .auto-sync-label {
+            font-size: 11px;
+            color: #4299e1;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 5px;
+            justify-content: center;
+        }
+
+        .settings-dropdown .auto-sync-label .pulse-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4299e1;
+            display: inline-block;
+            animation: pulse 2s infinite;
+        }
+
         .settings-dropdown .config-link {
             display: block;
             text-align: center;
@@ -357,6 +376,42 @@
             cursor: pointer;
         }
 
+        .form-group.autocomplete-wrapper {
+            position: relative;
+        }
+
+        .autocomplete-list {
+            position: absolute;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            max-height: 150px;
+            overflow-y: auto;
+            z-index: 50;
+            width: 100%;
+            display: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .autocomplete-list.active {
+            display: block;
+        }
+
+        .autocomplete-list .item {
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .autocomplete-list .item:hover {
+            background: #ebf4ff;
+        }
+
+        .autocomplete-list .item.highlighted {
+            background: #ebf4ff;
+        }
+
         .form-group.checkbox-group {
             flex-direction: row;
             align-items: center;
@@ -409,28 +464,88 @@
             transform: translateY(0);
         }
 
-        .quick-date-buttons {
+        .date-selector {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            background: #f7fafc;
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .date-selector label {
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 14px;
+        }
+
+        .date-selector input[type="date"] {
+            padding: 8px 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 15px;
+            background: white;
+            transition: all 0.3s;
+        }
+
+        .date-selector input[type="date"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .date-selector .quick-date-buttons {
             display: flex;
             gap: 5px;
-            margin-top: 5px;
             flex-wrap: wrap;
         }
 
-        .quick-date-btn {
-            padding: 4px 10px;
+        .date-selector .quick-date-btn {
+            padding: 6px 14px;
             border: 1px solid #e2e8f0;
             border-radius: 6px;
             background: white;
-            font-size: 11px;
+            font-size: 12px;
             cursor: pointer;
             transition: all 0.2s;
             color: #4a5568;
         }
 
-        .quick-date-btn:hover {
+        .date-selector .quick-date-btn:hover {
             background: #667eea;
             color: white;
             border-color: #667eea;
+        }
+
+        .btn-today {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .btn-today:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .date-selector .day-total-info {
+            margin-left: auto;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .date-selector .day-total-info span {
+            color: #667eea;
+            font-size: 18px;
         }
 
         .day-stats {
@@ -486,67 +601,6 @@
         }
         .stat-card.transfer .value {
             color: #ed8936;
-        }
-
-        .date-selector {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-            background: #f7fafc;
-            padding: 12px 20px;
-            border-radius: 12px;
-            border: 2px solid #e2e8f0;
-        }
-
-        .date-selector label {
-            font-weight: 600;
-            color: #4a5568;
-            font-size: 14px;
-        }
-
-        .date-selector input[type="date"] {
-            padding: 8px 14px;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 15px;
-            background: white;
-            transition: all 0.3s;
-        }
-
-        .date-selector input[type="date"]:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .btn-today {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 14px;
-        }
-
-        .btn-today:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        .date-selector .day-total-info {
-            margin-left: auto;
-            font-weight: 600;
-            color: #4a5568;
-        }
-
-        .date-selector .day-total-info span {
-            color: #667eea;
-            font-size: 18px;
         }
 
         .table-wrapper {
@@ -742,9 +796,21 @@
             background: #f56565;
         }
 
+        .btn-cat-move {
+            background: #e2e8f0;
+            color: #4a5568;
+            padding: 4px 8px;
+            font-size: 11px;
+            border-radius: 4px;
+        }
+
+        .btn-cat-move:hover {
+            background: #cbd5e0;
+        }
+
         .categories-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 10px;
             margin-top: 10px;
         }
@@ -781,6 +847,29 @@
         .category-item .cat-total {
             font-weight: 700;
             color: #667eea;
+            margin-left: 10px;
+        }
+
+        .category-item .cat-actions {
+            display: flex;
+            gap: 3px;
+            align-items: center;
+        }
+
+        .category-item .cat-actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 2px 4px;
+            border-radius: 4px;
+            color: #718096;
+            transition: all 0.2s;
+        }
+
+        .category-item .cat-actions button:hover {
+            background: #edf2f7;
+            color: #2d3748;
         }
 
         .category-select-hint {
@@ -887,7 +976,7 @@
 
         .restock-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
             gap: 10px;
         }
 
@@ -907,9 +996,38 @@
             border-color: #ed8936;
         }
 
-        .restock-item .item-name {
+        .restock-item .item-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .restock-item .item-left input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #ed8936;
+        }
+
+        .restock-item .item-left .item-name {
             font-weight: 600;
             color: #2d3748;
+        }
+
+        .restock-item .item-left .item-name.purchased {
+            text-decoration: line-through;
+            color: #a0aec0;
+        }
+
+        .restock-item .item-actions {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .restock-item .item-actions .restock-date {
+            font-size: 11px;
+            color: #a0aec0;
         }
 
         .restock-empty {
@@ -1309,26 +1427,6 @@
             font-size: 13px;
         }
 
-        /* ===== НОВЫЙ СТАТУС АВТО-СИНХРОНИЗАЦИИ ===== */
-        .auto-sync-label {
-            font-size: 11px;
-            color: #4299e1;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            margin-top: 5px;
-            justify-content: center;
-        }
-
-        .auto-sync-label .pulse-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #4299e1;
-            display: inline-block;
-            animation: pulse 2s infinite;
-        }
-
         @media (max-width: 1200px) {
             .add-form {
                 grid-template-columns: 1fr 1fr 1fr;
@@ -1399,6 +1497,10 @@
                 text-align: center;
             }
 
+            .date-selector .quick-date-buttons {
+                justify-content: center;
+            }
+
             .restock-grid {
                 grid-template-columns: 1fr;
             }
@@ -1432,6 +1534,10 @@
                 width: 38px;
                 height: 38px;
                 font-size: 18px;
+            }
+
+            .categories-grid {
+                grid-template-columns: 1fr;
             }
         }
 
@@ -1500,22 +1606,17 @@
             </div>
         </div>
 
-        <!-- ===== ФОРМА ===== -->
+        <!-- ===== ФОРМА ДОБАВЛЕНИЯ ===== -->
         <div class="add-section">
             <form class="add-form" id="addForm">
                 <div class="form-group">
                     <label>Дата продажи</label>
                     <input type="date" id="saleDate">
-                    <div class="quick-date-buttons">
-                        <button type="button" class="quick-date-btn" onclick="setDateToday()">Сегодня</button>
-                        <button type="button" class="quick-date-btn" onclick="setDateYesterday()">Вчера</button>
-                        <button type="button" class="quick-date-btn" onclick="setDateDaysAgo(3)">3 дня</button>
-                        <button type="button" class="quick-date-btn" onclick="setDateDaysAgo(7)">Неделя</button>
-                    </div>
                 </div>
-                <div class="form-group">
+                <div class="form-group autocomplete-wrapper">
                     <label>Название товара</label>
-                    <input type="text" id="productName" placeholder="Чехол iPhone 15" required>
+                    <input type="text" id="productName" placeholder="Чехол iPhone 15" required autocomplete="off">
+                    <div class="autocomplete-list" id="autocompleteList"></div>
                 </div>
                 <div class="form-group">
                     <label>Категория</label>
@@ -1584,6 +1685,12 @@
         <div class="date-selector">
             <label>📅 Показать продажи за:</label>
             <input type="date" id="viewDate">
+            <div class="quick-date-buttons">
+                <button type="button" class="quick-date-btn" onclick="setDateToday()">Сегодня</button>
+                <button type="button" class="quick-date-btn" onclick="setDateYesterday()">Вчера</button>
+                <button type="button" class="quick-date-btn" onclick="setDateDaysAgo(3)">3 дня</button>
+                <button type="button" class="quick-date-btn" onclick="setDateDaysAgo(7)">Неделя</button>
+            </div>
             <button class="btn-today" onclick="setTodayView()">📆 Сегодня</button>
             <div class="day-total-info">
                 Итого: <span id="viewDayTotal">0 ₽</span>
@@ -1634,7 +1741,7 @@
             <div class="categories-grid" id="categoriesGrid">
                 <!-- Категории будут здесь -->
             </div>
-            <div class="category-select-hint">💡 Кликните по категории в списке ниже, чтобы выбрать её для редактирования или удаления</div>
+            <div class="category-select-hint">💡 Кликните по категории, чтобы выбрать. Используйте стрелки для сортировки</div>
         </div>
 
         <!-- ===== МЕСЯЦ ===== -->
@@ -1774,7 +1881,9 @@
     </div>
 
     <script>
-        // ===== ОСНОВНЫЕ ПЕРЕМЕННЫЕ =====
+        // ============================================================
+        // 1. ОСНОВНЫЕ ПЕРЕМЕННЫЕ
+        // ============================================================
         let sales = [];
         let categories = ['Чехлы', 'Стекло', 'Зарядка', 'Наушники', 'Аксессуары'];
         let restockItems = [];
@@ -1786,8 +1895,11 @@
         let isSyncing = false;
         let autoSyncInterval = null;
         let syncInProgress = false;
+        let productNamesHistory = [];
 
-        // ===== НАСТРОЙКИ СИНХРОНИЗАЦИИ =====
+        // ============================================================
+        // 2. НАСТРОЙКИ СИНХРОНИЗАЦИИ
+        // ============================================================
         const CONFIG_KEY = 'connect_sync_config';
         let syncConfig = {
             token: '',
@@ -1795,7 +1907,9 @@
             file: 'data.json'
         };
 
-        // ===== ФУНКЦИЯ ДЛЯ ИСПРАВЛЕНИЯ КОДИРОВКИ =====
+        // ============================================================
+        // 3. ФУНКЦИИ КОДИРОВКИ
+        // ============================================================
         function fixEncoding(str) {
             if (!str) return str;
             try {
@@ -1805,10 +1919,8 @@
             }
         }
 
-        // ===== ФУНКЦИЯ ДЛЯ ПРАВИЛЬНОГО ПАРСИНГА ДАННЫХ =====
         function parseDataWithFix(data) {
             if (!data) return data;
-            
             if (Array.isArray(data)) {
                 return data.map(item => {
                     if (typeof item === 'object' && item !== null) {
@@ -1821,7 +1933,6 @@
                     return item;
                 });
             }
-            
             if (typeof data === 'object' && data !== null) {
                 const newData = { ...data };
                 if (newData.sales) {
@@ -1837,231 +1948,271 @@
                     newData.categories = newData.categories.map(c => fixEncoding(c));
                 }
                 if (newData.restockItems) {
-                    newData.restockItems = newData.restockItems.map(c => fixEncoding(c));
+                    newData.restockItems = newData.restockItems.map(item => {
+                        if (typeof item === 'string') {
+                            return { name: fixEncoding(item), purchased: false, purchasedDate: null };
+                        }
+                        return {
+                            name: fixEncoding(item.name || ''),
+                            purchased: item.purchased || false,
+                            purchasedDate: item.purchasedDate || null
+                        };
+                    });
+                }
+                if (newData.productNamesHistory) {
+                    newData.productNamesHistory = newData.productNamesHistory.map(c => fixEncoding(c));
                 }
                 return newData;
             }
             return data;
         }
 
-        // ===== УМНАЯ СИНХРОНИЗАЦИЯ (ВАРИАНТ 4) =====
-        async function smartSync(showToastMessage = false) {
-            if (syncInProgress) {
-                console.log('Синхронизация уже выполняется, пропускаем');
+        // ============================================================
+        // 4. АВТОДОПОЛНЕНИЕ ТОВАРОВ
+        // ============================================================
+        function updateProductNamesHistory() {
+            const names = new Set();
+            sales.forEach(sale => {
+                if (sale.name && sale.name.trim()) {
+                    names.add(sale.name.trim());
+                }
+            });
+            productNamesHistory = Array.from(names).sort();
+            localStorage.setItem('productNamesHistory', JSON.stringify(productNamesHistory));
+        }
+
+        function showAutocomplete(input) {
+            const list = document.getElementById('autocompleteList');
+            const value = input.value.toLowerCase().trim();
+            
+            if (!value || value.length < 1) {
+                list.classList.remove('active');
                 return;
             }
-            if (!syncConfig.token || !syncConfig.repo) {
-                console.log('Синхронизация не настроена');
+
+            const matches = productNamesHistory.filter(name => 
+                name.toLowerCase().includes(value) && name.toLowerCase() !== value
+            );
+
+            if (matches.length === 0) {
+                list.classList.remove('active');
                 return;
             }
 
-            syncInProgress = true;
-            updateSyncUI('syncing', 'Синхронизация...');
+            const showMatches = matches.slice(0, 8);
+            list.innerHTML = showMatches.map(name => 
+                `<div class="item" data-value="${name}">${name}</div>`
+            ).join('');
 
-            try {
-                console.log('=== УМНАЯ СИНХРОНИЗАЦИЯ ===');
-                
-                // 1. Загружаем данные с сервера
-                const response = await fetch(`https://api.github.com/repos/${syncConfig.repo}/contents/${syncConfig.file}?t=${Date.now()}`, {
-                    headers: {
-                        'Authorization': `token ${syncConfig.token}`,
-                        'Accept': 'application/vnd.github.v3+json'
-                    }
+            list.querySelectorAll('.item').forEach(el => {
+                el.addEventListener('click', function() {
+                    input.value = this.dataset.value;
+                    list.classList.remove('active');
+                    input.dispatchEvent(new Event('input'));
                 });
+            });
 
-                let serverData = null;
-                let sha = null;
+            list.classList.add('active');
+        }
 
-                if (response.ok) {
-                    const data = await response.json();
-                    sha = data.sha;
-                    const content = atob(data.content);
-                    try {
-                        serverData = JSON.parse(content);
-                        console.log('Данные с сервера загружены');
-                    } catch (e) {
-                        console.log('Ошибка парсинга данных с сервера');
-                        serverData = null;
-                    }
-                } else if (response.status !== 404) {
-                    console.log('Ошибка загрузки с сервера:', response.status);
-                    syncInProgress = false;
-                    updateSyncUI('offline', 'Ошибка');
-                    return;
-                }
+        // ============================================================
+        // 5. СОРТИРОВКА КАТЕГОРИЙ
+        // ============================================================
+        function moveCategory(index, direction) {
+            const newIndex = index + direction;
+            if (newIndex < 0 || newIndex >= categories.length) return;
+            
+            [categories[index], categories[newIndex]] = [categories[newIndex], categories[index]];
+            
+            updateCategorySelect();
+            updateEditCategorySelect();
+            renderCategories();
+            saveData();
+        }
 
-                // 2. Если на сервере нет данных, но локальные есть — создаем
-                if (!serverData && sales.length > 0) {
-                    console.log('На сервере нет данных, создаем...');
-                    const localData = {
-                        sales: sales,
-                        categories: categories,
-                        restockItems: restockItems,
-                        updatedAt: new Date().toISOString()
-                    };
-                    await uploadToGitHub(localData, null);
-                    syncInProgress = false;
-                    updateSyncUI('online', 'Готов');
-                    if (showToastMessage) showToast('📤 Данные созданы на сервере');
-                    return;
-                }
+        function renderCategories() {
+            const grid = document.getElementById('categoriesGrid');
+            const stats = {};
+            categories.forEach(c => {
+                stats[c] = sales.filter(s => s.category === c).reduce((sum, s) => sum + s.price, 0);
+            });
+            
+            grid.innerHTML = categories.map((cat, index) => `
+                <div class="category-item ${selectedCategoryForEdit === cat ? 'active' : ''}" 
+                     data-category="${cat}" 
+                     onclick="selectCategory('${cat}')">
+                    <span class="cat-name">${cat}</span>
+                    <span class="cat-total">${formatPrice(stats[cat] || 0)}</span>
+                    <div class="cat-actions">
+                        <button onclick="event.stopPropagation(); moveCategory(${index}, -1)" title="Вверх">⬆</button>
+                        <button onclick="event.stopPropagation(); moveCategory(${index}, 1)" title="Вниз">⬇</button>
+                    </div>
+                </div>
+            `).join('');
+        }
 
-                // 3. Если нет данных нигде
-                if (!serverData && sales.length === 0) {
-                    console.log('Нет данных ни на сервере, ни локально');
-                    syncInProgress = false;
-                    updateSyncUI('online', 'Готов');
-                    return;
-                }
-
-                // 4. Объединяем данные (умный мерж)
-                const serverSales = serverData.sales || [];
-                const localSales = sales;
-
-                // Создаем карту по ID для быстрого поиска
-                const serverMap = {};
-                serverSales.forEach(s => { serverMap[s.id] = s; });
-                
-                const localMap = {};
-                localSales.forEach(s => { localMap[s.id] = s; });
-
-                // Находим новые записи на сервере (которых нет локально)
-                const newOnServer = serverSales.filter(s => !localMap[s.id]);
-                // Находим новые записи локально (которых нет на сервере)
-                const newLocally = localSales.filter(s => !serverMap[s.id]);
-                // Находим общие записи (сравниваем, может быть изменены)
-                const common = localSales.filter(s => serverMap[s.id]);
-
-                console.log(`Новых на сервере: ${newOnServer.length}, новых локально: ${newLocally.length}, общих: ${common.length}`);
-
-                // Если есть новые на сервере и локально нет данных — просто загружаем с сервера
-                if (newOnServer.length > 0 && localSales.length === 0) {
-                    console.log('Локально нет данных, загружаем с сервера');
-                    sales = serverSales.map(s => ({
-                        ...s,
-                        name: fixEncoding(s.name || ''),
-                        category: fixEncoding(s.category || ''),
-                        payment: fixEncoding(s.payment || '')
-                    }));
-                    categories = (serverData.categories || ['Чехлы', 'Стекло', 'Зарядка', 'Наушники', 'Аксессуары']).map(c => fixEncoding(c));
-                    restockItems = (serverData.restockItems || []).map(c => fixEncoding(c));
-                    saveDataLocal();
-                    updateCategorySelect();
-                    updateEditCategorySelect();
-                    render();
-                    if (showToastMessage) showToast(`📥 Загружено с сервера (${sales.length} продаж)`);
-                    syncInProgress = false;
-                    updateSyncUI('online', 'Готов');
-                    return;
-                }
-
-                // Если есть новые локально и на сервере нет данных — отправляем на сервер
-                if (newLocally.length > 0 && serverSales.length === 0) {
-                    console.log('На сервере нет данных, отправляем локальные');
-                    const localData = {
-                        sales: sales,
-                        categories: categories,
-                        restockItems: restockItems,
-                        updatedAt: new Date().toISOString()
-                    };
-                    await uploadToGitHub(localData, null);
-                    if (showToastMessage) showToast(`📤 Отправлено на сервер (${sales.length} продаж)`);
-                    syncInProgress = false;
-                    updateSyncUI('online', 'Готов');
-                    return;
-                }
-
-                // Объединяем данные (берем все записи с обоих устройств)
-                let mergedSales = [...localSales];
-
-                // Добавляем новые с сервера (которых нет локально)
-                newOnServer.forEach(s => {
-                    mergedSales.push({
-                        ...s,
-                        name: fixEncoding(s.name || ''),
-                        category: fixEncoding(s.category || ''),
-                        payment: fixEncoding(s.payment || '')
-                    });
-                });
-
-                // Проверяем общие записи на изменения
-                common.forEach(localItem => {
-                    const serverItem = serverMap[localItem.id];
-                    // Если серверная версия новее (по времени изменения) — используем её
-                    // Для простоты считаем, что если на сервере есть запись, которой нет локально — это новое
-                    // А если локальная запись есть на сервере, но отличается — используем локальную (приоритет локальных изменений)
-                    // Это простое решение: локальные изменения имеют приоритет
-                    // Но если на сервере есть поля, которых нет локально — добавляем их
-                    if (serverItem) {
-                        const mergedItem = { ...localItem };
-                        // Добавляем поля с сервера, если их нет локально
-                        if (!mergedItem.name && serverItem.name) mergedItem.name = fixEncoding(serverItem.name);
-                        if (!mergedItem.category && serverItem.category) mergedItem.category = fixEncoding(serverItem.category);
-                        if (!mergedItem.payment && serverItem.payment) mergedItem.payment = fixEncoding(serverItem.payment);
-                        // Заменяем в mergedSales
-                        const idx = mergedSales.findIndex(s => s.id === localItem.id);
-                        if (idx !== -1) {
-                            mergedSales[idx] = mergedItem;
-                        }
-                    }
-                });
-
-                // Обновляем категории и список закупок (объединяем)
-                const mergedCategories = [...categories];
-                (serverData.categories || []).forEach(c => {
-                    const fixed = fixEncoding(c);
-                    if (!mergedCategories.includes(fixed)) {
-                        mergedCategories.push(fixed);
-                    }
-                });
-
-                const mergedRestock = [...restockItems];
-                (serverData.restockItems || []).forEach(c => {
-                    const fixed = fixEncoding(c);
-                    if (!mergedRestock.includes(fixed)) {
-                        mergedRestock.push(fixed);
-                    }
-                });
-
-                // Применяем объединенные данные
-                sales = mergedSales;
-                categories = mergedCategories;
-                restockItems = mergedRestock;
-
-                saveDataLocal();
-                updateCategorySelect();
-                updateEditCategorySelect();
-                render();
-
-                // Отправляем объединенные данные на сервер
-                const finalData = {
-                    sales: sales,
-                    categories: categories,
-                    restockItems: restockItems,
-                    updatedAt: new Date().toISOString()
-                };
-                await uploadToGitHub(finalData, sha);
-
-                const totalNew = newOnServer.length + newLocally.length;
-                if (totalNew > 0 && showToastMessage) {
-                    showToast(`🔄 Синхронизировано! Добавлено ${totalNew} записей`);
-                } else if (showToastMessage) {
-                    showToast('✅ Данные синхронизированы');
-                }
-
-                console.log('Синхронизация завершена успешно');
-                syncInProgress = false;
-                updateSyncUI('online', 'Готов');
-
-            } catch (error) {
-                console.log('Ошибка синхронизации:', error);
-                if (showToastMessage) showToast(`❌ Ошибка: ${error.message}`, 'error');
-                syncInProgress = false;
-                updateSyncUI('offline', 'Ошибка');
+        // ============================================================
+        // 6. ЗАКУПКИ С ЧЕКБОКСАМИ
+        // ============================================================
+        function toggleRestockPurchased(name) {
+            const item = restockItems.find(i => i.name === name);
+            if (item) {
+                item.purchased = !item.purchased;
+                item.purchasedDate = item.purchased ? new Date().toISOString() : null;
+                saveData();
+                renderRestock();
+                updateRestockBadge();
             }
         }
 
-        // ===== ЗАГРУЗКА КОНФИГА =====
+        function renderRestock() {
+            const grid = document.getElementById('restockGrid');
+            if (restockItems.length === 0) {
+                grid.innerHTML = '<div class="restock-empty">✨ Все товары в наличии</div>';
+                return;
+            }
+            
+            const sorted = [...restockItems].sort((a, b) => {
+                if (a.purchased && !b.purchased) return 1;
+                if (!a.purchased && b.purchased) return -1;
+                return 0;
+            });
+            
+            grid.innerHTML = sorted.map(item => `
+                <div class="restock-item" style="${item.purchased ? 'opacity:0.6;' : ''}">
+                    <div class="item-left">
+                        <input type="checkbox" ${item.purchased ? 'checked' : ''} 
+                               onchange="toggleRestockPurchased('${item.name.replace(/'/g, "\\'")}')">
+                        <span class="item-name ${item.purchased ? 'purchased' : ''}">${item.name}</span>
+                    </div>
+                    <div class="item-actions">
+                        ${item.purchased ? `<span class="restock-date">✅ ${new Date(item.purchasedDate).toLocaleDateString('ru-RU')}</span>` : ''}
+                        <button class="btn-restock-delete" onclick="deleteRestockItem('${item.name.replace(/'/g, "\\'")}')">✕</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ============================================================
+        // 7. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+        // ============================================================
+        function getCurrentDateTime() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            return {
+                date: `${year}-${month}-${day}`,
+                time: `${hours}:${minutes}`
+            };
+        }
+
+        function convertDate(dateStr) {
+            if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr;
+            if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) {
+                const parts = dateStr.split('/');
+                return `${parts[2]}-${parts[1]}-${parts[0]}`;
+            }
+            if (/^\d{2}\.\d{2}\.\d{4}$/.test(dateStr)) {
+                const parts = dateStr.split('.');
+                return `${parts[2]}-${parts[1]}-${parts[0]}`;
+            }
+            if (/^\d{2}-\d{2}-\d{4}$/.test(dateStr)) {
+                const parts = dateStr.split('-');
+                return `${parts[2]}-${parts[1]}-${parts[0]}`;
+            }
+            return null;
+        }
+
+        function formatDateDisplay(dateStr) {
+            if (!dateStr) return '';
+            const parts = dateStr.split('-');
+            const months = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
+            return `${parseInt(parts[2])} ${months[parseInt(parts[1]) - 1]} ${parts[0]}`;
+        }
+
+        function formatPrice(value) {
+            return value.toLocaleString('ru-RU') + ' ₽';
+        }
+
+        function getPaymentBadge(method) {
+            const map = {
+                'Наличные': 'badge-cash',
+                'Безналичные': 'badge-card',
+                'Перевод': 'badge-transfer'
+            };
+            return map[method] || 'badge-cash';
+        }
+
+        function getPaymentEmoji(method) {
+            const map = {
+                'Наличные': '💰',
+                'Безналичные': '💳',
+                'Перевод': '📱'
+            };
+            return map[method] || '';
+        }
+
+        function showToast(message, type = 'success') {
+            const oldToasts = document.querySelectorAll('.toast');
+            oldToasts.forEach(t => t.remove());
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // ============================================================
+        // 8. БЫСТРЫЕ ДАТЫ
+        // ============================================================
+        function setDateToday() {
+            document.getElementById('viewDate').value = getCurrentDateTime().date;
+            document.getElementById('saleDate').value = getCurrentDateTime().date;
+            currentViewDate = getCurrentDateTime().date;
+            render();
+        }
+
+        function setDateYesterday() {
+            const date = new Date();
+            date.setDate(date.getDate() - 1);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const dateStr = `${year}-${month}-${day}`;
+            document.getElementById('viewDate').value = dateStr;
+            currentViewDate = dateStr;
+            render();
+        }
+
+        function setDateDaysAgo(days) {
+            const date = new Date();
+            date.setDate(date.getDate() - days);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const dateStr = `${year}-${month}-${day}`;
+            document.getElementById('viewDate').value = dateStr;
+            currentViewDate = dateStr;
+            render();
+        }
+
+        function setTodayView() {
+            const today = getCurrentDateTime().date;
+            document.getElementById('viewDate').value = today;
+            currentViewDate = today;
+            render();
+        }
+
+        // ============================================================
+        // 9. ЗАГРУЗКА КОНФИГА
+        // ============================================================
         function loadConfig() {
             try {
                 const saved = localStorage.getItem(CONFIG_KEY);
@@ -2100,7 +2251,6 @@
             console.log('Настройки сохранены: repo=' + repo);
             checkSyncStatus();
             
-            // После сохранения настроек запускаем синхронизацию
             setTimeout(() => {
                 smartSync(true);
             }, 500);
@@ -2117,7 +2267,9 @@
             document.getElementById('configModal').classList.remove('active');
         }
 
-        // ===== НАСТРОЙКИ ВЫПАДАЮЩЕЙ ПАНЕЛИ =====
+        // ============================================================
+        // 10. НАСТРОЙКИ ВЫПАДАЮЩЕЙ ПАНЕЛИ
+        // ============================================================
         function toggleSettings() {
             const dropdown = document.getElementById('settingsDropdown');
             dropdown.classList.toggle('active');
@@ -2130,7 +2282,9 @@
             document.getElementById('settingsDropdown').classList.remove('active');
         }
 
-        // ===== ПРОВЕРКА СТАТУСА =====
+        // ============================================================
+        // 11. ПРОВЕРКА СТАТУСА
+        // ============================================================
         async function checkSyncStatus() {
             console.log('Проверка статуса синхронизации...');
             
@@ -2223,9 +2377,9 @@
                 }
                 
                 const localSales = sales.length;
-                const localRestock = restockItems.length;
+                const localRestock = restockItems.filter(i => !i.purchased).length;
                 
-                infoHtml += `<br>🖥️ Локально: <span>${localSales}</span> продаж, <span>${localRestock}</span> товаров в закупке`;
+                infoHtml += `<br>🖥️ Локально: <span>${localSales}</span> продаж, <span>${localRestock}</span> нужно закупить`;
                 
                 if (fileExists) {
                     if (remoteSales !== localSales || remoteRestock !== localRestock) {
@@ -2247,36 +2401,25 @@
             }
         }
 
-        // ===== РУЧНАЯ СИНХРОНИЗАЦИЯ (ВЫЗЫВАЕТ УМНУЮ) =====
-        async function manualSync() {
-            console.log('=== РУЧНАЯ СИНХРОНИЗАЦИЯ ===');
-            await smartSync(true);
-        }
-
-        // ===== ПРИНУДИТЕЛЬНАЯ ЗАГРУЗКА С СЕРВЕРА =====
-        async function forcePullFromGitHub() {
-            console.log('=== ПРИНУДИТЕЛЬНАЯ ЗАГРУЗКА С СЕРВЕРА ===');
-            
-            if (isSyncing) {
-                showToast('⏳ Синхронизация уже выполняется', 'info');
+        // ============================================================
+        // 12. УМНАЯ СИНХРОНИЗАЦИЯ (С ПОДДЕРЖКОЙ УДАЛЕНИЯ)
+        // ============================================================
+        async function smartSync(showToastMessage = false) {
+            if (syncInProgress) {
+                console.log('Синхронизация уже выполняется, пропускаем');
                 return;
             }
-
             if (!syncConfig.token || !syncConfig.repo) {
-                showToast('❌ Сначала настройте синхронизацию', 'error');
-                showConfigModal();
+                console.log('Синхронизация не настроена');
                 return;
             }
 
-            if (!confirm('⚠️ Эта операция ЗАМЕНИТ все локальные данные на данные с сервера. Продолжить?')) {
-                return;
-            }
-
-            isSyncing = true;
-            updateSyncUI('syncing', 'Загрузка...');
+            syncInProgress = true;
+            updateSyncUI('syncing', 'Синхронизация...');
 
             try {
-                console.log('Загрузка файла с GitHub...');
+                console.log('=== УМНАЯ СИНХРОНИЗАЦИЯ ===');
+                
                 const response = await fetch(`https://api.github.com/repos/${syncConfig.repo}/contents/${syncConfig.file}?t=${Date.now()}`, {
                     headers: {
                         'Authorization': `token ${syncConfig.token}`,
@@ -2284,84 +2427,170 @@
                     }
                 });
 
-                if (!response.ok) {
-                    if (response.status === 404) {
-                        throw new Error('Файл data.json не найден на сервере.');
+                let serverData = null;
+                let sha = null;
+
+                if (response.ok) {
+                    const data = await response.json();
+                    sha = data.sha;
+                    const content = atob(data.content);
+                    try {
+                        serverData = JSON.parse(content);
+                        console.log('Данные с сервера загружены');
+                    } catch (e) {
+                        console.log('Ошибка парсинга данных с сервера');
+                        serverData = null;
                     }
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || `Ошибка GitHub: ${response.status}`);
+                } else if (response.status !== 404) {
+                    console.log('Ошибка загрузки с сервера:', response.status);
+                    syncInProgress = false;
+                    updateSyncUI('offline', 'Ошибка');
+                    return;
                 }
 
-                const data = await response.json();
-                const content = atob(data.content);
-                console.log('Файл загружен, размер:', content.length, 'символов');
+                const serverSales = serverData?.sales || [];
+                const localSales = sales;
+
+                const serverIds = new Set(serverSales.map(s => s.id));
+                const localIds = new Set(localSales.map(s => s.id));
+
+                // Записи для удаления (есть на сервере, но нет локально)
+                const toDelete = serverSales.filter(s => !localIds.has(s.id));
                 
-                let remoteData;
-                try {
-                    remoteData = JSON.parse(content);
-                    console.log('Данные распарсены');
-                } catch (e) {
-                    throw new Error('Ошибка парсинга данных с сервера: ' + e.message);
+                // Записи для добавления (есть локально, но нет на сервере)
+                const toAdd = localSales.filter(s => !serverIds.has(s.id));
+
+                console.log(`Удалить: ${toDelete.length}, Добавить: ${toAdd.length}`);
+
+                // Проверяем, является ли это первым запуском
+                const isFirstRun = localSales.length === 0;
+
+                let mergedSales = [...localSales];
+
+                if (isFirstRun) {
+                    // Первый запуск - загружаем все с сервера
+                    console.log('Первый запуск, загружаем все с сервера');
+                    mergedSales = serverSales.map(s => ({
+                        ...s,
+                        name: fixEncoding(s.name || ''),
+                        category: fixEncoding(s.category || ''),
+                        payment: fixEncoding(s.payment || '')
+                    }));
+                } else {
+                    // Не первый запуск - объединяем с учетом удалений
+                    // Добавляем только новые записи с сервера, которых нет локально
+                    const newOnServer = serverSales.filter(s => !localIds.has(s.id));
+                    
+                    // Проверяем список удаленных ID
+                    const deletedIds = JSON.parse(localStorage.getItem('deletedSalesIds') || '[]');
+                    
+                    newOnServer.forEach(s => {
+                        if (!deletedIds.includes(s.id)) {
+                            mergedSales.push({
+                                ...s,
+                                name: fixEncoding(s.name || ''),
+                                category: fixEncoding(s.category || ''),
+                                payment: fixEncoding(s.payment || '')
+                            });
+                            console.log(`Добавлена запись с сервера: ${s.id}`);
+                        } else {
+                            console.log(`Запись ${s.id} была удалена, не добавляем обратно`);
+                        }
+                    });
+
+                    // Обновляем существующие записи (если есть изменения)
+                    const common = localSales.filter(s => serverIds.has(s.id));
+                    common.forEach(localItem => {
+                        const serverItem = serverSales.find(s => s.id === localItem.id);
+                        if (serverItem) {
+                            const idx = mergedSales.findIndex(s => s.id === localItem.id);
+                            if (idx !== -1) {
+                                const mergedItem = { ...localItem };
+                                if (!mergedItem.name && serverItem.name) mergedItem.name = fixEncoding(serverItem.name);
+                                if (!mergedItem.category && serverItem.category) mergedItem.category = fixEncoding(serverItem.category);
+                                if (!mergedItem.payment && serverItem.payment) mergedItem.payment = fixEncoding(serverItem.payment);
+                                mergedSales[idx] = mergedItem;
+                            }
+                        }
+                    });
                 }
 
-                const newSales = remoteData.sales || [];
-                const newCategories = remoteData.categories || ['Чехлы', 'Стекло', 'Зарядка', 'Наушники', 'Аксессуары'];
-                const newRestock = remoteData.restockItems || [];
+                // Обновляем остальные данные
+                const mergedCategories = [...categories];
+                (serverData?.categories || []).forEach(c => {
+                    const fixed = fixEncoding(c);
+                    if (!mergedCategories.includes(fixed)) {
+                        mergedCategories.push(fixed);
+                    }
+                });
 
-                sales = newSales.map(s => ({
-                    ...s,
-                    name: fixEncoding(s.name || ''),
-                    category: fixEncoding(s.category || ''),
-                    payment: fixEncoding(s.payment || '')
-                }));
-                categories = newCategories.map(c => fixEncoding(c));
-                restockItems = newRestock.map(c => fixEncoding(c));
-                
+                const mergedRestock = [...restockItems];
+                (serverData?.restockItems || []).forEach(item => {
+                    const name = typeof item === 'string' ? fixEncoding(item) : fixEncoding(item.name);
+                    const purchased = typeof item === 'string' ? false : (item.purchased || false);
+                    const purchasedDate = typeof item === 'string' ? null : (item.purchasedDate || null);
+                    if (!mergedRestock.some(i => i.name === name)) {
+                        mergedRestock.push({ name, purchased, purchasedDate });
+                    }
+                });
+
+                const mergedHistory = [...productNamesHistory];
+                (serverData?.productNamesHistory || []).forEach(name => {
+                    const fixed = fixEncoding(name);
+                    if (!mergedHistory.includes(fixed)) {
+                        mergedHistory.push(fixed);
+                    }
+                });
+
+                // Применяем данные
+                sales = mergedSales;
+                categories = mergedCategories;
+                restockItems = mergedRestock;
+                productNamesHistory = mergedHistory;
+
+                // Очищаем список удаленных ID
+                localStorage.setItem('deletedSalesIds', JSON.stringify([]));
+
                 saveDataLocal();
                 updateCategorySelect();
                 updateEditCategorySelect();
                 render();
-                
-                showToast(`✅ Данные загружены с сервера! (${sales.length} продаж, ${restockItems.length} товаров в закупке)`);
-                console.log('Данные успешно загружены!');
-                
-                isSyncing = false;
+
+                // Отправляем на сервер
+                const finalData = {
+                    sales: sales,
+                    categories: categories,
+                    restockItems: restockItems,
+                    productNamesHistory: productNamesHistory,
+                    updatedAt: new Date().toISOString()
+                };
+                await uploadToGitHub(finalData, sha);
+
+                const totalChanges = toDelete.length + toAdd.length;
+                if (totalChanges > 0 && showToastMessage) {
+                    let msg = `🔄 Синхронизировано!`;
+                    if (toDelete.length > 0) msg += ` Удалено ${toDelete.length}`;
+                    if (toAdd.length > 0) msg += ` Добавлено ${toAdd.length}`;
+                    showToast(msg);
+                } else if (showToastMessage) {
+                    showToast('✅ Данные синхронизированы');
+                }
+
+                console.log('Синхронизация завершена успешно');
+                syncInProgress = false;
                 updateSyncUI('online', 'Готов');
-                
-                const now = new Date();
-                document.getElementById('syncLast').textContent = 
-                    `Последняя синхронизация: ${now.toLocaleString('ru-RU')}`;
-                localStorage.setItem('connect_last_sync', now.toISOString());
-                
-                checkSyncStatus();
-                
+
             } catch (error) {
-                console.log('ОШИБКА:', error.message);
-                showToast(`❌ Ошибка: ${error.message}`, 'error');
-                isSyncing = false;
+                console.log('Ошибка синхронизации:', error);
+                if (showToastMessage) showToast(`❌ Ошибка: ${error.message}`, 'error');
+                syncInProgress = false;
                 updateSyncUI('offline', 'Ошибка');
             }
         }
 
-        function updateSyncUI(status, text) {
-            const indicator = document.getElementById('syncIndicator');
-            const statusText = document.getElementById('syncStatusText');
-            const dot = document.getElementById('syncDot');
-            
-            if (status === 'syncing') {
-                indicator.className = 'indicator syncing';
-                dot.className = 'sync-dot syncing';
-            } else if (status === 'online') {
-                indicator.className = 'indicator online';
-                dot.className = 'sync-dot';
-            } else {
-                indicator.className = 'indicator offline';
-                dot.className = 'sync-dot offline';
-            }
-            statusText.textContent = text;
-        }
-
-        // ===== ЗАГРУЗКА НА GITHUB =====
+        // ============================================================
+        // 13. ЗАГРУЗКА НА GITHUB
+        // ============================================================
         async function uploadToGitHub(data, sha) {
             const jsonString = JSON.stringify(data, null, 2);
             const content = btoa(unescape(encodeURIComponent(jsonString)));
@@ -2400,7 +2629,9 @@
             return await response.json();
         }
 
-        // ===== ПРОВЕРКА ПОДКЛЮЧЕНИЯ =====
+        // ============================================================
+        // 14. ПРОВЕРКА ПОДКЛЮЧЕНИЯ
+        // ============================================================
         async function testGitHubConnection() {
             const token = document.getElementById('githubToken').value.trim();
             const repo = document.getElementById('githubRepo').value.trim();
@@ -2492,7 +2723,9 @@
             }
         }
 
-        // ===== ЗАГРУЗКА ДАННЫХ =====
+        // ============================================================
+        // 15. ЗАГРУЗКА ДАННЫХ
+        // ============================================================
         function loadData() {
             console.log('Загрузка данных из localStorage...');
             
@@ -2527,6 +2760,16 @@
                     restockItems = [];
                 }
             }
+
+            const storedHistory = localStorage.getItem('productNamesHistory');
+            if (storedHistory) {
+                try {
+                    productNamesHistory = JSON.parse(storedHistory);
+                    console.log('Загружено истории товаров:', productNamesHistory.length);
+                } catch (e) {
+                    productNamesHistory = [];
+                }
+            }
             
             updateCategorySelect();
             updateEditCategorySelect();
@@ -2548,7 +2791,6 @@
             render();
             checkSyncStatus();
 
-            // ===== АВТОМАТИЧЕСКАЯ СИНХРОНИЗАЦИЯ ПРИ ЗАГРУЗКЕ =====
             if (syncConfig.token && syncConfig.repo) {
                 console.log('Запуск автоматической синхронизации при загрузке...');
                 setTimeout(async () => {
@@ -2560,21 +2802,16 @@
             }
         }
 
-        // ===== АВТОМАТИЧЕСКАЯ СИНХРОНИЗАЦИЯ КАЖДЫЕ 30 СЕКУНД =====
         function startAutoSync() {
             if (autoSyncInterval) {
                 clearInterval(autoSyncInterval);
             }
-            
-            // Запускаем проверку каждые 30 секунд
             autoSyncInterval = setInterval(async () => {
                 if (syncInProgress) return;
                 if (!syncConfig.token || !syncConfig.repo) return;
-                
                 console.log('⏰ Автоматическая проверка обновлений...');
                 await smartSync(false);
-            }, 30000); // 30 секунд
-            
+            }, 30000);
             console.log('🔄 Авто-синхронизация запущена (каждые 30 секунд)');
         }
 
@@ -2582,13 +2819,13 @@
             localStorage.setItem('salesData', JSON.stringify(sales));
             localStorage.setItem('categoriesData', JSON.stringify(categories));
             localStorage.setItem('restockData', JSON.stringify(restockItems));
+            localStorage.setItem('productNamesHistory', JSON.stringify(productNamesHistory));
             console.log('Данные сохранены локально');
         }
 
-        // ===== ОБНОВЛЕННАЯ ФУНКЦИЯ СОХРАНЕНИЯ С АВТО-СИНХРОНИЗАЦИЕЙ =====
         function saveData() {
+            updateProductNamesHistory();
             saveDataLocal();
-            // После сохранения запускаем умную синхронизацию
             if (syncConfig.token && syncConfig.repo && !syncInProgress) {
                 console.log('Автоматическая синхронизация после изменения...');
                 setTimeout(() => {
@@ -2597,115 +2834,121 @@
             }
         }
 
-        // ===== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ =====
-        function getCurrentDateTime() {
-            const now = new Date();
-            const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const day = String(now.getDate()).padStart(2, '0');
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            return {
-                date: `${year}-${month}-${day}`,
-                time: `${hours}:${minutes}`
-            };
+        // ============================================================
+        // 16. РУЧНАЯ СИНХРОНИЗАЦИЯ
+        // ============================================================
+        async function manualSync() {
+            console.log('=== РУЧНАЯ СИНХРОНИЗАЦИЯ ===');
+            await smartSync(true);
         }
 
-        function convertDate(dateStr) {
-            if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
-                return dateStr;
-            }
-            if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) {
-                const parts = dateStr.split('/');
-                return `${parts[2]}-${parts[1]}-${parts[0]}`;
-            }
-            if (/^\d{2}\.\d{2}\.\d{4}$/.test(dateStr)) {
-                const parts = dateStr.split('.');
-                return `${parts[2]}-${parts[1]}-${parts[0]}`;
-            }
-            if (/^\d{2}-\d{2}-\d{4}$/.test(dateStr)) {
-                const parts = dateStr.split('-');
-                return `${parts[2]}-${parts[1]}-${parts[0]}`;
-            }
-            return null;
-        }
-
-        function formatDateDisplay(dateStr) {
-            if (!dateStr) return '';
-            const parts = dateStr.split('-');
-            const months = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
-            return `${parseInt(parts[2])} ${months[parseInt(parts[1]) - 1]} ${parts[0]}`;
-        }
-
-        function formatPrice(value) {
-            return value.toLocaleString('ru-RU') + ' ₽';
-        }
-
-        function getPaymentBadge(method) {
-            const map = {
-                'Наличные': 'badge-cash',
-                'Безналичные': 'badge-card',
-                'Перевод': 'badge-transfer'
-            };
-            return map[method] || 'badge-cash';
-        }
-
-        function getPaymentEmoji(method) {
-            const map = {
-                'Наличные': '💰',
-                'Безналичные': '💳',
-                'Перевод': '📱'
-            };
-            return map[method] || '';
-        }
-
-        function showToast(message, type = 'success') {
-            const oldToasts = document.querySelectorAll('.toast');
-            oldToasts.forEach(t => t.remove());
+        async function forcePullFromGitHub() {
+            console.log('=== ПРИНУДИТЕЛЬНАЯ ЗАГРУЗКА С СЕРВЕРА ===');
             
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.textContent = message;
-            document.body.appendChild(toast);
+            if (isSyncing) {
+                showToast('⏳ Синхронизация уже выполняется', 'info');
+                return;
+            }
+
+            if (!syncConfig.token || !syncConfig.repo) {
+                showToast('❌ Сначала настройте синхронизацию', 'error');
+                showConfigModal();
+                return;
+            }
+
+            if (!confirm('⚠️ Эта операция ЗАМЕНИТ все локальные данные на данные с сервера. Продолжить?')) {
+                return;
+            }
+
+            isSyncing = true;
+            updateSyncUI('syncing', 'Загрузка...');
+
+            try {
+                console.log('Загрузка файла с GitHub...');
+                const response = await fetch(`https://api.github.com/repos/${syncConfig.repo}/contents/${syncConfig.file}?t=${Date.now()}`, {
+                    headers: {
+                        'Authorization': `token ${syncConfig.token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        throw new Error('Файл data.json не найден на сервере.');
+                    }
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || `Ошибка GitHub: ${response.status}`);
+                }
+
+                const data = await response.json();
+                const content = atob(data.content);
+                console.log('Файл загружен, размер:', content.length, 'символов');
+                
+                let remoteData;
+                try {
+                    remoteData = JSON.parse(content);
+                    console.log('Данные распарсены');
+                } catch (e) {
+                    throw new Error('Ошибка парсинга данных с сервера: ' + e.message);
+                }
+
+                const fixedData = parseDataWithFix(remoteData);
+                
+                sales = fixedData.sales || [];
+                categories = fixedData.categories || ['Чехлы', 'Стекло', 'Зарядка', 'Наушники', 'Аксессуары'];
+                restockItems = fixedData.restockItems || [];
+                productNamesHistory = fixedData.productNamesHistory || [];
+                
+                // Очищаем список удаленных ID
+                localStorage.setItem('deletedSalesIds', JSON.stringify([]));
+                
+                saveDataLocal();
+                updateCategorySelect();
+                updateEditCategorySelect();
+                render();
+                
+                showToast(`✅ Данные загружены с сервера! (${sales.length} продаж, ${restockItems.length} товаров в закупке)`);
+                console.log('Данные успешно загружены!');
+                
+                isSyncing = false;
+                updateSyncUI('online', 'Готов');
+                
+                const now = new Date();
+                document.getElementById('syncLast').textContent = 
+                    `Последняя синхронизация: ${now.toLocaleString('ru-RU')}`;
+                localStorage.setItem('connect_last_sync', now.toISOString());
+                
+                checkSyncStatus();
+                
+            } catch (error) {
+                console.log('ОШИБКА:', error.message);
+                showToast(`❌ Ошибка: ${error.message}`, 'error');
+                isSyncing = false;
+                updateSyncUI('offline', 'Ошибка');
+            }
+        }
+
+        function updateSyncUI(status, text) {
+            const indicator = document.getElementById('syncIndicator');
+            const statusText = document.getElementById('syncStatusText');
+            const dot = document.getElementById('syncDot');
             
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transition = 'opacity 0.3s';
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
+            if (status === 'syncing') {
+                indicator.className = 'indicator syncing';
+                dot.className = 'sync-dot syncing';
+            } else if (status === 'online') {
+                indicator.className = 'indicator online';
+                dot.className = 'sync-dot';
+            } else {
+                indicator.className = 'indicator offline';
+                dot.className = 'sync-dot offline';
+            }
+            statusText.textContent = text;
         }
 
-        // ===== БЫСТРЫЕ КНОПКИ ДЛЯ ДАТЫ =====
-        function setDateToday() {
-            document.getElementById('saleDate').value = getCurrentDateTime().date;
-        }
-
-        function setDateYesterday() {
-            const date = new Date();
-            date.setDate(date.getDate() - 1);
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            document.getElementById('saleDate').value = `${year}-${month}-${day}`;
-        }
-
-        function setDateDaysAgo(days) {
-            const date = new Date();
-            date.setDate(date.getDate() - days);
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            document.getElementById('saleDate').value = `${year}-${month}-${day}`;
-        }
-
-        function setTodayView() {
-            const today = getCurrentDateTime().date;
-            document.getElementById('viewDate').value = today;
-            currentViewDate = today;
-            render();
-        }
-
-        // ===== УПРАВЛЕНИЕ КАТЕГОРИЯМИ =====
+        // ============================================================
+        // 17. УПРАВЛЕНИЕ КАТЕГОРИЯМИ
+        // ============================================================
         function updateCategorySelect() {
             const select = document.getElementById('category');
             const currentValue = select.value;
@@ -2747,12 +2990,7 @@
 
         function selectCategory(categoryName) {
             selectedCategoryForEdit = categoryName;
-            document.querySelectorAll('.category-item').forEach(el => {
-                el.classList.remove('active');
-                if (el.dataset.category === categoryName) {
-                    el.classList.add('active');
-                }
-            });
+            renderCategories();
         }
 
         function addCategory() {
@@ -2770,55 +3008,46 @@
             input.value = '';
             updateCategorySelect();
             updateEditCategorySelect();
-            render();
+            renderCategories();
             selectedCategoryForEdit = null;
             saveData();
         }
 
         function deleteSelectedCategory() {
             if (!selectedCategoryForEdit) {
-                alert('Сначала выберите категорию для удаления (кликните по ней в списке)');
+                alert('Сначала выберите категорию для удаления (кликните по ней)');
                 return;
             }
-            
             if (selectedCategoryForEdit === 'Другое') {
                 alert('Нельзя удалить категорию "Другое"');
                 return;
             }
-            
-            if (!confirm(`Удалить категорию "${selectedCategoryForEdit}"? Это не удалит продажи, они будут перенесены в "Другое".`)) {
-                return;
-            }
-            
+            if (!confirm(`Удалить категорию "${selectedCategoryForEdit}"?`)) return;
             sales.forEach(sale => {
                 if (sale.category === selectedCategoryForEdit) {
                     sale.category = 'Другое';
                 }
             });
-            
             categories = categories.filter(c => c !== selectedCategoryForEdit);
             if (!categories.includes('Другое')) {
                 categories.push('Другое');
             }
-            
             selectedCategoryForEdit = null;
             updateCategorySelect();
             updateEditCategorySelect();
-            render();
+            renderCategories();
             saveData();
         }
 
         function editSelectedCategory() {
             if (!selectedCategoryForEdit) {
-                alert('Сначала выберите категорию для редактирования (кликните по ней в списке)');
+                alert('Сначала выберите категорию для редактирования (кликните по ней)');
                 return;
             }
-            
             if (selectedCategoryForEdit === 'Другое') {
                 alert('Нельзя редактировать категорию "Другое"');
                 return;
             }
-            
             editingCategory = selectedCategoryForEdit;
             const editInput = document.getElementById('editCategoryInput');
             const editBtn = document.getElementById('editCategoryBtn');
@@ -2831,49 +3060,41 @@
         function saveCategoryEdit() {
             const editInput = document.getElementById('editCategoryInput');
             const newName = editInput.value.trim();
-            
             if (!newName) {
                 alert('Введите новое название');
                 return;
             }
-            
             if (categories.includes(newName) && newName !== editingCategory) {
                 alert('Категория с таким названием уже существует');
                 return;
             }
-            
             sales.forEach(sale => {
                 if (sale.category === editingCategory) {
                     sale.category = newName;
                 }
             });
-            
             const index = categories.indexOf(editingCategory);
             if (index !== -1) {
                 categories[index] = newName;
             }
-            
             editingCategory = null;
             selectedCategoryForEdit = null;
             editInput.style.display = 'none';
             document.getElementById('editCategoryBtn').style.display = 'none';
             editInput.value = '';
-            
             updateCategorySelect();
             updateEditCategorySelect();
-            render();
+            renderCategories();
             saveData();
         }
 
-        // ===== УПРАВЛЕНИЕ СПИСКОМ ЗАКУПОК =====
+        // ============================================================
+        // 18. УПРАВЛЕНИЕ ЗАКУПКАМИ
+        // ============================================================
         function toggleRestockSection() {
             const section = document.getElementById('restockSection');
-            if (section.style.display === 'none') {
-                section.style.display = 'block';
-                renderRestock();
-            } else {
-                section.style.display = 'none';
-            }
+            section.style.display = section.style.display === 'none' ? 'block' : 'none';
+            if (section.style.display === 'block') renderRestock();
         }
 
         function addRestockItem() {
@@ -2883,11 +3104,11 @@
                 showToast('❌ Введите название товара', 'error');
                 return;
             }
-            if (restockItems.includes(name)) {
+            if (restockItems.some(i => i.name === name)) {
                 showToast('❌ Этот товар уже есть в списке', 'error');
                 return;
             }
-            restockItems.push(name);
+            restockItems.push({ name, purchased: false, purchasedDate: null });
             input.value = '';
             renderRestock();
             updateRestockBadge();
@@ -2896,57 +3117,37 @@
         }
 
         function deleteRestockItem(name) {
-            if (confirm(`Удалить "${name}" из списка на закупку?`)) {
-                restockItems = restockItems.filter(item => item !== name);
-                renderRestock();
-                updateRestockBadge();
-                showToast(`🗑️ "${name}" удален из списка`);
-                saveData();
-            }
-        }
-
-        function renderRestock() {
-            const grid = document.getElementById('restockGrid');
-            if (restockItems.length === 0) {
-                grid.innerHTML = `<div class="restock-empty">✨ Все товары в наличии</div>`;
-                return;
-            }
-            grid.innerHTML = restockItems.map(item => `
-                <div class="restock-item">
-                    <span class="item-name">${item}</span>
-                    <div class="item-actions">
-                        <button class="btn-restock-delete" onclick="deleteRestockItem('${item}')">✕</button>
-                    </div>
-                </div>
-            `).join('');
+            if (!confirm(`Удалить "${name}" из списка на закупку?`)) return;
+            restockItems = restockItems.filter(i => i.name !== name);
+            renderRestock();
+            updateRestockBadge();
+            showToast(`🗑️ "${name}" удален из списка`);
+            saveData();
         }
 
         function updateRestockBadge() {
-            document.getElementById('restockCount').textContent = restockItems.length;
+            const count = restockItems.filter(i => !i.purchased).length;
+            document.getElementById('restockCount').textContent = count;
         }
 
-        // ===== ЭКСПОРТ СПИСКА ЗАКУПОК =====
         function copyRestockList() {
-            if (restockItems.length === 0) {
+            const items = restockItems.filter(i => !i.purchased);
+            if (items.length === 0) {
                 showToast('📦 Список закупок пуст', 'error');
                 return;
             }
-
             let text = '📦 СПИСОК ТОВАРОВ ДЛЯ ЗАКУПКИ\n';
             text += '='.repeat(50) + '\n';
             text += `Дата: ${getCurrentDateTime().date}\n`;
-            text += `Всего позиций: ${restockItems.length}\n`;
+            text += `Всего позиций: ${items.length}\n`;
             text += '='.repeat(50) + '\n\n';
-            
-            restockItems.forEach((item, index) => {
-                text += `${index + 1}. ${item}\n`;
+            items.forEach((item, index) => {
+                text += `${index + 1}. ${item.name}\n`;
             });
-            
             text += '\n' + '='.repeat(50) + '\n';
             text += `CONNECT | Учет продаж`;
-
             navigator.clipboard.writeText(text).then(() => {
-                showToast(`✅ Список скопирован! (${restockItems.length} позиций)`);
+                showToast(`✅ Список скопирован! (${items.length} позиций)`);
             }).catch(() => {
                 const textarea = document.createElement('textarea');
                 textarea.value = text;
@@ -2954,31 +3155,28 @@
                 textarea.select();
                 document.execCommand('copy');
                 document.body.removeChild(textarea);
-                showToast(`✅ Список скопирован! (${restockItems.length} позиций)`);
+                showToast(`✅ Список скопирован! (${items.length} позиций)`);
             });
         }
 
         function exportRestockToFile() {
-            if (restockItems.length === 0) {
+            const items = restockItems.filter(i => !i.purchased);
+            if (items.length === 0) {
                 showToast('📦 Список закупок пуст', 'error');
                 return;
             }
-
             let text = '📦 СПИСОК ТОВАРОВ ДЛЯ ЗАКУПКИ\n';
             text += '='.repeat(50) + '\n';
             text += `Дата: ${getCurrentDateTime().date}\n`;
             text += `Время: ${getCurrentDateTime().time}\n`;
-            text += `Всего позиций: ${restockItems.length}\n`;
+            text += `Всего позиций: ${items.length}\n`;
             text += '='.repeat(50) + '\n\n';
-            
-            restockItems.forEach((item, index) => {
-                text += `${index + 1}. ${item}\n`;
+            items.forEach((item, index) => {
+                text += `${index + 1}. ${item.name}\n`;
             });
-            
             text += '\n' + '='.repeat(50) + '\n';
             text += `CONNECT | Учет продаж\n`;
             text += `Сгенерировано: ${getCurrentDateTime().date} ${getCurrentDateTime().time}`;
-
             const blob = new Blob([text], { type: 'text/plain;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -2988,11 +3186,12 @@
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-            
-            showToast(`💾 Файл скачан! (${restockItems.length} позиций)`);
+            showToast(`💾 Файл скачан! (${items.length} позиций)`);
         }
 
-        // ===== ДОБАВЛЕНИЕ ПРОДАЖИ =====
+        // ============================================================
+        // 19. ДОБАВЛЕНИЕ ПРОДАЖИ
+        // ============================================================
         document.getElementById('addForm').addEventListener('submit', function(e) {
             e.preventDefault();
 
@@ -3021,8 +3220,8 @@
 
             sales.push(sale);
             
-            if (lastItem && !restockItems.includes(name)) {
-                restockItems.push(name);
+            if (lastItem && !restockItems.some(i => i.name === name)) {
+                restockItems.push({ name, purchased: false, purchasedDate: null });
                 updateRestockBadge();
             }
             
@@ -3036,25 +3235,79 @@
             saveData();
         });
 
-        // ===== УДАЛЕНИЕ И РЕДАКТИРОВАНИЕ ПРОДАЖ =====
-        function deleteSale(id) {
-            if (confirm('Удалить эту продажу?')) {
-                sales = sales.filter(s => s.id !== id);
-                render();
-                saveData();
+        // ===== АВТОДОПОЛНЕНИЕ =====
+        document.getElementById('productName').addEventListener('input', function() {
+            showAutocomplete(this);
+        });
+
+        document.getElementById('productName').addEventListener('blur', function() {
+            setTimeout(() => {
+                document.getElementById('autocompleteList').classList.remove('active');
+            }, 200);
+        });
+
+        document.getElementById('productName').addEventListener('keydown', function(e) {
+            const list = document.getElementById('autocompleteList');
+            const items = list.querySelectorAll('.item');
+            if (items.length === 0) return;
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                let idx = 0;
+                items.forEach((el, i) => {
+                    if (el.classList.contains('highlighted')) idx = i + 1;
+                    el.classList.remove('highlighted');
+                });
+                if (idx >= items.length) idx = 0;
+                items[idx].classList.add('highlighted');
+                items[idx].scrollIntoView({ block: 'nearest' });
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                let idx = items.length - 1;
+                items.forEach((el, i) => {
+                    if (el.classList.contains('highlighted')) idx = i - 1;
+                    el.classList.remove('highlighted');
+                });
+                if (idx < 0) idx = items.length - 1;
+                items[idx].classList.add('highlighted');
+                items[idx].scrollIntoView({ block: 'nearest' });
+            } else if (e.key === 'Enter') {
+                const highlighted = list.querySelector('.item.highlighted');
+                if (highlighted) {
+                    e.preventDefault();
+                    this.value = highlighted.dataset.value;
+                    list.classList.remove('active');
+                    this.dispatchEvent(new Event('input'));
+                }
+            } else if (e.key === 'Escape') {
+                list.classList.remove('active');
             }
+        });
+
+        // ============================================================
+        // 20. УДАЛЕНИЕ И РЕДАКТИРОВАНИЕ ПРОДАЖ
+        // ============================================================
+        function deleteSale(id) {
+            if (!confirm('Удалить эту продажу?')) return;
+            
+            // Сохраняем ID удаленной записи
+            const deletedIds = JSON.parse(localStorage.getItem('deletedSalesIds') || '[]');
+            deletedIds.push(id);
+            localStorage.setItem('deletedSalesIds', JSON.stringify(deletedIds));
+            
+            sales = sales.filter(s => s.id !== id);
+            render();
+            saveData();
         }
 
         function openEditModal(id) {
             const sale = sales.find(s => s.id === id);
             if (!sale) return;
-
             editingSaleId = id;
             document.getElementById('editProductName').value = sale.name;
             document.getElementById('editCategory').value = sale.category;
             document.getElementById('editPrice').value = sale.price;
             document.getElementById('editPaymentMethod').value = sale.payment;
-            
             document.getElementById('editModal').classList.add('active');
         }
 
@@ -3065,25 +3318,21 @@
 
         document.getElementById('editForm').addEventListener('submit', function(e) {
             e.preventDefault();
-
             if (editingSaleId === null) return;
-
             const name = document.getElementById('editProductName').value.trim();
             const category = document.getElementById('editCategory').value;
             const price = parseFloat(document.getElementById('editPrice').value);
             const payment = document.getElementById('editPaymentMethod').value;
-
             if (!name || !price) {
                 alert('Заполните все поля!');
                 return;
             }
-
-            const index = sales.findIndex(s => s.id === editingSaleId);
-            if (index !== -1) {
-                sales[index].name = name;
-                sales[index].category = category;
-                sales[index].price = price;
-                sales[index].payment = payment;
+            const idx = sales.findIndex(s => s.id === editingSaleId);
+            if (idx !== -1) {
+                sales[idx].name = name;
+                sales[idx].category = category;
+                sales[idx].price = price;
+                sales[idx].payment = payment;
                 render();
                 closeEditModal();
                 saveData();
@@ -3091,16 +3340,15 @@
         });
 
         document.getElementById('editModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeEditModal();
-            }
+            if (e.target === this) closeEditModal();
         });
 
-        // ===== ИМПОРТ CSV =====
+        // ============================================================
+        // 21. ИМПОРТ CSV
+        // ============================================================
         function findDuplicates(newData) {
             const duplicates = [];
             const unique = [];
-            
             newData.forEach(item => {
                 const isDuplicate = sales.some(s => 
                     s.date === item.date && 
@@ -3108,14 +3356,12 @@
                     s.name === item.name && 
                     s.price === item.price
                 );
-                
                 if (isDuplicate) {
                     duplicates.push(item);
                 } else {
                     unique.push(item);
                 }
             });
-            
             return { duplicates, unique };
         }
 
@@ -3340,49 +3586,30 @@
                 }
                 sales = [];
                 dataToImport.forEach(item => {
-                    const sale = {
+                    sales.push({
                         id: Date.now() + Math.random() * 1000,
-                        date: item.date,
-                        time: item.time,
-                        name: item.name,
-                        category: item.category,
-                        price: item.price,
-                        payment: item.payment
-                    };
-                    sales.push(sale);
+                        ...item
+                    });
                 });
                 stats.added = dataToImport.length;
             } 
             else if (mode === 'skip') {
                 const { duplicates, unique } = findDuplicates(dataToImport);
                 stats.skipped = duplicates.length;
-                
                 unique.forEach(item => {
-                    const sale = {
+                    sales.push({
                         id: Date.now() + Math.random() * 1000,
-                        date: item.date,
-                        time: item.time,
-                        name: item.name,
-                        category: item.category,
-                        price: item.price,
-                        payment: item.payment
-                    };
-                    sales.push(sale);
+                        ...item
+                    });
                 });
                 stats.added = unique.length;
             } 
             else {
                 dataToImport.forEach(item => {
-                    const sale = {
+                    sales.push({
                         id: Date.now() + Math.random() * 1000,
-                        date: item.date,
-                        time: item.time,
-                        name: item.name,
-                        category: item.category,
-                        price: item.price,
-                        payment: item.payment
-                    };
-                    sales.push(sale);
+                        ...item
+                    });
                 });
                 stats.added = dataToImport.length;
             }
@@ -3414,7 +3641,9 @@
             importedData = [];
         }
 
-        // ===== РЕНДЕР =====
+        // ============================================================
+        // 22. РЕНДЕР
+        // ============================================================
         function render() {
             const viewDate = currentViewDate || getCurrentDateTime().date;
             const daySales = sales.filter(s => s.date === viewDate);
@@ -3496,29 +3725,17 @@
             document.getElementById('monthCard').textContent = formatPrice(monthCard);
             document.getElementById('monthTransfer').textContent = formatPrice(monthTransfer);
 
-            const grid = document.getElementById('categoriesGrid');
-            const catStats = {};
-            categories.forEach(cat => {
-                const sum = sales.filter(s => s.category === cat).reduce((sum, s) => sum + s.price, 0);
-                catStats[cat] = sum;
-            });
-            
-            grid.innerHTML = categories.map(cat => `
-                <div class="category-item ${selectedCategoryForEdit === cat ? 'active' : ''}" 
-                     data-category="${cat}"
-                     onclick="selectCategory('${cat}')">
-                    <span class="cat-name">${cat}</span>
-                    <span class="cat-total">${formatPrice(catStats[cat] || 0)}</span>
-                </div>
-            `).join('');
-
+            renderCategories();
             renderRestock();
             updateRestockBadge();
 
             document.getElementById('saleDate').value = getCurrentDateTime().date;
+            updateProductNamesHistory();
         }
 
-        // ===== ЭКСПОРТ CSV =====
+        // ============================================================
+        // 23. ЭКСПОРТ CSV
+        // ============================================================
         function exportCSV() {
             if (sales.length === 0) {
                 alert('Нет данных для экспорта');
@@ -3554,16 +3771,19 @@
         }
 
         function clearAll() {
-            if (confirm('Удалить все данные? Это действие нельзя отменить!')) {
-                if (confirm('Вы уверены?')) {
-                    sales = [];
-                    render();
-                    saveData();
-                }
-            }
+            if (!confirm('Удалить все данные? Это действие нельзя отменить!')) return;
+            if (!confirm('Вы уверены?')) return;
+            sales = [];
+            restockItems = [];
+            productNamesHistory = [];
+            localStorage.setItem('deletedSalesIds', JSON.stringify([]));
+            render();
+            saveData();
         }
 
-        // ===== ИНИЦИАЛИЗАЦИЯ =====
+        // ============================================================
+        // 24. ИНИЦИАЛИЗАЦИЯ
+        // ============================================================
         document.addEventListener('DOMContentLoaded', function() {
             console.log('=== ПРИЛОЖЕНИЕ ЗАГРУЖЕНО ===');
             loadConfig();
