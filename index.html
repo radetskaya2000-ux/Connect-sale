@@ -6,7 +6,7 @@
     <title>Учет продаж - CONNECT</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📱</text></svg>">
     <style>
-        /* ===== ВЕСЬ CSS ИЗ ПРЕДЫДУЩЕЙ ВЕРСИИ (без изменений) ===== */
+        /* ===== ВЕСЬ CSS (БЕЗ ИЗМЕНЕНИЙ) ===== */
         * {
             margin: 0;
             padding: 0;
@@ -1759,6 +1759,55 @@
             file: 'data.json'
         };
 
+        // ===== ФУНКЦИЯ ДЛЯ ИСПРАВЛЕНИЯ КОДИРОВКИ =====
+        function fixEncoding(str) {
+            if (!str) return str;
+            try {
+                // Пробуем декодировать как UTF-8
+                return decodeURIComponent(escape(str));
+            } catch (e) {
+                return str;
+            }
+        }
+
+        // ===== ФУНКЦИЯ ДЛЯ ПРАВИЛЬНОГО ПАРСИНГА ДАННЫХ =====
+        function parseDataWithFix(data) {
+            if (!data) return data;
+            
+            // Если это массив продаж
+            if (Array.isArray(data)) {
+                return data.map(item => {
+                    if (typeof item === 'object' && item !== null) {
+                        const newItem = { ...item };
+                        if (newItem.name) newItem.name = fixEncoding(newItem.name);
+                        if (newItem.category) newItem.category = fixEncoding(newItem.category);
+                        return newItem;
+                    }
+                    return item;
+                });
+            }
+            // Если это объект
+            if (typeof data === 'object' && data !== null) {
+                const newData = { ...data };
+                if (newData.sales) {
+                    newData.sales = newData.sales.map(item => {
+                        const newItem = { ...item };
+                        if (newItem.name) newItem.name = fixEncoding(newItem.name);
+                        if (newItem.category) newItem.category = fixEncoding(newItem.category);
+                        return newItem;
+                    });
+                }
+                if (newData.categories) {
+                    newData.categories = newData.categories.map(c => fixEncoding(c));
+                }
+                if (newData.restockItems) {
+                    newData.restockItems = newData.restockItems.map(c => fixEncoding(c));
+                }
+                return newData;
+            }
+            return data;
+        }
+
         // ===== ЗАГРУЗКА КОНФИГА =====
         function loadConfig() {
             try {
@@ -1940,7 +1989,7 @@
             }
         }
 
-        // ===== ПРИНУДИТЕЛЬНАЯ ЗАГРУЗКА С СЕРВЕРА =====
+        // ===== ПРИНУДИТЕЛЬНАЯ ЗАГРУЗКА С СЕРВЕРА (С ИСПРАВЛЕНИЕМ КОДИРОВКИ) =====
         async function forcePullFromGitHub() {
             console.log('=== ПРИНУДИТЕЛЬНАЯ ЗАГРУЗКА С СЕРВЕРА ===');
             
@@ -1991,11 +2040,14 @@
                     throw new Error('Ошибка парсинга данных с сервера: ' + e.message);
                 }
 
-                const newSales = remoteData.sales || [];
-                const newCategories = remoteData.categories || ['Чехлы', 'Стекло', 'Зарядка', 'Наушники', 'Аксессуары'];
-                const newRestock = remoteData.restockItems || [];
+                // ===== ПРИМЕНЯЕМ ИСПРАВЛЕНИЕ КОДИРОВКИ =====
+                const fixedData = parseDataWithFix(remoteData);
+                
+                const newSales = fixedData.sales || [];
+                const newCategories = fixedData.categories || ['Чехлы', 'Стекло', 'Зарядка', 'Наушники', 'Аксессуары'];
+                const newRestock = fixedData.restockItems || [];
 
-                console.log('Загружено:', newSales.length, 'продаж,', newRestock.length, 'товаров в закупке');
+                console.log('Загружено (с исправленной кодировкой):', newSales.length, 'продаж,', newRestock.length, 'товаров в закупке');
 
                 sales = newSales;
                 categories = newCategories;
@@ -2107,9 +2159,11 @@
                     
                     if (remoteTime > localTime) {
                         console.log('Данные на сервере новее, загружаем...');
-                        sales = remoteData.sales || [];
-                        categories = remoteData.categories || ['Чехлы', 'Стекло', 'Зарядка', 'Наушники', 'Аксессуары'];
-                        restockItems = remoteData.restockItems || [];
+                        // ===== ЗАГРУЗКА С ИСПРАВЛЕНИЕМ КОДИРОВКИ =====
+                        const fixedData = parseDataWithFix(remoteData);
+                        sales = fixedData.sales || [];
+                        categories = fixedData.categories || ['Чехлы', 'Стекло', 'Зарядка', 'Наушники', 'Аксессуары'];
+                        restockItems = fixedData.restockItems || [];
                         saveDataLocal();
                         updateCategorySelect();
                         updateEditCategorySelect();
@@ -2885,7 +2939,7 @@
             }
         });
 
-        // ===== ИМПОРТ CSV (ИСПРАВЛЕННАЯ ВЕРСИЯ) =====
+        // ===== ИМПОРТ CSV (С ИСПРАВЛЕНИЕМ КОДИРОВКИ) =====
         function findDuplicates(newData) {
             const duplicates = [];
             const unique = [];
@@ -2908,32 +2962,19 @@
             return { duplicates, unique };
         }
 
-        // ===== ФУНКЦИЯ ДЛЯ ПРАВИЛЬНОЙ ОБРАБОТКИ UTF-8 ПРИ ИМПОРТЕ =====
-        function fixEncoding(str) {
-            try {
-                // Пробуем декодировать как UTF-8
-                return decodeURIComponent(escape(str));
-            } catch (e) {
-                return str;
-            }
-        }
-
         function importCSV(event) {
             const file = event.target.files[0];
             if (!file) return;
 
             const reader = new FileReader();
-            // Читаем файл как текст в UTF-8
             reader.readAsText(file, 'UTF-8');
             
             reader.onload = function(e) {
                 try {
                     let text = e.target.result;
                     
-                    // Пробуем исправить кодировку, если она сбилась
-                    // Если текст содержит кракозябры, пробуем перекодировать
+                    // Проверяем, не сбилась ли кодировка
                     if (text.includes('Ã') || text.includes('â') || text.includes('Ð')) {
-                        // Пробуем перекодировать из Windows-1251 в UTF-8
                         try {
                             const bytes = new Uint8Array(text.split('').map(c => c.charCodeAt(0)));
                             const decoder = new TextDecoder('windows-1251');
@@ -2943,7 +2984,6 @@
                         }
                     }
                     
-                    // Определяем разделитель
                     let delimiter = ';';
                     if (text.includes(',') && !text.includes(';')) {
                         delimiter = ',';
@@ -2956,20 +2996,14 @@
                         return;
                     }
 
-                    // Проверяем заголовки
-                    const headers = lines[0].split(delimiter).map(h => h.trim());
+                    const headers = lines[0].split(delimiter).map(h => h.replace(/^"|"$/g, '').trim());
                     const expectedHeaders = ['Дата', 'Время', 'Товар', 'Категория', 'Стоимость', 'Оплата'];
                     
-                    // Проверяем, что все нужные заголовки есть
-                    const headerMatch = expectedHeaders.every(h => headers.some(header => header.includes(h) || h.includes(header)));
-                    if (!headerMatch) {
-                        // Проверяем с учетом возможных пробелов и кавычек
-                        const cleanHeaders = headers.map(h => h.replace(/^"|"$/g, '').trim());
-                        const cleanMatch = expectedHeaders.every(h => cleanHeaders.some(header => header.includes(h) || h.includes(header)));
-                        if (!cleanMatch) {
-                            alert('Неверный формат CSV. Ожидаются заголовки: Дата,Время,Товар,Категория,Стоимость,Оплата');
-                            return;
-                        }
+                    const cleanHeaders = headers.map(h => h.replace(/^"|"$/g, '').trim());
+                    const cleanMatch = expectedHeaders.every(h => cleanHeaders.some(header => header.includes(h) || h.includes(header)));
+                    if (!cleanMatch) {
+                        alert('Неверный формат CSV. Ожидаются заголовки: Дата,Время,Товар,Категория,Стоимость,Оплата');
+                        return;
                     }
 
                     importedData = [];
@@ -3005,7 +3039,7 @@
                             time = now.time;
                         }
 
-                        // Исправляем кодировку названия и категории
+                        // Исправляем кодировку
                         const fixedName = fixEncoding(name);
                         const fixedCategory = fixEncoding(category);
 
@@ -3352,7 +3386,6 @@
                 csv += row.join(delimiter) + '\n';
             });
             
-            // Добавляем BOM для правильной UTF-8
             const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
