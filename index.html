@@ -1759,7 +1759,7 @@
             file: 'data.json'
         };
 
-        // ===== ФУНКЦИЯ ДЛЯ ИСПРАВЛЕНИЯ КОДИРОВКИ =====
+        // ===== ФУНКЦИЯ ДЛЯ ИСПРАВЛЕНИЯ КОДИРОВКИ (РАСШИРЕННАЯ) =====
         function fixEncoding(str) {
             if (!str) return str;
             try {
@@ -1770,7 +1770,7 @@
             }
         }
 
-        // ===== ФУНКЦИЯ ДЛЯ ПРАВИЛЬНОГО ПАРСИНГА ДАННЫХ =====
+        // ===== ФУНКЦИЯ ДЛЯ ПРАВИЛЬНОГО ПАРСИНГА ДАННЫХ (РАСШИРЕННАЯ) =====
         function parseDataWithFix(data) {
             if (!data) return data;
             
@@ -1779,8 +1779,10 @@
                 return data.map(item => {
                     if (typeof item === 'object' && item !== null) {
                         const newItem = { ...item };
+                        // Исправляем все строковые поля
                         if (newItem.name) newItem.name = fixEncoding(newItem.name);
                         if (newItem.category) newItem.category = fixEncoding(newItem.category);
+                        if (newItem.payment) newItem.payment = fixEncoding(newItem.payment);
                         return newItem;
                     }
                     return item;
@@ -1794,6 +1796,7 @@
                         const newItem = { ...item };
                         if (newItem.name) newItem.name = fixEncoding(newItem.name);
                         if (newItem.category) newItem.category = fixEncoding(newItem.category);
+                        if (newItem.payment) newItem.payment = fixEncoding(newItem.payment);
                         return newItem;
                     });
                 }
@@ -2040,7 +2043,7 @@
                     throw new Error('Ошибка парсинга данных с сервера: ' + e.message);
                 }
 
-                // ===== ПРИМЕНЯЕМ ИСПРАВЛЕНИЕ КОДИРОВКИ =====
+                // ===== ПРИМЕНЯЕМ ИСПРАВЛЕНИЕ КОДИРОВКИ (РАСШИРЕННОЕ) =====
                 const fixedData = parseDataWithFix(remoteData);
                 
                 const newSales = fixedData.sales || [];
@@ -2159,7 +2162,7 @@
                     
                     if (remoteTime > localTime) {
                         console.log('Данные на сервере новее, загружаем...');
-                        // ===== ЗАГРУЗКА С ИСПРАВЛЕНИЕМ КОДИРОВКИ =====
+                        // ===== ЗАГРУЗКА С ИСПРАВЛЕНИЕМ КОДИРОВКИ (РАСШИРЕННОЕ) =====
                         const fixedData = parseDataWithFix(remoteData);
                         sales = fixedData.sales || [];
                         categories = fixedData.categories || ['Чехлы', 'Стекло', 'Зарядка', 'Наушники', 'Аксессуары'];
@@ -2939,7 +2942,7 @@
             }
         });
 
-        // ===== ИМПОРТ CSV (С ИСПРАВЛЕНИЕМ КОДИРОВКИ) =====
+        // ===== ИМПОРТ CSV =====
         function findDuplicates(newData) {
             const duplicates = [];
             const unique = [];
@@ -2973,7 +2976,6 @@
                 try {
                     let text = e.target.result;
                     
-                    // Проверяем, не сбилась ли кодировка
                     if (text.includes('Ã') || text.includes('â') || text.includes('Ð')) {
                         try {
                             const bytes = new Uint8Array(text.split('').map(c => c.charCodeAt(0)));
@@ -3039,9 +3041,9 @@
                             time = now.time;
                         }
 
-                        // Исправляем кодировку
                         const fixedName = fixEncoding(name);
                         const fixedCategory = fixEncoding(category);
+                        const fixedPayment = fixEncoding(payment);
 
                         if (!categories.includes(fixedCategory) && fixedCategory !== 'Другое') {
                             categories.push(fixedCategory);
@@ -3053,7 +3055,7 @@
                             name: fixedName,
                             category: fixedCategory,
                             price: price,
-                            payment: payment
+                            payment: fixedPayment
                         });
                     }
 
