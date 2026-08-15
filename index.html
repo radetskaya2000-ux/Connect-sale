@@ -6,6 +6,7 @@
     <title>Учет продаж - CONNECT</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📱</text></svg>">
     <style>
+        /* ===== ВЕСЬ CSS ИЗ ПРЕДЫДУЩЕЙ ВЕРСИИ (без изменений) ===== */
         * {
             margin: 0;
             padding: 0;
@@ -31,7 +32,6 @@
             overflow-x: hidden;
         }
 
-        /* ===== ШАПКА ===== */
         .header {
             display: flex;
             align-items: center;
@@ -98,7 +98,6 @@
             font-weight: 700;
         }
 
-        /* ===== КНОПКА НАСТРОЕК ===== */
         .settings-float {
             position: absolute;
             top: 20px;
@@ -151,19 +150,22 @@
             50% { opacity: 0.3; }
         }
 
-        /* ===== ВЫПАДАЮЩЕЕ МЕНЮ НАСТРОЕК (АДАПТИВНОЕ) ===== */
         .settings-dropdown {
-            position: absolute;
-            top: 55px;
-            right: 0;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             background: white;
             border-radius: 12px;
             border: 2px solid #e2e8f0;
             box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-            padding: 15px;
-            width: 300px;
+            padding: 20px;
+            width: 90%;
+            max-width: 340px;
             display: none;
             z-index: 200;
+            max-height: 80vh;
+            overflow-y: auto;
         }
 
         .settings-dropdown.active {
@@ -206,18 +208,23 @@
             line-height: 1.5;
         }
 
+        .settings-dropdown .sync-btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
         .settings-dropdown .sync-btn {
-            padding: 6px 14px;
+            padding: 10px;
             border: none;
             border-radius: 6px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
-            font-size: 12px;
-            margin: 3px;
-            flex: 1;
+            font-size: 14px;
+            width: 100%;
             text-align: center;
-            min-width: 80px;
         }
 
         .settings-dropdown .sync-btn-primary {
@@ -247,13 +254,6 @@
             background: #f56565;
         }
 
-        .settings-dropdown .sync-btn-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            margin-bottom: 8px;
-        }
-
         .settings-dropdown .sync-last {
             font-size: 11px;
             color: #a0aec0;
@@ -279,7 +279,6 @@
             background: #edf2f7;
         }
 
-        /* ===== ОСТАЛЬНЫЕ СТИЛИ (БЕЗ ИЗМЕНЕНИЙ) ===== */
         .add-section {
             background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
             border: 2px solid #667eea;
@@ -424,7 +423,6 @@
             border-color: #667eea;
         }
 
-        /* ===== СТАТИСТИКА ===== */
         .day-stats {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr 1fr;
@@ -480,7 +478,6 @@
             color: #ed8936;
         }
 
-        /* ===== ВЫБОР ДАТЫ ===== */
         .date-selector {
             display: flex;
             align-items: center;
@@ -542,7 +539,6 @@
             font-size: 18px;
         }
 
-        /* ===== ТАБЛИЦА ===== */
         .table-wrapper {
             overflow-x: auto;
             margin-bottom: 25px;
@@ -657,7 +653,6 @@
             color: #667eea;
         }
 
-        /* ===== КАТЕГОРИИ ===== */
         .categories-management {
             background: #f7fafc;
             padding: 20px;
@@ -784,7 +779,6 @@
             margin-top: 3px;
         }
 
-        /* ===== ЗАКУПКИ ===== */
         .restock-section {
             background: #fff5f0;
             border: 2px solid #ed8936;
@@ -915,7 +909,6 @@
             font-size: 14px;
         }
 
-        /* ===== МЕСЯЦ ===== */
         .month-total {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -949,7 +942,6 @@
             padding-right: 20px;
         }
 
-        /* ===== ДЕЙСТВИЯ ===== */
         .actions {
             display: flex;
             gap: 12px;
@@ -1027,7 +1019,6 @@
             margin-bottom: 12px;
         }
 
-        /* ===== МОДАЛКИ ===== */
         .modal {
             display: none;
             position: fixed;
@@ -1204,7 +1195,6 @@
             font-weight: 700;
         }
 
-        /* ===== УВЕДОМЛЕНИЯ ===== */
         .toast {
             position: fixed;
             bottom: 30px;
@@ -1309,7 +1299,6 @@
             font-size: 13px;
         }
 
-        /* ===== АДАПТИВ ===== */
         @media (max-width: 1200px) {
             .add-form {
                 grid-template-columns: 1fr 1fr 1fr;
@@ -1399,32 +1388,12 @@
                 justify-content: center;
             }
 
-            /* ===== АДАПТИВНОЕ МЕНЮ НАСТРОЕК ===== */
             .settings-dropdown {
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                width: 90%;
-                max-width: 340px;
-                right: auto;
-                max-height: 80vh;
-                overflow-y: auto;
-                padding: 20px;
-            }
-
-            .settings-dropdown .sync-btn-group {
-                flex-direction: column;
-            }
-
-            .settings-dropdown .sync-btn {
-                width: 100%;
-                padding: 10px;
-                font-size: 14px;
+                padding: 15px;
+                max-width: 320px;
             }
 
             .settings-float {
-                position: absolute;
                 top: 15px;
                 right: 15px;
             }
@@ -1450,9 +1419,8 @@
             }
 
             .settings-dropdown {
-                width: 95%;
-                max-width: 320px;
-                padding: 15px;
+                padding: 12px;
+                max-width: 300px;
             }
 
             .stat-card .value {
@@ -2917,7 +2885,7 @@
             }
         });
 
-        // ===== ИМПОРТ CSV =====
+        // ===== ИМПОРТ CSV (ИСПРАВЛЕННАЯ ВЕРСИЯ) =====
         function findDuplicates(newData) {
             const duplicates = [];
             const unique = [];
@@ -2940,15 +2908,42 @@
             return { duplicates, unique };
         }
 
+        // ===== ФУНКЦИЯ ДЛЯ ПРАВИЛЬНОЙ ОБРАБОТКИ UTF-8 ПРИ ИМПОРТЕ =====
+        function fixEncoding(str) {
+            try {
+                // Пробуем декодировать как UTF-8
+                return decodeURIComponent(escape(str));
+            } catch (e) {
+                return str;
+            }
+        }
+
         function importCSV(event) {
             const file = event.target.files[0];
             if (!file) return;
 
             const reader = new FileReader();
+            // Читаем файл как текст в UTF-8
+            reader.readAsText(file, 'UTF-8');
+            
             reader.onload = function(e) {
                 try {
                     let text = e.target.result;
                     
+                    // Пробуем исправить кодировку, если она сбилась
+                    // Если текст содержит кракозябры, пробуем перекодировать
+                    if (text.includes('Ã') || text.includes('â') || text.includes('Ð')) {
+                        // Пробуем перекодировать из Windows-1251 в UTF-8
+                        try {
+                            const bytes = new Uint8Array(text.split('').map(c => c.charCodeAt(0)));
+                            const decoder = new TextDecoder('windows-1251');
+                            text = decoder.decode(bytes);
+                        } catch (e) {
+                            console.log('Не удалось перекодировать');
+                        }
+                    }
+                    
+                    // Определяем разделитель
                     let delimiter = ';';
                     if (text.includes(',') && !text.includes(';')) {
                         delimiter = ',';
@@ -2961,13 +2956,20 @@
                         return;
                     }
 
+                    // Проверяем заголовки
                     const headers = lines[0].split(delimiter).map(h => h.trim());
                     const expectedHeaders = ['Дата', 'Время', 'Товар', 'Категория', 'Стоимость', 'Оплата'];
                     
-                    const headerMatch = expectedHeaders.every(h => headers.includes(h));
+                    // Проверяем, что все нужные заголовки есть
+                    const headerMatch = expectedHeaders.every(h => headers.some(header => header.includes(h) || h.includes(header)));
                     if (!headerMatch) {
-                        alert('Неверный формат CSV. Ожидаются заголовки: Дата,Время,Товар,Категория,Стоимость,Оплата');
-                        return;
+                        // Проверяем с учетом возможных пробелов и кавычек
+                        const cleanHeaders = headers.map(h => h.replace(/^"|"$/g, '').trim());
+                        const cleanMatch = expectedHeaders.every(h => cleanHeaders.some(header => header.includes(h) || h.includes(header)));
+                        if (!cleanMatch) {
+                            alert('Неверный формат CSV. Ожидаются заголовки: Дата,Время,Товар,Категория,Стоимость,Оплата');
+                            return;
+                        }
                     }
 
                     importedData = [];
@@ -2975,7 +2977,7 @@
                     const now = getCurrentDateTime();
 
                     for (let i = 1; i < lines.length; i++) {
-                        const values = lines[i].split(delimiter).map(v => v.trim());
+                        const values = lines[i].split(delimiter).map(v => v.replace(/^"|"$/g, '').trim());
                         if (values.length < 6) {
                             errors.push(`Строка ${i}: недостаточно данных (${values.length} полей, нужно 6)`);
                             continue;
@@ -3003,15 +3005,19 @@
                             time = now.time;
                         }
 
-                        if (!categories.includes(category) && category !== 'Другое') {
-                            categories.push(category);
+                        // Исправляем кодировку названия и категории
+                        const fixedName = fixEncoding(name);
+                        const fixedCategory = fixEncoding(category);
+
+                        if (!categories.includes(fixedCategory) && fixedCategory !== 'Другое') {
+                            categories.push(fixedCategory);
                         }
 
                         importedData.push({
                             date: date,
                             time: time,
-                            name: name,
-                            category: category,
+                            name: fixedName,
+                            category: fixedCategory,
                             price: price,
                             payment: payment
                         });
@@ -3029,7 +3035,11 @@
                     alert('Ошибка при чтении файла: ' + err.message);
                 }
             };
-            reader.readAsText(file, 'UTF-8');
+            
+            reader.onerror = function() {
+                alert('Ошибка при чтении файла');
+            };
+            
             event.target.value = '';
         }
 
@@ -3342,6 +3352,7 @@
                 csv += row.join(delimiter) + '\n';
             });
             
+            // Добавляем BOM для правильной UTF-8
             const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
