@@ -2420,6 +2420,15 @@
       "category": "Услуги",
       "price": 1500,
       "payment": "Перевод"
+    },
+    {
+      "id": 1787154712969,
+      "date": "2026-08-19",
+      "time": "18:51",
+      "name": "Power bank AWEI 5.000mah MagSafe",
+      "category": "Аксессуары",
+      "price": 2609,
+      "payment": "Наличные"
     }
   ],
   "categories": [
@@ -2444,6 +2453,11 @@
       "name": "абв",
       "purchased": false,
       "purchasedDate": null
+    },
+    {
+      "name": "Power bank AWEI 5.000mah MagSafe",
+      "purchased": false,
+      "purchasedDate": null
     }
   ],
   "productNamesHistory": [
@@ -2455,6 +2469,7 @@
     "3D игрушка Котик",
     "AWEI T78 (Слава)",
     "HUB TypeC - 4USB",
+    "Power bank AWEI 5.000mah MagSafe",
     "PowerBank AWEI 10.000 mAh 22.5W",
     "PowerBank AWEI MagSafe 10.000 mAh",
     "PowerBank AWEI MagSafe+TypeC 10.000 mAh",
@@ -2670,5 +2685,5 @@
     "Чехол на AirPods 3 2 шт.",
     "батарейки 2032 3 шт."
   ],
-  "updatedAt": "2026-08-19T15:51:35.015Z"
+  "updatedAt": "2026-08-19T15:51:54.425Z"
 }
