@@ -2429,6 +2429,15 @@
       "category": "Аксессуары",
       "price": 2609,
       "payment": "Наличные"
+    },
+    {
+      "id": 1787154739963,
+      "date": "2026-08-19",
+      "time": "18:52",
+      "name": "Кабель ISA Type-C Type-C",
+      "category": "Зарядка",
+      "price": 449,
+      "payment": "Наличные"
     }
   ],
   "categories": [
@@ -2520,6 +2529,7 @@
     "Кабель ISA MicroUSB",
     "Кабель ISA MicroUSB Нейлон",
     "Кабель ISA Type-C",
+    "Кабель ISA Type-C Type-C",
     "Кабель ISA TypeC",
     "Кабель ISA TypeC Нейлон",
     "Кабель ISA Нейлон Lightning",
@@ -2685,5 +2695,5 @@
     "Чехол на AirPods 3 2 шт.",
     "батарейки 2032 3 шт."
   ],
-  "updatedAt": "2026-08-19T15:52:04.903Z"
+  "updatedAt": "2026-08-19T15:52:21.204Z"
 }
