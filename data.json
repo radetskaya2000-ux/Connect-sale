@@ -5120,6 +5120,15 @@
       "category": "Ремонт",
       "price": 2500,
       "payment": "Наличные"
+    },
+    {
+      "id": 1787333799466,
+      "date": "2026-08-21",
+      "time": "20:36",
+      "name": "Комплект ЗУ AWEI TypeC",
+      "category": "Зарядка",
+      "price": 900,
+      "payment": "Наличные"
     }
   ],
   "categories": [
@@ -5230,6 +5239,7 @@
     "Комплект ЗУ 20W Lightning",
     "Комплект ЗУ AWEI 22.5W",
     "Комплект ЗУ AWEI 22.5W TypeC",
+    "Комплект ЗУ AWEI TypeC",
     "Комплект ЗУ Hoco TypeC -Lightning 20W",
     "Комплект ЗУ ISA TypeC - Lightning 20W",
     "Комплект ЗУ MicroUSB",
@@ -5395,5 +5405,5 @@
     "Чистка Динамика",
     "батарейки 2032 3 шт."
   ],
-  "updatedAt": "2026-08-21T17:36:21.065Z"
+  "updatedAt": "2026-08-21T17:36:40.987Z"
 }
