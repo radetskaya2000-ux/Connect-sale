@@ -5227,13 +5227,13 @@
   "restockItems": [
     {
       "name": "Power bank AWEI 5.000mah MagSafe",
-      "purchased": false,
-      "purchasedDate": null
+      "purchased": true,
+      "purchasedDate": "2026-08-24T09:17:05.575Z"
     },
     {
       "name": "[object Object]",
-      "purchased": false,
-      "purchasedDate": null
+      "purchased": true,
+      "purchasedDate": "2026-08-24T09:17:06.581Z"
     },
     {
       "name": "абв",
@@ -5491,5 +5491,5 @@
     "Чистка Динамика",
     "батарейки 2032 3 шт."
   ],
-  "updatedAt": "2026-08-24T09:16:58.047Z"
+  "updatedAt": "2026-08-24T09:17:07.043Z"
 }
